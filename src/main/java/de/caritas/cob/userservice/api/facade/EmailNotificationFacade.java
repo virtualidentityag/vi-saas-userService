@@ -6,12 +6,10 @@ import de.caritas.cob.userservice.api.exception.httpresponses.BadRequestExceptio
 import de.caritas.cob.userservice.api.exception.httpresponses.ForbiddenException;
 import de.caritas.cob.userservice.api.exception.httpresponses.NotFoundException;
 import de.caritas.cob.userservice.api.exception.rocketchat.RocketChatGetGroupMembersException;
-import de.caritas.cob.userservice.api.helper.UserHelper;
 import de.caritas.cob.userservice.api.manager.consultingtype.ConsultingTypeManager;
 import de.caritas.cob.userservice.api.repository.consultant.Consultant;
 import de.caritas.cob.userservice.api.repository.consultantagency.ConsultantAgencyRepository;
 import de.caritas.cob.userservice.api.repository.session.Session;
-import de.caritas.cob.userservice.api.service.agency.AgencyService;
 import de.caritas.cob.userservice.api.service.ConsultantAgencyService;
 import de.caritas.cob.userservice.api.service.ConsultantService;
 import de.caritas.cob.userservice.api.service.LogService;
@@ -20,15 +18,20 @@ import de.caritas.cob.userservice.api.service.emailsupplier.EmailSupplier;
 import de.caritas.cob.userservice.api.service.emailsupplier.NewEnquiryEmailSupplier;
 import de.caritas.cob.userservice.api.service.emailsupplier.NewFeedbackEmailSupplier;
 import de.caritas.cob.userservice.api.service.emailsupplier.NewMessageEmailSupplier;
+import de.caritas.cob.userservice.api.service.emailsupplier.TenantTemplateSupplier;
+import de.caritas.cob.userservice.api.service.helper.KeycloakAdminClientService;
 import de.caritas.cob.userservice.api.service.helper.MailService;
 import de.caritas.cob.userservice.api.service.rocketchat.RocketChatService;
 import de.caritas.cob.userservice.api.service.session.SessionService;
+import de.caritas.cob.userservice.api.tenant.TenantContext;
+import de.caritas.cob.userservice.api.tenant.TenantData;
 import de.caritas.cob.userservice.mailservice.generated.web.model.MailDTO;
 import de.caritas.cob.userservice.mailservice.generated.web.model.MailsDTO;
 import java.util.List;
 import java.util.Set;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -39,6 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmailNotificationFacade {
 
   @Value("${app.base.url}")
@@ -52,13 +56,17 @@ public class EmailNotificationFacade {
 
   private final @NonNull ConsultantAgencyRepository consultantAgencyRepository;
   private final @NonNull MailService mailService;
-  private final @NonNull AgencyService agencyService;
   private final @NonNull SessionService sessionService;
   private final @NonNull ConsultantAgencyService consultantAgencyService;
   private final @NonNull ConsultantService consultantService;
   private final @NonNull RocketChatService rocketChatService;
   private final @NonNull ConsultingTypeManager consultingTypeManager;
-  private final @NonNull UserHelper userHelper;
+  private final @NonNull KeycloakAdminClientService keycloakAdminClientService;
+  private final @NonNull NewEnquiryEmailSupplier newEnquiryEmailSupplier;
+  private final @NonNull AssignEnquiryEmailSupplier assignEnquiryEmailSupplier;
+  private final @NonNull TenantTemplateSupplier tenantTemplateSupplier;
+  @Value("${multitenancy.enabled}")
+  private boolean multiTenancyEnabled;
 
   /**
    * Sends email notifications according to the corresponding consultant(s) when a new enquiry was
@@ -67,12 +75,15 @@ public class EmailNotificationFacade {
    * @param session the regarding session
    */
   @Async
-  public void sendNewEnquiryEmailNotification(Session session) {
-
+  public void sendNewEnquiryEmailNotification(Session session,
+      TenantData tenantData) {
     try {
-      EmailSupplier newEnquiryMail = new NewEnquiryEmailSupplier(session,
-          consultantAgencyRepository, agencyService, applicationBaseUrl);
-      sendMailTasksToMailService(newEnquiryMail);
+      log.info("Preparing to send NEW_ENQUIRY_EMAIL_NOTIFICATION email for session: ",
+          session.getId());
+      TenantContext.setCurrentTenantData(tenantData);
+      newEnquiryEmailSupplier.setCurrentSession(session);
+      sendMailTasksToMailService(newEnquiryEmailSupplier);
+      TenantContext.clear();
     } catch (Exception ex) {
       LogService.logEmailNotificationFacadeError(String.format(
           "Failed to send new enquiry notification for session %s.", session.getId()), ex);
@@ -85,6 +96,7 @@ public class EmailNotificationFacade {
     if (isNotEmpty(generatedMails)) {
       MailsDTO mailsDTO = new MailsDTO()
           .mails(generatedMails);
+      log.info("Sending email notifications with mailDTOs ", mailsDTO);
       mailService.sendEmailNotification(mailsDTO);
     }
   }
@@ -99,8 +111,11 @@ public class EmailNotificationFacade {
    */
   @Async
   @Transactional
-  public void sendNewMessageNotification(String rcGroupId, Set<String> roles, String userId) {
-
+  public void sendNewMessageNotification(String rcGroupId, Set<String> roles, String userId,
+      TenantData tenantData) {
+    log.info("Preparing to send NEW_MESSAGE_NOTIFICATION with rcGroupId: ",
+        rcGroupId);
+    TenantContext.setCurrentTenantData(tenantData);
     try {
       Session session = sessionService.getSessionByGroupIdAndUser(rcGroupId, userId, roles);
       EmailSupplier newMessageMails = NewMessageEmailSupplier
@@ -114,6 +129,8 @@ public class EmailNotificationFacade {
           .consultantService(consultantService)
           .applicationBaseUrl(applicationBaseUrl)
           .emailDummySuffix(emailDummySuffix)
+          .tenantTemplateSupplier(tenantTemplateSupplier)
+          .multiTenancyEnabled(multiTenancyEnabled)
           .build();
       sendMailTasksToMailService(newMessageMails);
 
@@ -126,6 +143,7 @@ public class EmailNotificationFacade {
           "Failed to send new message notification with Rocket.Chat group ID %s and user ID %s.",
           rcGroupId, userId), ex);
     }
+    TenantContext.clear();
   }
 
   /**
@@ -136,18 +154,20 @@ public class EmailNotificationFacade {
    * @param userId            regarding user id
    */
   @Async
-  public void sendNewFeedbackMessageNotification(String rcFeedbackGroupId, String userId) {
-
+  public void sendNewFeedbackMessageNotification(String rcFeedbackGroupId, String userId,
+      TenantData tenantData) {
+    TenantContext.setCurrentTenantData(tenantData);
     try {
       Session session = sessionService.getSessionByFeedbackGroupId(rcFeedbackGroupId);
       EmailSupplier newFeedbackMessages = new NewFeedbackEmailSupplier(session,
           rcFeedbackGroupId, userId, applicationBaseUrl, consultantService, rocketChatService,
-          rocketChatSystemUserId);
+          rocketChatSystemUserId, keycloakAdminClientService);
       sendMailTasksToMailService(newFeedbackMessages);
     } catch (Exception e) {
       LogService.logEmailNotificationFacadeError(String.format(
           "List of members for rocket chat feedback group id %s is empty.", rcFeedbackGroupId), e);
     }
+    TenantContext.clear();
   }
 
   /**
@@ -160,15 +180,19 @@ public class EmailNotificationFacade {
    */
   @Async
   public void sendAssignEnquiryEmailNotification(Consultant receiverConsultant, String senderUserId,
-      String askerUserName) {
-
-    EmailSupplier assignEnquiryMails = new AssignEnquiryEmailSupplier(receiverConsultant,
-        senderUserId, askerUserName, applicationBaseUrl, consultantService);
+      String askerUserName, TenantData tenantData) {
+    TenantContext.setCurrentTenantData(tenantData);
+    log.info("Preparing to send ASSIGN_ENQUIRY_NOTIFICATION email to consultant: ",
+        receiverConsultant.getId());
+    assignEnquiryEmailSupplier.setReceiverConsultant(receiverConsultant);
+    assignEnquiryEmailSupplier.setSenderUserId(senderUserId);
+    assignEnquiryEmailSupplier.setAskerUserName(askerUserName);
     try {
-      sendMailTasksToMailService(assignEnquiryMails);
+      sendMailTasksToMailService(assignEnquiryEmailSupplier);
     } catch (Exception exception) {
       LogService.logEmailNotificationFacadeError(exception);
     }
+    TenantContext.clear();
   }
 
 }

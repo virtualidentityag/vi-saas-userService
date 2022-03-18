@@ -4,6 +4,7 @@ import static de.caritas.cob.userservice.api.repository.session.RegistrationType
 import static de.caritas.cob.userservice.localdatetime.CustomLocalDateTime.nowInUtc;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
+import static org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes;
 
 import de.caritas.cob.userservice.api.container.CreateEnquiryExceptionInformation;
 import de.caritas.cob.userservice.api.container.RocketChatCredentials;
@@ -34,14 +35,17 @@ import de.caritas.cob.userservice.api.service.message.MessageServiceProvider;
 import de.caritas.cob.userservice.api.service.rocketchat.RocketChatService;
 import de.caritas.cob.userservice.api.service.session.SessionService;
 import de.caritas.cob.userservice.api.service.user.UserService;
+import de.caritas.cob.userservice.api.tenant.TenantContext;
 import de.caritas.cob.userservice.consultingtypeservice.generated.web.model.ExtendedConsultingTypeResponseDTO;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /*
  * Facade for capsuling the steps for saving the enquiry message.
@@ -113,7 +117,8 @@ public class CreateEnquiryMessageFacade {
 
       updateSession(session, rcGroupId, rcFeedbackGroupId, createEnquiryExceptionInformation);
 
-      emailNotificationFacade.sendNewEnquiryEmailNotification(session);
+      emailNotificationFacade
+          .sendNewEnquiryEmailNotification(session, TenantContext.getCurrentTenantData());
 
       return new CreateEnquiryMessageResponseDTO()
           .rcGroupId(rcGroupId)
@@ -125,6 +130,11 @@ public class CreateEnquiryMessageFacade {
           LogService::logCreateEnquiryMessageException);
     }
 
+  }
+
+
+  private HttpServletRequest getHttpServletRequest() {
+    return ((ServletRequestAttributes) currentRequestAttributes()).getRequest();
   }
 
   private void checkIfKeycloakAndRocketChatUsernamesMatch(String rcUserId, User user) {

@@ -86,6 +86,7 @@ import de.caritas.cob.userservice.consultingtypeservice.generated.web.model.Welc
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import org.jeasy.random.EasyRandom;
 import org.junit.Before;
 import org.junit.Test;
@@ -95,6 +96,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CreateEnquiryMessageFacadeTest {
@@ -110,12 +113,12 @@ public class CreateEnquiryMessageFacadeTest {
       new GroupResponseDTO(FEEDBACK_GROUP_DTO_2, true, null, null);
   private final Session SESSION_WITHOUT_ENQUIRY_MESSAGE = new Session(1L, USER, CONSULTANT,
       CONSULTING_TYPE_ID_SUCHT, REGISTERED, "99999", AGENCY_ID, SessionStatus.INITIAL, null, null,
-      null, null, false, false, false, nowInUtc(), null);
+      null, null, false, false, false, nowInUtc(), null, null);
   private final Session SESSION_WITH_ENQUIRY_MESSAGE = new Session(1L, USER, CONSULTANT,
       CONSULTING_TYPE_ID_SUCHT, REGISTERED, "99999", AGENCY_ID, SessionStatus.INITIAL, nowInUtc(),
-      null, null, null, false, false, false, nowInUtc(), null);
+      null, null, null, false, false, false, nowInUtc(), null, null);
   private final ConsultantAgency CONSULTANT_AGENCY =
-      new ConsultantAgency(1L, CONSULTANT, AGENCY_ID, nowInUtc(), nowInUtc(), nowInUtc());
+      new ConsultantAgency(1L, CONSULTANT, AGENCY_ID, nowInUtc(), nowInUtc(), nowInUtc(), null);
   private final List<ConsultantAgency> CONSULTANT_AGENCY_LIST = Collections
       .singletonList(CONSULTANT_AGENCY);
   private final String FIELD_NAME_ROCKET_CHAT_SYSTEM_USER_ID = "rocketChatSystemUserId";
@@ -203,6 +206,9 @@ public class CreateEnquiryMessageFacadeTest {
   @Mock
   private LiveEventNotificationService liveEventNotificationService;
 
+  @Mock
+  HttpServletRequest servletRequest;
+
   private Session session;
   private User user;
   private ExtendedConsultingTypeResponseDTO extendedConsultingTypeResponseDTO;
@@ -227,7 +233,7 @@ public class CreateEnquiryMessageFacadeTest {
     consultant.setId(USER_ID);
     consultant.setRocketChatId(RC_USER_ID);
     this.user = new User(USER_ID, null, USERNAME, EMAIL, RC_USER_ID, IS_LANGUAGE_FORMAL, null,
-        null, null, null, null);
+        null, null, null, null, null);
     this.extendedConsultingTypeResponseDTO = new ExtendedConsultingTypeResponseDTO();
     this.extendedConsultingTypeResponseDTO.setWelcomeMessage(new WelcomeMessageDTO());
     this.userInfoResponseDTO = new UserInfoResponseDTO();
@@ -235,6 +241,8 @@ public class CreateEnquiryMessageFacadeTest {
     this.groupResponseDTO = new GroupResponseDTO();
     this.groupDTO = new GroupDTO();
     this.rocketChatCredentials = RocketChatCredentials.builder().build();
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(Mockito.mock(
+        HttpServletRequest.class)));
   }
 
   @Test
@@ -278,7 +286,7 @@ public class CreateEnquiryMessageFacadeTest {
     verify(messageServiceProvider, atLeastOnce())
         .postWelcomeMessageIfConfigured(any(), any(), any(), any());
     verify(sessionService, atLeastOnce()).saveSession(any());
-    verify(emailNotificationFacade, atLeastOnce()).sendNewEnquiryEmailNotification(any());
+    verify(emailNotificationFacade, atLeastOnce()).sendNewEnquiryEmailNotification(any(), any());
     assertEquals(SESSION_ID, response.getSessionId());
     assertEquals(RC_GROUP_ID, response.getRcGroupId());
   }

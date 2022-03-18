@@ -4,9 +4,12 @@ import static de.caritas.cob.userservice.api.authorization.UserRole.CONSULTANT;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.hibernate.validator.internal.util.CollectionHelper.asSet;
 
-import de.caritas.cob.userservice.api.admin.service.consultant.validation.UserAccountInputValidator;
 import de.caritas.cob.userservice.api.admin.service.consultant.validation.CreateConsultantDTOAbsenceInputAdapter;
+import de.caritas.cob.userservice.api.admin.service.consultant.validation.UserAccountInputValidator;
+import de.caritas.cob.userservice.api.admin.service.tenant.TenantAdminService;
+import de.caritas.cob.userservice.api.exception.httpresponses.CustomValidationHttpStatusException;
 import de.caritas.cob.userservice.api.exception.httpresponses.InternalServerErrorException;
+import de.caritas.cob.userservice.api.exception.httpresponses.customheader.HttpStatusExceptionReason;
 import de.caritas.cob.userservice.api.exception.rocketchat.RocketChatLoginException;
 import de.caritas.cob.userservice.api.helper.UserHelper;
 import de.caritas.cob.userservice.api.helper.UsernameTranscoder;
@@ -16,11 +19,14 @@ import de.caritas.cob.userservice.api.model.registration.UserDTO;
 import de.caritas.cob.userservice.api.repository.consultant.Consultant;
 import de.caritas.cob.userservice.api.service.ConsultantImportService.ImportRecord;
 import de.caritas.cob.userservice.api.service.ConsultantService;
-import de.caritas.cob.userservice.api.service.rocketchat.RocketChatService;
 import de.caritas.cob.userservice.api.service.helper.KeycloakAdminClientService;
+import de.caritas.cob.userservice.api.service.rocketchat.RocketChatService;
+import de.caritas.cob.userservice.api.tenant.TenantContext;
+import de.caritas.cob.userservice.tenantadminservice.generated.web.model.TenantDTO;
 import java.util.Set;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -36,6 +42,10 @@ public class ConsultantCreatorService {
   private final @NonNull ConsultantService consultantService;
   private final @NonNull UserHelper userHelper;
   private final @NonNull UserAccountInputValidator userAccountInputValidator;
+  private final @NonNull TenantAdminService tenantAdminService;
+
+  @Value("${multitenancy.enabled}")
+  private boolean multiTenancyEnabled;
 
   /**
    * Creates a new {@link Consultant} by {@link CreateConsultantDTO} in database, keycloak and
@@ -45,10 +55,12 @@ public class ConsultantCreatorService {
    * @return the generated {@link Consultant}
    */
   public Consultant createNewConsultant(CreateConsultantDTO createConsultantDTO) {
+    assertLicensesNotExceeded();
     this.userAccountInputValidator.validateAbsence(
         new CreateConsultantDTOAbsenceInputAdapter(createConsultantDTO));
     ConsultantCreationInput consultantCreationInput =
         new CreateConsultantDTOCreationInputAdapter(createConsultantDTO);
+    assignCurrentTenantContext(createConsultantDTO);
     return createNewConsultant(consultantCreationInput, asSet(CONSULTANT.getValue()));
   }
 
@@ -81,9 +93,15 @@ public class ConsultantCreatorService {
         buildConsultant(consultantCreationInput, keycloakUserId, rocketChatUserId));
   }
 
+  private void assignCurrentTenantContext(CreateConsultantDTO createConsultantDTO) {
+    if (multiTenancyEnabled) {
+      createConsultantDTO.setTenantId(TenantContext.getCurrentTenant().intValue());
+    }
+  }
+
   private String createKeycloakUser(ConsultantCreationInput consultantCreationInput) {
     UserDTO userDto = buildUserDTO(consultantCreationInput.getUserName(),
-        consultantCreationInput.getEmail());
+        consultantCreationInput.getEmail(), consultantCreationInput.getTenantId());
 
     this.userAccountInputValidator.validateUserDTO(userDto);
 
@@ -124,14 +142,29 @@ public class ConsultantCreatorService {
         .languageFormal(consultantCreationInput.isLanguageFormal())
         .createDate(consultantCreationInput.getCreateDate())
         .updateDate(consultantCreationInput.getUpdateDate())
+        .tenantId(consultantCreationInput.getTenantId())
         .build();
   }
 
-  private UserDTO buildUserDTO(String username, String email) {
+  private UserDTO buildUserDTO(String username, String email, Long tenantId) {
     UserDTO userDto = new UserDTO();
     userDto.setUsername(new UsernameTranscoder().encodeUsername(username));
     userDto.setEmail(email);
+    userDto.setTenantId(tenantId);
     return userDto;
   }
+
+  private void assertLicensesNotExceeded() {
+    if (multiTenancyEnabled) {
+      TenantDTO tenantById = tenantAdminService.getTenantById();
+      long numberOfActiveConsultants = consultantService.getNumberOfActiveConsultants();
+      Integer allowedNumberOfUsers = tenantById.getLicensing().getAllowedNumberOfUsers();
+      if (numberOfActiveConsultants >= allowedNumberOfUsers) {
+        throw new CustomValidationHttpStatusException(
+            HttpStatusExceptionReason.NUMBER_OF_LICENSES_EXCEEDED);
+      }
+    }
+  }
+
 
 }

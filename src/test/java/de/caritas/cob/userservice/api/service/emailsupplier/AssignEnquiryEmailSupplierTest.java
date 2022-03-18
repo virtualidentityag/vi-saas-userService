@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AssignEnquiryEmailSupplierTest {
@@ -41,11 +42,14 @@ public class AssignEnquiryEmailSupplierTest {
 
   @Before
   public void setup() {
-    String applicationBaseUrl = "application base url";
+    this.assignEnquiryEmailSupplier = new AssignEnquiryEmailSupplier(consultantService, null);
     String askerUserName = "asker user name";
+    this.assignEnquiryEmailSupplier.setAskerUserName(askerUserName);
     String senderUserId = "sender user id";
-    this.assignEnquiryEmailSupplier = new AssignEnquiryEmailSupplier(receiverConsultant,
-        senderUserId, askerUserName, applicationBaseUrl, consultantService);
+    this.assignEnquiryEmailSupplier.setSenderUserId(senderUserId);
+    this.assignEnquiryEmailSupplier.setReceiverConsultant(receiverConsultant);
+    ReflectionTestUtils
+        .setField(this.assignEnquiryEmailSupplier, "applicationBaseUrl", "application base url");
     setInternalState(LogService.class, "LOGGER", logger);
   }
 
