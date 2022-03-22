@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
@@ -150,12 +151,19 @@ public class ConsultantAgencyRelationCreatorService {
   private void addConsultantToSessions(Consultant consultant, AgencyDTO agency,
       Consumer<String> logMethod) {
     List<Session> relevantSessions = collectRelevantSessionsToAddConsultant(agency);
+    addToGroupsOrRollbackOnFailure(consultant, logMethod, relevantSessions);
+  }
+
+  @Async
+  public void addToGroupsOrRollbackOnFailure(Consultant consultant,
+      Consumer<String> logMethod, List<Session> relevantSessions) {
     RocketChatAddToGroupOperationService
         .getInstance(this.rocketChatFacade, this.keycloakAdminClientService, logMethod,
             consultingTypeManager)
         .onSessions(relevantSessions)
         .withConsultant(consultant)
         .addToGroupsOrRollbackOnFailure();
+
   }
 
   private List<Session> collectRelevantSessionsToAddConsultant(AgencyDTO agency) {
