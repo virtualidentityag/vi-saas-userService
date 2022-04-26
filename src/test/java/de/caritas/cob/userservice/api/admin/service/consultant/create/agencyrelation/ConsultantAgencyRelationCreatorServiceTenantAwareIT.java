@@ -1,5 +1,6 @@
 package de.caritas.cob.userservice.api.admin.service.consultant.create.agencyrelation;
 
+import static de.caritas.cob.userservice.api.testHelper.AsyncVerification.verifyAsync;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
@@ -10,27 +11,31 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import de.caritas.cob.userservice.UserServiceApplication;
+import com.neovisionaries.i18n.LanguageCode;
+import de.caritas.cob.userservice.api.UserServiceApplication;
+import de.caritas.cob.userservice.api.adapters.web.dto.AgencyDTO;
+import de.caritas.cob.userservice.api.admin.model.CreateConsultantAgencyDTO;
 import de.caritas.cob.userservice.api.facade.RocketChatFacade;
 import de.caritas.cob.userservice.api.manager.consultingtype.ConsultingTypeManager;
-import de.caritas.cob.userservice.api.model.AgencyDTO;
-import de.caritas.cob.userservice.api.model.CreateConsultantAgencyDTO;
-import de.caritas.cob.userservice.api.repository.consultant.Consultant;
-import de.caritas.cob.userservice.api.repository.consultant.ConsultantRepository;
-import de.caritas.cob.userservice.api.repository.consultantagency.ConsultantAgency;
-import de.caritas.cob.userservice.api.repository.consultantagency.ConsultantAgencyRepository;
-import de.caritas.cob.userservice.api.repository.session.Session;
-import de.caritas.cob.userservice.api.repository.session.SessionRepository;
-import de.caritas.cob.userservice.api.repository.session.SessionStatus;
-import de.caritas.cob.userservice.api.repository.user.User;
-import de.caritas.cob.userservice.api.repository.user.UserRepository;
-import de.caritas.cob.userservice.api.repository.useragency.UserAgency;
-import de.caritas.cob.userservice.api.repository.useragency.UserAgencyRepository;
+import de.caritas.cob.userservice.api.model.Consultant;
+import de.caritas.cob.userservice.api.model.ConsultantAgency;
+import de.caritas.cob.userservice.api.model.Language;
+import de.caritas.cob.userservice.api.model.Session;
+import de.caritas.cob.userservice.api.model.Session.SessionStatus;
+import de.caritas.cob.userservice.api.model.User;
+import de.caritas.cob.userservice.api.model.UserAgency;
+import de.caritas.cob.userservice.api.port.out.ConsultantAgencyRepository;
+import de.caritas.cob.userservice.api.port.out.ConsultantRepository;
+import de.caritas.cob.userservice.api.port.out.IdentityClient;
+import de.caritas.cob.userservice.api.port.out.SessionRepository;
+import de.caritas.cob.userservice.api.port.out.UserAgencyRepository;
+import de.caritas.cob.userservice.api.port.out.UserRepository;
 import de.caritas.cob.userservice.api.service.agency.AgencyService;
-import de.caritas.cob.userservice.api.service.helper.KeycloakAdminClientService;
 import de.caritas.cob.userservice.api.tenant.TenantContext;
 import de.caritas.cob.userservice.consultingtypeservice.generated.web.model.ExtendedConsultingTypeResponseDTO;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.jeasy.random.EasyRandom;
 import org.junit.After;
 import org.junit.Before;
@@ -81,7 +86,7 @@ public class ConsultantAgencyRelationCreatorServiceTenantAwareIT {
   private AgencyService agencyService;
 
   @MockBean
-  private KeycloakAdminClientService keycloakAdminClientService;
+  private IdentityClient identityClient;
 
   @MockBean
   private RocketChatFacade rocketChatFacade;
@@ -108,7 +113,7 @@ public class ConsultantAgencyRelationCreatorServiceTenantAwareIT {
     createConsultantAgencyDTO.setAgencyId(15L);
     createConsultantAgencyDTO.setRoleSetKey("valid-role-set");
 
-    when(keycloakAdminClientService.userHasRole(eq(consultant.getId()), any())).thenReturn(true);
+    when(identityClient.userHasRole(eq(consultant.getId()), any())).thenReturn(true);
 
     AgencyDTO agencyDTO = new AgencyDTO();
     agencyDTO.setId(15L);
@@ -126,12 +131,12 @@ public class ConsultantAgencyRelationCreatorServiceTenantAwareIT {
     this.consultantAgencyRelationCreatorService
         .createNewConsultantAgency(consultant.getId(), createConsultantAgencyDTO);
 
-    verify(rocketChatFacade, times(1))
+    verifyAsync((a) -> verify(rocketChatFacade, times(1))
         .addUserToRocketChatGroup(consultant.getRocketChatId(),
-            enquirySessionWithoutConsultant.getGroupId());
-    verify(rocketChatFacade, times(1))
+            enquirySessionWithoutConsultant.getGroupId()));
+    verifyAsync((a) -> verify(rocketChatFacade, times(1))
         .addUserToRocketChatGroup(consultant.getRocketChatId(),
-            enquirySessionWithoutConsultant.getFeedbackGroupId());
+            enquirySessionWithoutConsultant.getFeedbackGroupId()));
     List<ConsultantAgency> result = this.consultantAgencyRepository
         .findByConsultantIdAndDeleteDateIsNull(consultant.getId());
 
@@ -146,12 +151,19 @@ public class ConsultantAgencyRelationCreatorServiceTenantAwareIT {
 
   private Consultant createConsultantWithoutAgencyAndSession() {
     Consultant consultant = easyRandom.nextObject(Consultant.class);
+    consultant.setAppointments(null);
     consultant.setTenantId(1L);
     consultant.setConsultantAgencies(null);
     consultant.setSessions(null);
     consultant.setConsultantMobileTokens(null);
     consultant.setRocketChatId("RocketChatId");
     consultant.setDeleteDate(null);
+    Set<Language> language = new HashSet<>();
+    Language lang = new Language();
+    lang.setLanguageCode(LanguageCode.de);
+    lang.setConsultant(consultant);
+    language.add(lang);
+    consultant.setLanguages(language);
     return this.consultantRepository.save(consultant);
   }
 
@@ -175,6 +187,7 @@ public class ConsultantAgencyRelationCreatorServiceTenantAwareIT {
     session.setUser(user);
     session.setAgencyId(agencyId);
     session.setTeamSession(true);
+    session.setLanguageCode(LanguageCode.de);
     return this.sessionRepository.save(session);
   }
 

@@ -1,16 +1,16 @@
 package de.caritas.cob.userservice.api.service.message;
 
 
-import static de.caritas.cob.userservice.testHelper.TestConstants.CONSULTING_TYPE_SETTINGS_U25;
-import static de.caritas.cob.userservice.testHelper.TestConstants.CONSULTING_TYPE_SETTINGS_WITHOUT_FURTHER_STEPS__AND_SAVE_SESSION_DATA_MESSAGE;
-import static de.caritas.cob.userservice.testHelper.TestConstants.CONSULTING_TYPE_SETTINGS_WITHOUT_WELCOME_MESSAGE;
-import static de.caritas.cob.userservice.testHelper.TestConstants.CONSULTING_TYPE_SETTINGS_WITH_FURTHER_STEPS_MESSAGE;
-import static de.caritas.cob.userservice.testHelper.TestConstants.CONSULTING_TYPE_SETTINGS_WITH_UPDATE_SESSION_DATA_MESSAGE;
-import static de.caritas.cob.userservice.testHelper.TestConstants.ERROR;
-import static de.caritas.cob.userservice.testHelper.TestConstants.MESSAGE;
-import static de.caritas.cob.userservice.testHelper.TestConstants.RC_CREDENTIALS;
-import static de.caritas.cob.userservice.testHelper.TestConstants.RC_GROUP_ID;
-import static de.caritas.cob.userservice.testHelper.TestConstants.USER;
+import static de.caritas.cob.userservice.api.testHelper.TestConstants.CONSULTING_TYPE_SETTINGS_U25;
+import static de.caritas.cob.userservice.api.testHelper.TestConstants.CONSULTING_TYPE_SETTINGS_WITHOUT_FURTHER_STEPS__AND_SAVE_SESSION_DATA_MESSAGE;
+import static de.caritas.cob.userservice.api.testHelper.TestConstants.CONSULTING_TYPE_SETTINGS_WITHOUT_WELCOME_MESSAGE;
+import static de.caritas.cob.userservice.api.testHelper.TestConstants.CONSULTING_TYPE_SETTINGS_WITH_FURTHER_STEPS_MESSAGE;
+import static de.caritas.cob.userservice.api.testHelper.TestConstants.CONSULTING_TYPE_SETTINGS_WITH_UPDATE_SESSION_DATA_MESSAGE;
+import static de.caritas.cob.userservice.api.testHelper.TestConstants.ERROR;
+import static de.caritas.cob.userservice.api.testHelper.TestConstants.MESSAGE;
+import static de.caritas.cob.userservice.api.testHelper.TestConstants.RC_CREDENTIALS;
+import static de.caritas.cob.userservice.api.testHelper.TestConstants.RC_GROUP_ID;
+import static de.caritas.cob.userservice.api.testHelper.TestConstants.USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -33,6 +33,7 @@ import de.caritas.cob.userservice.api.exception.rocketchat.RocketChatPostMessage
 import de.caritas.cob.userservice.api.exception.rocketchat.RocketChatPostWelcomeMessageException;
 import de.caritas.cob.userservice.api.exception.rocketchat.RocketChatUserNotInitializedException;
 import de.caritas.cob.userservice.api.helper.UserHelper;
+import de.caritas.cob.userservice.api.service.httpheader.TenantHeaderSupplier;
 import de.caritas.cob.userservice.api.service.rocketchat.RocketChatCredentialsProvider;
 import de.caritas.cob.userservice.api.service.httpheader.SecurityHeaderSupplier;
 import de.caritas.cob.userservice.messageservice.generated.web.MessageControllerApi;
@@ -66,6 +67,9 @@ public class MessageServiceProviderTest {
 
   @Mock
   private SecurityHeaderSupplier securityHeaderSupplier;
+
+  @Mock
+  private TenantHeaderSupplier tenantHeaderSupplier;
 
   private final RestClientException restClientException = new RestClientException(ERROR);
 

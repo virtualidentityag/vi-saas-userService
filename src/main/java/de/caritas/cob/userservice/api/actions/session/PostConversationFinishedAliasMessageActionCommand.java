@@ -5,9 +5,10 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import de.caritas.cob.userservice.api.actions.ActionCommand;
-import de.caritas.cob.userservice.api.repository.session.Session;
-import de.caritas.cob.userservice.api.service.KeycloakService;
+import de.caritas.cob.userservice.api.port.out.IdentityClient;
+import de.caritas.cob.userservice.api.model.Session;
 import de.caritas.cob.userservice.api.service.httpheader.SecurityHeaderSupplier;
+import de.caritas.cob.userservice.api.service.httpheader.TenantHeaderSupplier;
 import de.caritas.cob.userservice.messageservice.generated.ApiClient;
 import de.caritas.cob.userservice.messageservice.generated.web.MessageControllerApi;
 import de.caritas.cob.userservice.messageservice.generated.web.model.AliasOnlyMessageDTO;
@@ -25,7 +26,9 @@ public class PostConversationFinishedAliasMessageActionCommand implements Action
 
   private final @NonNull MessageControllerApi messageControllerApi;
   private final @NonNull SecurityHeaderSupplier securityHeaderSupplier;
-  private final @NonNull KeycloakService keycloakService;
+  private final @NonNull TenantHeaderSupplier tenantHeaderSupplier;
+  private final @NonNull IdentityClient identityClient;
+
 
   @Value("${keycloakService.technical.username}")
   private String keycloakTechnicalUsername;
@@ -48,10 +51,12 @@ public class PostConversationFinishedAliasMessageActionCommand implements Action
   }
 
   private void addDefaultHeaders(ApiClient apiClient) {
-    var keycloakLoginResponseDTO = this.keycloakService
-        .loginUser(this.keycloakTechnicalUsername, this.keycloakTechnicalPassword);
+    var keycloakLoginResponseDTO = identityClient.loginUser(
+        keycloakTechnicalUsername, keycloakTechnicalPassword
+    );
     var headers = this.securityHeaderSupplier
         .getKeycloakAndCsrfHttpHeaders(keycloakLoginResponseDTO.getAccessToken());
+    tenantHeaderSupplier.addTenantHeader(headers);
     headers.forEach((key, value) -> apiClient.addDefaultHeader(key, value.iterator().next()));
   }
 }

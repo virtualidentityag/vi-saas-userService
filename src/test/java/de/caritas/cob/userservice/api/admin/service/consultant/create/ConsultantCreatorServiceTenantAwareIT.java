@@ -2,12 +2,12 @@ package de.caritas.cob.userservice.api.admin.service.consultant.create;
 
 import static org.mockito.Mockito.when;
 
-import de.caritas.cob.userservice.UserServiceApplication;
+import de.caritas.cob.userservice.api.UserServiceApplication;
+import de.caritas.cob.userservice.api.admin.model.CreateConsultantDTO;
 import de.caritas.cob.userservice.api.admin.service.tenant.TenantAdminService;
 import de.caritas.cob.userservice.api.exception.httpresponses.CustomValidationHttpStatusException;
-import de.caritas.cob.userservice.api.model.CreateConsultantDTO;
-import de.caritas.cob.userservice.api.repository.consultant.Consultant;
-import de.caritas.cob.userservice.api.repository.consultant.ConsultantRepository;
+import de.caritas.cob.userservice.api.model.Consultant;
+import de.caritas.cob.userservice.api.port.out.ConsultantRepository;
 import de.caritas.cob.userservice.api.tenant.TenantContext;
 import de.caritas.cob.userservice.api.tenant.TenantData;
 import de.caritas.cob.userservice.tenantadminservice.generated.web.model.Licensing;
@@ -57,6 +57,7 @@ public class ConsultantCreatorServiceTenantAwareIT {
 
   private void createConsultant(String username) {
     Consultant consultant = new Consultant();
+    consultant.setAppointments(null);
     consultant.setTenantId(1L);
     consultant.setId(username);
     consultant.setRocketChatId(username);
@@ -64,6 +65,8 @@ public class ConsultantCreatorServiceTenantAwareIT {
     consultant.setFirstName(username);
     consultant.setLastName(username);
     consultant.setEmail(username + "@email.com");
+    consultant.setEncourage2fa(true);
+    consultant.setWalkThroughEnabled(true);
     consultantRepository.save(consultant);
   }
 
@@ -85,7 +88,7 @@ public class ConsultantCreatorServiceTenantAwareIT {
     dummyTenant.setLicensing(licensing);
     ReflectionTestUtils
         .setField(consultantCreatorService, "tenantAdminService", tenantAdminService);
-    when(tenantAdminService.getTenantById()).thenReturn(dummyTenant);
+    when(tenantAdminService.getTenantById(TenantContext.getCurrentTenant())).thenReturn(dummyTenant);
   }
 
 }

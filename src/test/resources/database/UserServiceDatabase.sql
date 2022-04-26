@@ -1,167 +1,6 @@
-CREATE TABLE USER
-(
-    USER_ID         varchar(36)  NOT NULL,
-    TENANT_ID       bigint(21)   DEFAULT NULL,
-    ID_OLD          bigint(21)   NULL,
-    USERNAME        varchar(255) NOT NULL,
-    EMAIL           varchar(255) NOT NULL,
-    RC_USER_ID      varchar(255) NULL,
-    LANGUAGE_FORMAL tinyint(4)   NOT NULL DEFAULT 0,
-    CREATE_DATE     datetime,
-    UPDATE_DATE     datetime,
-    DELETE_DATE     datetime,
-    MOBILE_TOKEN    longtext              DEFAULT NULL,
-    PRIMARY KEY (USER_ID)
-);
-CREATE SEQUENCE SEQUENCE_USER
-    START WITH 100000
-    INCREMENT BY 1;
-CREATE TABLE CONSULTANT
-(
-    CONSULTANT_ID      varchar(36)  NOT NULL,
-    TENANT_ID          bigint(21)   DEFAULT NULL,
-    USERNAME           varchar(255) NOT NULL,
-    FIRST_NAME         varchar(255) NOT NULL,
-    LAST_NAME          varchar(255) NOT NULL,
-    EMAIL              varchar(255) NOT NULL,
-    IS_TEAM_CONSULTANT tinyint(4)   NOT NULL DEFAULT 0,
-    IS_ABSENT          tinyint(4)   NOT NULL DEFAULT 0,
-    ABSENCE_MESSAGE    longtext              DEFAULT NULL,
-    LANGUAGE_FORMAL    tinyint(4)   NOT NULL DEFAULT 1,
-    RC_USER_ID         varchar(255) NULL,
-    ID_OLD             bigint(21)   NULL,
-    CREATE_DATE        datetime,
-    UPDATE_DATE        datetime,
-    DELETE_DATE        datetime,
-    PRIMARY KEY (CONSULTANT_ID)
-);
-CREATE SEQUENCE SEQUENCE_CONSULTANT
-    START WITH 100000
-    INCREMENT BY 1;
-CREATE TABLE CONSULTANT_AGENCY
-(
-    ID            bigint(21)  NOT NULL,
-    TENANT_ID          bigint(21)   DEFAULT NULL,
-    CONSULTANT_ID varchar(36) NOT NULL,
-    AGENCY_ID     bigint(21)  NOT NULL,
-    CREATE_DATE   datetime,
-    UPDATE_DATE   datetime,
-    DELETE_DATE   datetime,
-    PRIMARY KEY (ID),
-    FOREIGN KEY (CONSULTANT_ID) REFERENCES CONSULTANT (CONSULTANT_ID)
-);
-CREATE SEQUENCE SEQUENCE_CONSULTANT_AGENCY
-    START WITH 100000
-    INCREMENT BY 1;
-CREATE TABLE USER_AGENCY
-(
-    ID          bigint(21)  NOT NULL,
-    USER_ID     varchar(36) NOT NULL,
-    AGENCY_ID   bigint(21)  NOT NULL,
-    CREATE_DATE datetime,
-    UPDATE_DATE datetime,
-    PRIMARY KEY (ID),
-    FOREIGN KEY (USER_ID) REFERENCES USER (USER_ID)
-);
-CREATE SEQUENCE SEQUENCE_USER_AGENCY
-    START WITH 100000
-    INCREMENT BY 1;
-CREATE TABLE SESSION
-(
-    ID                   bigint(21)   NOT NULL,
-    TENANT_ID            bigint(21)   DEFAULT NULL,
-    USER_ID              varchar(36)  NOT NULL,
-    CONSULTANT_ID        varchar(36),
-    CONSULTING_TYPE      tinyint(4)   NOT NULL,
-    REGISTRATION_TYPE    varchar(255) NOT NULL DEFAULT 'REGISTERED',
-    MESSAGE_DATE         datetime              DEFAULT NULL,
-    POSTCODE             varchar(5)   NOT NULL,
-    AGENCY_ID            bigint(21)            DEFAULT NULL,
-    RC_GROUP_ID          varchar(255) NULL,
-    RC_FEEDBACK_GROUP_ID varchar(255) NULL,
-    IS_PEER_CHAT         tinyint(4)   NOT NULL DEFAULT '0',
-    STATUS               tinyint(4)   NOT NULL,
-    IS_TEAM_SESSION      tinyint(4)   NOT NULL DEFAULT '0',
-    IS_MONITORING        tinyint(4)   NOT NULL,
-    CREATE_DATE          datetime,
-    UPDATE_DATE          datetime,
-    PRIMARY KEY (ID),
-    FOREIGN KEY (USER_ID) REFERENCES USER (USER_ID),
-    FOREIGN KEY (CONSULTANT_ID) REFERENCES CONSULTANT (CONSULTANT_ID)
-);
-CREATE SEQUENCE SEQUENCE_SESSION
-    START WITH 100000
-    INCREMENT BY 1;
-CREATE TABLE SESSION_DATA
-(
-    ID          bigint(21)   NOT NULL,
-    SESSION_ID  bigint(21)   NOT NULL,
-    TYPE        tinyint(4)   NOT NULL,
-    KEY_NAME    varchar(255) NOT NULL,
-    VALUE       varchar(255) DEFAULT NULL,
-    CREATE_DATE datetime,
-    UPDATE_DATE datetime,
-    PRIMARY KEY (ID),
-    FOREIGN KEY (SESSION_ID) REFERENCES SESSION (ID)
-);
-CREATE SEQUENCE SEQUENCE_SESSION_DATA
-    START WITH 100000
-    INCREMENT BY 1;
-CREATE TABLE SESSION_MONITORING
-(
-    SESSION_ID  bigint(21)   NOT NULL,
-    TYPE        tinyint(4)   NOT NULL,
-    KEY_NAME    varchar(255) NOT NULL,
-    VALUE       tinyint(1) DEFAULT NULL,
-    CREATE_DATE datetime,
-    UPDATE_DATE datetime,
-    PRIMARY KEY (SESSION_ID, TYPE, KEY_NAME)
-);
-CREATE SEQUENCE SEQUENCE_SESSION_MONITORING
-    START WITH 100000
-    INCREMENT BY 1;
-CREATE TABLE SESSION_MONITORING_OPTION
-(
-    SESSION_ID          bigint(21)   NOT NULL,
-    MONITORING_TYPE     tinyint(4)   NOT NULL,
-    MONITORING_KEY_NAME varchar(255) NOT NULL,
-    KEY_NAME            varchar(255) NOT NULL,
-    VALUE               tinyint(1) DEFAULT NULL,
-    CREATE_DATE         datetime,
-    UPDATE_DATE         datetime,
-    PRIMARY KEY (SESSION_ID, MONITORING_TYPE, MONITORING_KEY_NAME, KEY_NAME)
-);
-CREATE SEQUENCE SEQUENCE_SESSION_MONITORING_OPTION
-    START WITH 100000
-    INCREMENT BY 1;
-CREATE TABLE USER_MOBILE_TOKEN
-(
-    ID               bigint(21)  NOT NULL,
-    USER_ID          varchar(36) NOT NULL,
-    MOBILE_APP_TOKEN longtext    NOT NULL,
-    CREATE_DATE      datetime,
-    UPDATE_DATE      datetime,
-    PRIMARY KEY (ID),
-    FOREIGN KEY (USER_ID) REFERENCES USER (USER_ID)
-);
-CREATE SEQUENCE SEQUENCE_USER_MOBILE_TOKEN
-    INCREMENT BY 1
-    START WITH 0;
-
-CREATE TABLE CONSULTANT_MOBILE_TOKEN
-(
-    ID               bigint(21)  NOT NULL,
-    CONSULTANT_ID    varchar(36) NOT NULL,
-    MOBILE_APP_TOKEN longtext    NOT NULL,
-    CREATE_DATE      datetime,
-    UPDATE_DATE      datetime,
-    PRIMARY KEY (ID),
-    FOREIGN KEY (CONSULTANT_ID) REFERENCES CONSULTANT (CONSULTANT_ID)
-);
-CREATE SEQUENCE SEQUENCE_CONSULTANT_MOBILE_TOKEN
-    INCREMENT BY 1
-    START WITH 0;
-INSERT INTO USER (`user_id`, `id_old`, `delete_date`, `username`, `email`, `rc_user_id`,
+ALTER SEQUENCE sequence_session RESTART WITH 100000;
+ALTER SEQUENCE sequence_consultant_agency RESTART WITH 100000;
+INSERT INTO user (`user_id`, `id_old`, `delete_date`, `username`, `email`, `rc_user_id`,
                   `language_formal`, `create_date`, `update_date`)
 VALUES ('015d013d-95e7-4e91-85b5-12cdb3d317f3', 0, NULL, 'enc.OBSXEZTPOJWWC3TDMUWWC43LMVZC2NZS',
         '015d013d-95e7-4e91-85b5-12cdb3d317f3@beratungcaritas.de', 'dciScSDa9Qm8vmEBB', 1,
@@ -623,124 +462,125 @@ VALUES ('015d013d-95e7-4e91-85b5-12cdb3d317f3', 0, NULL, 'enc.OBSXEZTPOJWWC3TDMU
        ('opiti0a1-c936-45ee-9141-d73dfc0a3000', 0, NULL, 'enc.ODDAEZGDCHOJDAT5AUWGC43DMAZF2MJQ',
         'opiti0a1-c936-45ee-9141-d73dfc0a3000@beratungcaritas.de', 'atFf3kAfdG23tf3kWf', 1,
         '2018-01-01 11:09:32', '2018-01-01 11:09:32');
-INSERT INTO CONSULTANT (`consultant_id`, `username`, `first_name`, `last_name`, `email`,
+INSERT INTO consultant (`consultant_id`, `username`, `first_name`, `last_name`, `email`,
                         `is_team_consultant`, `is_absent`, `absence_message`, `rc_user_id`,
-                        `language_formal`, `id_old`, `delete_date`, `create_date`, `update_date`)
+                        `language_formal`, `id_old`, `delete_date`, `create_date`, `update_date`,
+                        `walk_through_enabled`)
 VALUES ('0b3b1cc6-be98-4787-aa56-212259d811b9', 'enc.MVWWSZ3SMF2GS33OFV2GKYLN', 'Emiration',
         'Consultant', 'emigration@consultant.de', 1, 0, NULL, 'RMuMMjeaZh642fZa7', 1, 0, NULL,
-        '2020-10-08 08:57:44', '2020-10-08 08:57:44'),
+        '2020-10-08 08:57:44', '2020-10-08 08:57:44', 1),
        ('1293c11a-1b3e-47b8-a16e-ce0a8f055689', 'enc.OBSXEZTPOJWWC3TDMU......', 'Performance',
         'Consultant', 'performance@consultant.de', 1, 0, NULL, '4nWTY9Tq56oz3BTHp', 1, 0, NULL,
-        '2020-10-08 08:54:20', '2020-10-08 08:54:20'),
+        '2020-10-08 08:54:20', '2020-10-08 08:54:20', 1),
        ('1332fe22-cf40-444c-9ef6-6df569e41612', 'enc.NNZGK5L2MJ2W4ZBS', 'Kreuzbund', 'Consultant 2',
         'kreuzbund2@consultant.de', 0, 0, NULL, 'xaaa2Y3JNXBed7i4u', 1, 0, NULL,
-        '2020-10-08 08:54:22', '2020-10-08 08:54:22'),
+        '2020-10-08 08:54:22', '2020-10-08 08:54:22', 1),
        ('147a152a-e33c-456a-8a05-7731f95520cf', 'enc.MNUGS3DEOJSW4LLEMVTGC5LMOQ......', 'Default',
         'Consultant', 'children@consultant.de', 0, 0, NULL, 'hyPtEKfCYoQ9wKQD9', 1, 0, NULL,
-        '2020-10-08 08:54:17', '2020-10-08 08:54:17'),
+        '2020-10-08 08:54:17', '2020-10-08 08:54:17', 1),
        ('18e00fbd-c207-4967-b44a-1a55ffd0b71a', 'enc.ONSW42LPOJUXI6JNORSWC3I.', 'Default',
         'Consultant', 'seniority-team@consultant.de', 1, 0, NULL, 'LnJocRydDEAKx4Lss', 1, 0, NULL,
-        '2020-10-08 08:54:10', '2020-10-08 08:54:10'),
+        '2020-10-08 08:54:10', '2020-10-08 08:54:10', 1),
        ('25cdfa46-6b91-4bea-bb48-ae69f6b6fbf4', 'enc.MRSWE5BNMRSWMYLVNR2A....', 'Default',
         'Consultant', 'debt@consultant.de', 0, 0, NULL, 'SSLvr4ZG5ATW84r2H', 1, 0, NULL,
-        '2020-10-08 08:54:06', '2020-10-08 08:54:06'),
+        '2020-10-08 08:54:06', '2020-10-08 08:54:06', 1),
        ('260061df-01c2-4c73-835d-9069a23ea671', 'enc.MNUGS3DEOJSW4LLUMVQW2...', 'Default',
         'Consultant', 'children-team@consultant.de', 1, 0, NULL, 'yNtjP3mNFoZ3zPhKm', 1, 0, NULL,
-        '2020-10-08 08:54:18', '2020-10-08 08:54:18'),
+        '2020-10-08 08:54:18', '2020-10-08 08:54:18', 1),
        ('2bbbdb50-94de-4d35-a0c4-a4e7450cf171', 'enc.OBZGKZ3OMFXGG6JNORSWC3I.', 'Default',
         'Consultant', 'pregnancy-team@consultant.de', 1, 0, NULL, '5ni2Puo4ijLZT8Cvf', 0, 0, NULL,
-        '2020-10-08 08:54:03', '2020-10-08 08:54:03'),
+        '2020-10-08 08:54:03', '2020-10-08 08:54:03', 1),
        ('330dd0a4-6728-453e-a6b7-3aa181cf0c72', 'enc.OBQXEZLOORUW4ZZNORSWC3I.', 'Default',
         'Consultant', 'parenting-team@consultant.de', 1, 0, NULL, 'B8sznptFFEdrZNawY', 1, 0, NULL,
-        '2020-10-08 08:54:04', '2020-10-08 08:54:04'),
+        '2020-10-08 08:54:04', '2020-10-08 08:54:04', 1),
        ('45816eb6-984b-411f-a818-996cd16e1f2a', 'enc.OUZDK4DFMVZA....', 'Peter', 'Peer',
         'pete.peer@consultant.de', 1, 0, NULL, 'RhwSJiKuadzTQXfwP', 0, 0, NULL,
-        '2020-10-08 08:54:01', '2020-10-08 08:54:01'),
+        '2020-10-08 08:54:01', '2020-10-08 08:54:01', 1),
        ('473f7c4b-f011-4fc2-847c-ceb636a5b399', 'enc.MFSGI2LDORUW63RNMRSWMYLVNR2A....', 'Default',
         'Consultant', 'addiction@consultant.de', 0, 0, NULL, 'CztX9SWF4SJPvgknZ', 1, 0, NULL,
-        '2020-10-08 08:53:55', '2020-10-08 08:53:55'),
+        '2020-10-08 08:53:55', '2020-10-08 08:53:55', 1),
        ('54e09b2d-e804-42ae-8693-dd66907bd6ed', 'enc.NNZGK5L2MJ2W4ZBR', 'Kreuzbund', 'Consultant 1',
         'kreuzbund1@consultant.de', 0, 0, NULL, 'ZYbj9Nsgrsu8WbijG', 1, 0, NULL,
-        '2020-10-08 08:54:21', '2020-10-08 08:54:21'),
+        '2020-10-08 08:54:21', '2020-10-08 08:54:21', 1),
        ('5674839f-d0a3-47e2-8f9c-bb49fc2ddbbe', 'enc.NV2WY5DJOBWGK...', 'Multiple', 'BS',
         'multiple@consultant.de', 1, 0, NULL, 'eTNtviLNaJnfHE7CZ', 1, 0, NULL,
-        '2020-10-08 08:54:19', '2020-10-08 08:54:19'),
+        '2020-10-08 08:54:19', '2020-10-08 08:54:19', 1),
        ('59664730-3b61-4b42-810c-d36d37a90386', 'enc.NRQXOLLEMVTGC5LMOQ......', 'Default',
         'Consultant', 'law@consultant.de', 0, 0, NULL, 'djhLjyLnXb68GKs8j', 1, 0, NULL,
-        '2020-10-08 08:54:13', '2020-10-08 08:54:13'),
+        '2020-10-08 08:54:13', '2020-10-08 08:54:13', 1),
        ('5e1b28d9-c94d-4d5a-907d-3907392c4414', 'enc.NRQXOLLUMVQW2...', 'Default', 'Consultant',
         'law-team@consultant.de', 1, 0, NULL, 'nnrm5CNYXwaM3uczG', 1, 0, NULL,
-        '2020-10-08 08:54:14', '2020-10-08 08:54:14'),
+        '2020-10-08 08:54:14', '2020-10-08 08:54:14', 1),
        ('5e4578c5-45c4-474a-9d70-7a6ef6b0c4f6', 'enc.ONXWG2LBNQWXIZLBNU......', 'Default',
         'Consultant', 'social-team@consultant.de', 1, 0, NULL, 'ASMzvHKGd5uPXcwkW', 1, 0, NULL,
-        '2020-10-08 08:54:08', '2020-10-08 08:54:08'),
+        '2020-10-08 08:54:08', '2020-10-08 08:54:08', 1),
        ('66794732-8751-4a06-a786-4849375e8999', 'enc.OJSWO2LPNZQWY...', 'Regional', 'Consultant',
         'regional@consultant.de', 0, 0, NULL, 'xibWsPGinJg6YDq56', 1, 0, NULL,
-        '2020-10-08 08:57:45', '2020-10-08 08:57:45'),
+        '2020-10-08 08:57:45', '2020-10-08 08:57:45', 1),
        ('6cc9c3d3-69a5-468c-82dd-9d9f6ecd4d13', 'enc.ONXWG2LBNQWWIZLGMF2WY5A.', 'Default',
         'Consultant', 'social@consultant.de', 0, 0, NULL, 'Tcd9Wx99uCAvexQsa', 1, 0, NULL,
-        '2020-10-08 08:54:07', '2020-10-08 08:54:07'),
+        '2020-10-08 08:54:07', '2020-10-08 08:54:07', 1),
        ('72efe24d-cf00-4889-a1e9-32a3855e001d', 'enc.MN2XEZJNMRSWMYLVNR2A....', 'Default',
         'Consultant', 'cure@consultant.de', 0, 0, NULL, '7MdaYmaEq9wZkirQt', 1, 0, NULL,
-        '2020-10-08 08:54:05', '2020-10-08 08:54:05'),
+        '2020-10-08 08:54:05', '2020-10-08 08:54:05', 1),
        ('75abe824-fb42-476d-a52a-66660113bdcc', 'enc.MFSGI2LDORUW63RNORSWC3I.', 'Default',
         'Consultant', 'addiction-team@consultant.de', 1, 0, NULL, 'g22deRw34KaoGcsYs', 1, 0, NULL,
-        '2020-10-08 08:53:57', '2020-10-08 08:53:57'),
+        '2020-10-08 08:53:57', '2020-10-08 08:53:57', 1),
        ('88613f5d-0d40-47e0-b323-e792e7fba3ed', 'enc.MFSGI2LDORUW63RNMRSWMYLVNR2DE...', 'Default2',
         'Consultant', 'addiction2@consultant.de', 0, 0, NULL, 'fNy88XqbEaBnSFfqQ', 1, 0, NULL,
-        '2020-10-08 08:53:56', '2020-10-08 08:53:56'),
+        '2020-10-08 08:53:56', '2020-10-08 08:53:56', 1),
        ('8d61e2f4-309f-4b8b-a261-a524694630e3', 'enc.MRUXGYLCNFWGS5DZFVSGKZTBOVWHI...', 'Default',
         'Consultant', 'disability@consultant.de', 0, 0, NULL, 'uoRALNLKgWNp3bmvN', 1, 0, NULL,
-        '2020-10-08 08:54:10', '2020-10-08 08:54:10'),
+        '2020-10-08 08:54:10', '2020-10-08 08:54:10', 1),
        ('91f5662c-dfb1-40b6-8248-ebaa9d56ae7d', 'enc.OBWGC3SCFVSGKZTBOVWHI...', 'Default',
         'Consultant', 'planB@consultant.de', 0, 0, NULL, 'uj6nwAbtPJa7qNx7n', 0, 0, NULL,
-        '2020-10-08 08:54:12', '2020-10-08 08:54:12'),
+        '2020-10-08 08:54:12', '2020-10-08 08:54:12', 1),
        ('92e07348-d5bd-455f-80a7-d97958d2c02e', 'enc.NVUWO4TBORUW63Q.', 'Miration', 'Consultant',
         'migration@consultant.de', 0, 0, NULL, 'kDXax9iYBzbA2MNkw', 1, 0, NULL,
-        '2020-10-08 08:57:43', '2020-10-08 08:57:43'),
+        '2020-10-08 08:57:43', '2020-10-08 08:57:43', 1),
        ('94c3e0b1-0677-4fd2-a7ea-56a71aefd0e8', 'enc.OBWGC3SCFV2GKYLN', 'Default', 'Consultant',
         'planB-team@consultant.de', 1, 0, NULL, 'C62RsyoYKoAS2Zeqo', 0, 0, NULL,
-        '2020-10-08 08:54:13', '2020-10-08 08:54:13'),
+        '2020-10-08 08:54:13', '2020-10-08 08:54:13', 1),
        ('9c2e8f93-25d0-418c-a7b2-a011443ef3ca', 'enc.OJSWQYLCNFWGS5DBORUW63RNORSWC3I.', 'Default',
         'Consultant', 'rehabilitation-team@consultant.de', 1, 0, NULL, 'NsZK2LykhtN7Kx94Q', 1, 0,
-        NULL, '2020-10-08 08:54:16', '2020-10-08 08:54:16'),
+        NULL, '2020-10-08 08:54:16', '2020-10-08 08:54:16', 1),
        ('9d81f1a9-977f-4b0c-9a0d-9f0d6c855eaf', 'enc.OUZDK3LBNFXDE...', 'Manfred', 'Main2',
         'manne.main2@consultant.de', 1, 0, NULL, 'WyEfcrFmjFAxWEM2g', 0, 0, NULL,
-        '2020-10-08 08:54:00', '2020-10-08 08:54:00'),
+        '2020-10-08 08:54:00', '2020-10-08 08:54:00', 1),
        ('a1e3038c-e865-4399-afc6-a94f9de6917a', 'enc.MRUXGYLCNFWGS5DZFV2GKYLN', 'Default',
         'Consultant', 'disability-team@consultant.de', 1, 0, NULL, 'sZeEz2AoQWjXJKyxE', 1, 0, NULL,
-        '2020-10-08 08:54:11', '2020-10-08 08:54:11'),
+        '2020-10-08 08:54:11', '2020-10-08 08:54:11', 1),
        ('ac364ebc-5eaf-4f33-92c5-1e86b8a960c4', 'enc.MRSWE5BNORSWC3I.', 'Default', 'Consultant',
         'debt-team@consultant.de', 1, 0, NULL, 'JJ9yC5gSBRhyXhjDZ', 1, 0, NULL,
-        '2020-10-08 08:54:07', '2020-10-08 08:54:07'),
+        '2020-10-08 08:54:07', '2020-10-08 08:54:07', 1),
        ('bad14912-cf9f-4c16-9d0e-fe8ede9b60dc', 'enc.OUZDK3LBNFXA....', 'Manfred', 'Main',
         'manne.main@consultant.de', 1, 0, NULL, 'j8imxJzgjxo7yjKuN', 0, 0, NULL,
-        '2020-10-08 08:53:59', '2020-10-08 08:53:59'),
+        '2020-10-08 08:53:59', '2020-10-08 08:53:59', 1),
        ('d67af4e4-0914-42ce-8c4c-b063e1ad78e6', 'enc.OBQXEZLOORUW4ZZNMRSWMYLVNR2A....', 'Default',
         'Consultant', 'parenting@consultant.de', 0, 0, NULL, 'oEMAnSdJgo2TGzmMr', 1, 0, NULL,
-        '2020-10-08 08:54:03', '2020-10-08 08:54:03'),
+        '2020-10-08 08:54:03', '2020-10-08 08:54:03', 1),
        ('d6942312-752a-4c2f-8550-dcef7ae0f14a', 'enc.N5TGMZLOMRSXELLEMVTGC5LMOQ......', 'Default',
         'Consultant', 'offender@consultant.de', 0, 0, NULL, '7oPn987ZhQLvhauKn', 1, 0, NULL,
-        '2020-10-08 08:54:15', '2020-10-08 08:54:15'),
+        '2020-10-08 08:54:15', '2020-10-08 08:54:15', 1),
        ('e1fc5245-8497-4315-b610-667917cf3442', 'enc.NBXXG4DJMNSQ....', 'Hospice', 'Consultant',
         'hospice@consultant.de', 0, 0, NULL, 'RJufqeWXcHnzpH4ps', 1, 0, NULL, '2020-10-08 08:57:44',
-        '2020-10-08 08:57:44'),
+        '2020-10-08 08:57:44', 1),
        ('e2f20d3a-1ca7-4cb5-9fac-8e26033416b3', 'enc.MFSGI2LDORUW63RNORSWC3JS', 'Default2',
         'Consultant', 'addiction-team2@consultant.de', 1, 0, NULL, 'otc9ZHMsSkEqqfBMc', 1, 0, NULL,
-        '2020-10-08 08:53:58', '2020-10-08 08:53:58'),
+        '2020-10-08 08:53:58', '2020-10-08 08:53:58', 1),
        ('f0327f55-a844-41b7-a72c-2716b259a41d', 'enc.OBZGKZ3OMFXGG6JNMRSWMYLVNR2A....', 'Default',
         'Consultant', 'pregnancy@consultant.de', 0, 0, NULL, '9sS74MZdCS5Prq2CR', 0, 0, NULL,
-        '2020-10-08 08:54:02', '2020-10-08 08:54:02'),
+        '2020-10-08 08:54:02', '2020-10-08 08:54:02', 1),
        ('fb700f55-ba23-4e81-95c1-f7abbb236b95', 'enc.MFUWI4ZNMRSWMYLVNR2A....', 'Default',
         'Consultant', 'aids@consultant.de', 0, 0, NULL, '96X6xZx5pyoAriZnq', 1, 0, NULL,
-        '2020-10-08 08:54:15', '2020-10-08 08:54:15'),
+        '2020-10-08 08:54:15', '2020-10-08 08:54:15', 1),
        ('fb77d849-470f-4cec-89ca-6aa673bacb88', 'enc.ONSW42LPOJUXI6JNMRSWMYLVNR2A....', 'Default',
         'Consultant', 'seniority@consultant.de', 0, 0, NULL, 'pbb8Fw2juns6FFTks', 1, 0, NULL,
-        '2020-10-08 08:54:09', '2020-10-08 08:54:09'),
+        '2020-10-08 08:54:09', '2020-10-08 08:54:09', 1),
        ('34c3x5b1-0677-4fd2-a7ea-56a71aefd099', 'enc.AAAW42LPOJUXI6JNMRTFMYLVNR2A....', 'Default',
         'Consultant', 'new@consultant.de', 0, 0, NULL, 'aaa8Fw2juns6FFTks', 1, 0, NULL,
-        '2020-10-08 08:54:09', '2020-10-08 08:54:09');
-INSERT INTO CONSULTANT_AGENCY (`id`, `consultant_id`, `agency_id`, `create_date`, `update_date`)
+        '2020-10-08 08:54:09', '2020-10-08 08:54:09', 1);
+INSERT INTO consultant_agency (`id`, `consultant_id`, `agency_id`, `create_date`, `update_date`)
 VALUES (0, '473f7c4b-f011-4fc2-847c-ceb636a5b399', 1, '2020-10-08 08:53:55', '2020-10-08 08:53:55'),
        (1, '88613f5d-0d40-47e0-b323-e792e7fba3ed', 1, '2020-10-08 08:53:56', '2020-10-08 08:53:56'),
        (2, '75abe824-fb42-476d-a52a-66660113bdcc', 0, '2020-10-08 08:53:57', '2020-10-08 08:53:57'),
@@ -863,7 +703,7 @@ VALUES (0, '473f7c4b-f011-4fc2-847c-ceb636a5b399', 1, '2020-10-08 08:53:55', '20
         '2020-10-08 08:57:45'),
        (62, '66794732-8751-4a06-a786-4849375e8999', 1733, '2020-10-08 08:57:45',
         '2020-10-08 08:57:45');
-INSERT INTO SESSION (`id`, `user_id`, `consultant_id`, `consulting_type`, `message_date`,
+INSERT INTO session (`id`, `user_id`, `consultant_id`, `consulting_type`, `message_date`,
                      `postcode`, `agency_id`, `rc_group_id`, `rc_feedback_group_id`, `status`,
                      `is_team_session`, `is_monitoring`, `create_date`, `update_date`)
 VALUES (1, '1da238c6-cd46-4162-80f1-bff74eafe77f', '473f7c4b-f011-4fc2-847c-ceb636a5b399', 0,
@@ -1311,8 +1151,3 @@ VALUES (1, '1da238c6-cd46-4162-80f1-bff74eafe77f', '473f7c4b-f011-4fc2-847c-ceb6
        (1212, '236b97bf-6cd7-434a-83f3-0a0b129dd45a', '34c3x5b1-0677-4fd2-a7ea-56a71aefd099', 0,
         '2020-10-08 09:03:48', '12345', 0, 'DJrRTzFg8Ac2BqE8j', NULL, 3, 0, 1,
         '2020-10-08 09:03:47', '2020-10-08 09:03:48');
-INSERT INTO USER_AGENCY (`id`, `user_id`, `agency_id`, `create_date`, `update_date`)
-VALUES (0, 'opiti0a1-c936-45ee-9141-d73dfc0a3000', 777, '2020-02-05 11:09:32',
-        '2020-02-05 11:09:32');
-
-

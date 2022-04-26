@@ -1,28 +1,34 @@
 package de.caritas.cob.userservice.api.admin.service.agency;
 
 import static de.caritas.cob.userservice.api.exception.httpresponses.customheader.HttpStatusExceptionReason.CONSULTANT_AGENCY_RELATION_DOES_NOT_EXIST;
-import static de.caritas.cob.userservice.localdatetime.CustomLocalDateTime.nowInUtc;
+import static de.caritas.cob.userservice.api.helper.CustomLocalDateTime.nowInUtc;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.isNull;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import de.caritas.cob.userservice.api.adapters.web.dto.AgencyDTO;
+import de.caritas.cob.userservice.api.admin.model.AgencyAdminResponseDTO;
+import de.caritas.cob.userservice.api.admin.model.AgencyConsultantResponseDTO;
+import de.caritas.cob.userservice.api.admin.model.ConsultantAgencyResponseDTO;
+import de.caritas.cob.userservice.api.admin.model.ConsultantDTO;
 import de.caritas.cob.userservice.api.exception.httpresponses.BadRequestException;
 import de.caritas.cob.userservice.api.exception.httpresponses.CustomValidationHttpStatusException;
-import de.caritas.cob.userservice.api.model.AgencyConsultantResponseDTO;
-import de.caritas.cob.userservice.api.model.AgencyDTO;
-import de.caritas.cob.userservice.api.model.ConsultantAgencyResponseDTO;
-import de.caritas.cob.userservice.api.repository.consultant.Consultant;
-import de.caritas.cob.userservice.api.repository.consultant.ConsultantRepository;
-import de.caritas.cob.userservice.api.repository.consultantagency.ConsultantAgency;
-import de.caritas.cob.userservice.api.repository.consultantagency.ConsultantAgencyRepository;
-import de.caritas.cob.userservice.api.repository.session.Session;
-import de.caritas.cob.userservice.api.repository.session.SessionRepository;
-import de.caritas.cob.userservice.api.repository.session.SessionStatus;
+import de.caritas.cob.userservice.api.model.Consultant;
+import de.caritas.cob.userservice.api.model.ConsultantAgency;
+import de.caritas.cob.userservice.api.model.Session;
+import de.caritas.cob.userservice.api.model.Session.SessionStatus;
+import de.caritas.cob.userservice.api.port.out.ConsultantAgencyRepository;
+import de.caritas.cob.userservice.api.port.out.ConsultantRepository;
+import de.caritas.cob.userservice.api.port.out.SessionRepository;
 import de.caritas.cob.userservice.api.service.agency.AgencyService;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -69,6 +75,68 @@ public class ConsultantAgencyAdminService {
         .withConsultantId(consultantId)
         .withResult(agencyList)
         .build();
+  }
+
+  public void appendAgenciesForConsultants(Set<ConsultantDTO> consultants) {
+    var consultantIds = consultants.stream()
+        .map(ConsultantDTO::getId)
+        .collect(Collectors.toSet());
+
+    var consultantAgencies = consultantAgencyRepository
+        .findByConsultantIdIn(consultantIds);
+
+    var agencyIds = consultantAgencies.stream()
+        .map(ConsultantAgency::getAgencyId)
+        .collect(Collectors.toSet());
+
+    var agencies = this.agencyAdminService.retrieveAllAgencies().stream()
+        .filter(agency -> agencyIds.contains(agency.getId()))
+        .map(this::buildCopiedAgency)
+        .collect(Collectors.toList());
+
+    enrichConsultantsWithAgencies(consultants, consultantAgencies, agencies);
+  }
+
+  @SneakyThrows
+  private AgencyAdminResponseDTO buildCopiedAgency(
+      de.caritas.cob.userservice.agencyadminserivce.generated.web.model.AgencyAdminResponseDTO agency) {
+    var result = new AgencyAdminResponseDTO();
+    BeanUtils.copyProperties(result, agency);
+
+    return result;
+  }
+
+  private void enrichConsultantsWithAgencies(Set<ConsultantDTO> consultants,
+      List<ConsultantAgency> consultantAgencies, List<AgencyAdminResponseDTO> agencies) {
+    consultants.forEach(consultant -> {
+      var agencyIdsOfConsultant = consultantAgencies.stream()
+          .filter(consultantAgency -> onlyRelevantAgencyRelations(consultant,
+              consultantAgency))
+          .map(ConsultantAgency::getAgencyId)
+          .collect(Collectors.toSet());
+
+      var agenciesOfConsultant = agencies.stream()
+          .filter(agency -> agencyIdsOfConsultant.contains(agency.getId()))
+          .collect(Collectors.toList());
+
+      consultant.setAgencies(agenciesOfConsultant);
+    });
+  }
+
+  private boolean onlyRelevantAgencyRelations(ConsultantDTO consultant,
+      ConsultantAgency consultantAgency) {
+    var isConsultantAgencyRelatedToConsultant = consultant.getId()
+        .equals(consultantAgency.getConsultant().getId());
+    if (isConsultantAgencyRelatedToConsultant) {
+      var isConsultantDeleted = notStringNull(consultant.getDeleteDate());
+      var isConsultantAgencyNotDeleted = isNull(consultantAgency.getDeleteDate());
+      return isConsultantDeleted || isConsultantAgencyNotDeleted;
+    }
+    return false;
+  }
+
+  private boolean notStringNull(String stringToCheck) {
+    return isNotBlank(stringToCheck) && !"null".equals(stringToCheck);
   }
 
   /**
@@ -155,7 +223,7 @@ public class ConsultantAgencyAdminService {
   }
 
   private void markAsDeleted(ConsultantAgency consultantAgency) {
-    this.agencyDeletionValidationService.validateForDeletion(consultantAgency);
+    this.agencyDeletionValidationService.validateAndMarkForDeletion(consultantAgency);
     consultantAgency.setDeleteDate(nowInUtc());
     this.consultantAgencyRepository.save(consultantAgency);
   }

@@ -15,18 +15,23 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import de.caritas.cob.userservice.UserServiceApplication;
+import com.google.api.client.util.Sets;
+import com.neovisionaries.i18n.LanguageCode;
 import de.caritas.cob.userservice.agencyadminserivce.generated.web.model.AgencyAdminResponseDTO;
+import de.caritas.cob.userservice.api.Organizer;
+import de.caritas.cob.userservice.api.UserServiceApplication;
+import de.caritas.cob.userservice.api.adapters.web.dto.AgencyDTO;
 import de.caritas.cob.userservice.api.admin.service.consultant.create.agencyrelation.ConsultantAgencyRelationCreatorService;
 import de.caritas.cob.userservice.api.exception.httpresponses.BadRequestException;
-import de.caritas.cob.userservice.api.model.AgencyDTO;
-import de.caritas.cob.userservice.api.repository.consultant.Consultant;
-import de.caritas.cob.userservice.api.repository.consultant.ConsultantRepository;
-import de.caritas.cob.userservice.api.repository.consultantagency.ConsultantAgency;
-import de.caritas.cob.userservice.api.repository.consultantagency.ConsultantAgencyRepository;
+import de.caritas.cob.userservice.api.model.Consultant;
+import de.caritas.cob.userservice.api.model.ConsultantAgency;
+import de.caritas.cob.userservice.api.model.Language;
+import de.caritas.cob.userservice.api.port.out.ConsultantAgencyRepository;
+import de.caritas.cob.userservice.api.port.out.ConsultantRepository;
 import de.caritas.cob.userservice.api.service.agency.AgencyService;
 import de.caritas.cob.userservice.api.tenant.TenantContext;
 import java.util.List;
+import java.util.Set;
 import org.jeasy.random.EasyRandom;
 import org.junit.After;
 import org.junit.Before;
@@ -38,8 +43,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,8 +52,10 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureTestDatabase(replace = Replace.ANY)
 @TestPropertySource(properties = "multitenancy.enabled=true")
 @Transactional
-@Sql(value = "/database/setTenantsSpecificData.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
 public class ConsultantAgencyAdminServiceTenantAwareIT {
+
+  public static final String CONSULTANT1_ID = "0b3b1cc6-be98-4787-aa56-212259d811b8";
+  public static final String CONSULTANT2_ID = "0b3b1cc6-be98-4787-aa56-212259d811b7";
 
   @Autowired
   private ConsultantAgencyAdminService consultantAgencyAdminService;
@@ -70,8 +75,15 @@ public class ConsultantAgencyAdminServiceTenantAwareIT {
   @MockBean
   private AgencyAdminService agencyAdminService;
 
+  @Autowired
+  private Organizer organizer;
+
   @MockBean
   private RemoveConsultantFromRocketChatService removeConsultantFromRocketChatService;
+
+  private final EasyRandom easyRandom = new EasyRandom();
+
+  private Set<String> consultantsToRemove = Sets.newHashSet();
 
   @Before
   public void beforeTests() {
@@ -80,11 +92,13 @@ public class ConsultantAgencyAdminServiceTenantAwareIT {
 
   @After
   public void afterTests() {
+    consultantsToRemove.stream().forEach(id -> consultantRepository.deleteById(id));
     TenantContext.clear();
   }
 
   @Test
   public void findConsultantAgencies_Should_returnAllConsultantAgenciesForGivenConsultantId_with_correctConsultantId() {
+    givenAValidConsultantPersisted(CONSULTANT1_ID);
     var agencyAdminResponseDTO = new EasyRandom().nextObject(AgencyAdminResponseDTO.class);
     agencyAdminResponseDTO.setId(0L);
     var anotherAgencyAdminResponseDTO = new EasyRandom().nextObject(AgencyAdminResponseDTO.class);
@@ -93,7 +107,7 @@ public class ConsultantAgencyAdminServiceTenantAwareIT {
         .thenReturn(List.of(agencyAdminResponseDTO, anotherAgencyAdminResponseDTO));
 
     var consultantAgencies = consultantAgencyAdminService
-        .findConsultantAgencies("0b3b1cc6-be98-4787-aa56-212259d811b8");
+        .findConsultantAgencies(CONSULTANT1_ID);
 
     assertThat(consultantAgencies, notNullValue());
     assertThat(consultantAgencies.getEmbedded(), hasSize(1));
@@ -104,6 +118,7 @@ public class ConsultantAgencyAdminServiceTenantAwareIT {
 
   @Test
   public void findConsultantAgencies_Should_returnFullMappedSessionAdminDTO() {
+    givenAValidConsultantPersisted(CONSULTANT2_ID);
     var agencyAdminResponseDTO = new EasyRandom()
         .nextObject(AgencyAdminResponseDTO.class);
     agencyAdminResponseDTO.setId(1L);
@@ -124,6 +139,7 @@ public class ConsultantAgencyAdminServiceTenantAwareIT {
   @Test
   public void findConsultantAgencies_Should_returnEmptyResult_with_incorrectConsultantId() {
     try {
+      givenAValidConsultantPersisted(CONSULTANT1_ID);
       consultantAgencyAdminService.findConsultantAgencies("12345678-1234-1234-1234-1234567890ab");
       fail("There was no BadRequestException");
     } catch (Exception e) {
@@ -135,7 +151,8 @@ public class ConsultantAgencyAdminServiceTenantAwareIT {
 
   @Test
   public void markAllAssignedConsultantsAsTeamConsultant_Should_markAssignedConsultantsAsTeamConsultant() {
-    long teamCosnultantsBefore = this.consultantRepository
+    givenAValidConsultantPersisted(CONSULTANT1_ID);
+    long teamConsultantsBefore = this.consultantRepository
         .findByConsultantAgenciesAgencyIdInAndDeleteDateIsNull(singletonList(1L))
         .stream()
         .filter(Consultant::isTeamConsultant)
@@ -149,12 +166,13 @@ public class ConsultantAgencyAdminServiceTenantAwareIT {
         .filter(Consultant::isTeamConsultant)
         .count();
 
-    assertThat(teamConsultantsAfter, is(not(teamCosnultantsBefore)));
-    assertThat(teamConsultantsAfter, is(greaterThan(teamCosnultantsBefore)));
+    assertThat(teamConsultantsAfter, is(not(teamConsultantsBefore)));
+    assertThat(teamConsultantsAfter, is(greaterThan(teamConsultantsBefore)));
   }
 
   @Test
   public void removeConsultantsFromTeamSessionsByAgencyId_Should_removeTeamConsultantFlagAndCallServices() {
+    givenAValidConsultantPersisted(CONSULTANT1_ID, true);
     when(this.agencyService.getAgency(any())).thenReturn(new AgencyDTO().teamAgency(false));
 
     long teamCosnultantsBefore = this.consultantRepository
@@ -179,9 +197,11 @@ public class ConsultantAgencyAdminServiceTenantAwareIT {
 
   @Test
   public void markConsultantAgencyForDeletion_Should_setDeletedFlagIndatabase_When_consultantAgencyCanBeDeleted() {
+    givenAValidConsultantPersisted(CONSULTANT1_ID, true);
     ConsultantAgency validRelation = this.consultantAgencyRepository.findAll().iterator().next();
     String consultantId = validRelation.getConsultant().getId();
     Long agencyId = validRelation.getAgencyId();
+    when(this.agencyService.getAgency(any())).thenReturn(new AgencyDTO().teamAgency(false));
 
     this.consultantAgencyAdminService.markConsultantAgencyForDeletion(consultantId, agencyId);
 
@@ -192,6 +212,8 @@ public class ConsultantAgencyAdminServiceTenantAwareIT {
 
   @Test
   public void findConsultantsForAgency_Should_returnExpectedConsultants_When_agencyHasConsultatns() {
+    givenAValidConsultantPersisted(CONSULTANT1_ID);
+    givenAValidConsultantPersisted(CONSULTANT2_ID);
     var consultantsOfAgency = this.consultantAgencyAdminService.findConsultantsForAgency(1L);
 
     assertThat(consultantsOfAgency.getEmbedded(), hasSize(2));
@@ -204,6 +226,46 @@ public class ConsultantAgencyAdminServiceTenantAwareIT {
       assertThat(consultant.getLinks().getSelf(), notNullValue());
       assertThat(consultant.getLinks().getUpdate(), notNullValue());
     });
+  }
+
+  private Consultant givenAValidConsultantPersisted(String id, boolean isTeamConsultant) {
+    Consultant consultant = givenAValidConsultant(id, isTeamConsultant);
+    consultant.setLanguages(Set.of(new Language(consultant, LanguageCode.getByCode("de"))));
+    consultant = consultantRepository.save(consultant);
+    assignConsultantToAgency(consultant);
+    return consultant;
+  }
+
+  private Consultant givenAValidConsultantPersisted(String id) {
+    return givenAValidConsultantPersisted(id, false);
+  }
+
+  private void assignConsultantToAgency(Consultant consultant) {
+
+    ConsultantAgency consultantAgency = new ConsultantAgency();
+    consultantAgency.setAgencyId(1L);
+    consultantAgency.setTenantId(1L);
+    consultantAgency.setConsultant(consultant);
+    consultantAgencyRepository.save(consultantAgency);
+
+  }
+
+  private Consultant givenAValidConsultant(String id, boolean isTeamConsultant) {
+    Consultant consultant = new Consultant();
+    consultant.setAppointments(null);
+    consultant.setTenantId(1L);
+    consultant.setId(id);
+    consultant.setConsultantAgencies(Sets.newHashSet());
+    consultantsToRemove.add(id);
+    consultant.setUsername(easyRandom.nextObject(String.class));
+    consultant.setFirstName(easyRandom.nextObject(String.class));
+    consultant.setLastName(easyRandom.nextObject(String.class));
+    consultant.setEmail(easyRandom.nextObject(String.class));
+    consultant.setEncourage2fa(true);
+    consultant.setWalkThroughEnabled(true);
+    consultant.setTeamConsultant(isTeamConsultant);
+    consultant.setConsultantMobileTokens(Sets.newHashSet());
+    return consultant;
   }
 
 }
