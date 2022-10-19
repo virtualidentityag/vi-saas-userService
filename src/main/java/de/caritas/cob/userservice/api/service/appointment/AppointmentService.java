@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.caritas.cob.userservice.api.adapters.web.dto.ConsultantAdminResponseDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.CreateConsultantAgencyDTO;
 import de.caritas.cob.userservice.api.config.apiclient.AppointmentAgencyServiceApiControllerFactory;
+import de.caritas.cob.userservice.api.config.apiclient.AppointmentAskerServiceApiControllerFactory;
 import de.caritas.cob.userservice.api.config.apiclient.AppointmentConsultantServiceApiControllerFactory;
 import de.caritas.cob.userservice.api.port.out.IdentityClient;
 import de.caritas.cob.userservice.api.port.out.IdentityClientConfig;
@@ -12,6 +13,7 @@ import de.caritas.cob.userservice.api.service.httpheader.SecurityHeaderSupplier;
 import de.caritas.cob.userservice.api.service.httpheader.TenantHeaderSupplier;
 import de.caritas.cob.userservice.appointmentservice.generated.ApiClient;
 import de.caritas.cob.userservice.appointmentservice.generated.web.AgencyApi;
+import de.caritas.cob.userservice.appointmentservice.generated.web.AskerApi;
 import de.caritas.cob.userservice.appointmentservice.generated.web.ConsultantApi;
 import de.caritas.cob.userservice.appointmentservice.generated.web.model.AgencyConsultantSyncRequestDTO;
 import java.util.List;
@@ -20,9 +22,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 
 /** Service class to communicate with the AppointmentService. */
 @Component
@@ -35,6 +35,9 @@ public class AppointmentService {
 
   private final @NonNull AppointmentAgencyServiceApiControllerFactory
       appointmentAgencyServiceApiControllerFactory;
+
+  private final @NonNull AppointmentAskerServiceApiControllerFactory
+      appointmentAskerServiceApiControllerFactory;
 
   private final @NonNull SecurityHeaderSupplier securityHeaderSupplier;
   private final @NonNull TenantHeaderSupplier tenantHeaderSupplier;
@@ -107,26 +110,8 @@ public class AppointmentService {
     }
     ConsultantApi appointmentConsultantApi =
         this.appointmentConsultantServiceApiControllerFactory.createControllerApi();
-
-    if (consultantId != null && !consultantId.isEmpty()) {
-      addTechnicalUserHeaders(appointmentConsultantApi.getApiClient());
-      try {
-        appointmentConsultantApi.deleteConsultant(consultantId);
-      } catch (HttpClientErrorException ex) {
-        acceptDeletionIfConsultantNotFoundInAppointmentService(ex, consultantId);
-      }
-    }
-  }
-
-  private void acceptDeletionIfConsultantNotFoundInAppointmentService(
-      HttpClientErrorException ex, String consultantId) {
-    if (!HttpStatus.NOT_FOUND.equals(ex.getStatusCode())) {
-      throw ex;
-    } else {
-      log.warn(
-          "No consultant with id {} was not found in appointmentService. Proceeding with deletion.",
-          consultantId);
-    }
+    addTechnicalUserHeaders(appointmentConsultantApi.getApiClient());
+    appointmentConsultantApi.deleteConsultant(consultantId);
   }
 
   @SuppressWarnings("Duplicates")
@@ -156,5 +141,14 @@ public class AppointmentService {
     request.setAgencies(agencies);
     request.setConsultantId(consultantId);
     controllerApi.agencyConsultantsSync(request);
+  }
+
+  public void deleteAsker(String askerId) {
+    if (!appointmentFeatureEnabled) {
+      return;
+    }
+    AskerApi controllerApi = this.appointmentAskerServiceApiControllerFactory.createControllerApi();
+    addTechnicalUserHeaders(controllerApi.getApiClient());
+    controllerApi.deleteAskerData(askerId);
   }
 }

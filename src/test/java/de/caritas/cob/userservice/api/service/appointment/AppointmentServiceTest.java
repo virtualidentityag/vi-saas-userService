@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.caritas.cob.userservice.api.adapters.keycloak.dto.KeycloakLoginResponseDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.ConsultantAdminResponseDTO;
 import de.caritas.cob.userservice.api.config.apiclient.AppointmentAgencyServiceApiControllerFactory;
+import de.caritas.cob.userservice.api.config.apiclient.AppointmentAskerServiceApiControllerFactory;
 import de.caritas.cob.userservice.api.config.apiclient.AppointmentConsultantServiceApiControllerFactory;
 import de.caritas.cob.userservice.api.config.auth.IdentityConfig;
 import de.caritas.cob.userservice.api.port.out.IdentityClient;
@@ -83,6 +84,8 @@ class AppointmentServiceTest {
   @Mock
   AppointmentConsultantServiceApiControllerFactory appointmentConsultantServiceApiControllerFactory;
 
+  @Mock AppointmentAskerServiceApiControllerFactory appointmentAskerServiceApiControllerFactory;
+
   @BeforeEach
   public void beforeEach() throws JsonProcessingException {
     when(identityClient.loginUser(any(), any())).thenReturn(keycloakLoginResponseDTO);
@@ -121,17 +124,6 @@ class AppointmentServiceTest {
     appointmentService.deleteConsultant("testId");
     verify(appointmentConsultantApi, never()).deleteConsultant(any());
     verify(appointmentConsultantApi, never()).deleteConsultantWithHttpInfo(any());
-  }
-
-  @Test
-  void
-      deleteConsultant_Should_ProceedWithDeletion_WhenAppointmentsIsEnabledAndConsultantNotFoundInAppointmentService() {
-    givenAnIdentityClientConfig();
-    setField(appointmentService, FIELD_NAME_APPOINTMENTS_ENABLED, true);
-    when(httpClientErrorException.getStatusCode()).thenReturn(HttpStatus.NOT_FOUND);
-    doThrow(httpClientErrorException).when(appointmentConsultantApi).deleteConsultant("testId");
-    appointmentService.deleteConsultant("testId");
-    verify(appointmentConsultantApi).deleteConsultant("testId");
   }
 
   @Test
