@@ -429,6 +429,7 @@
 								</typeMapping>
 							</typeMappings>
 						</configuration>
+
 					</execution>
 					<execution>
 						<id>user-admin-service</id>
