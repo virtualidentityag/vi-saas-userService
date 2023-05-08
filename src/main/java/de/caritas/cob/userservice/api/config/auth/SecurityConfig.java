@@ -116,6 +116,8 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
             "/users/chat/{groupId:[\\dA-Za-z-,]+}/assign",
             "/users/consultants/toggleWalkThrough")
         .hasAnyAuthority(USER_DEFAULT, CONSULTANT_DEFAULT)
+        .antMatchers("/users/chat/{chatId:[0-9]+}/verify")
+        .hasAnyAuthority(CONSULTANT_DEFAULT)
         .antMatchers("/users/password/change")
         .hasAnyAuthority(USER_DEFAULT, CONSULTANT_DEFAULT, SINGLE_TENANT_ADMIN, TENANT_ADMIN)
         .antMatchers("/users/twoFactorAuth", "/users/2fa/**", "/users/mobile/app/token")
@@ -143,8 +145,6 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
             "/users/consultants/absences",
             "/users/sessions/consultants",
             "/users/sessions/teams",
-            "/users/sessions/monitoring/{sessionId:[0-9]+}",
-            "/users/sessions/{sessionId:[0-9]+}/monitoring",
             "/conversations/askers/anonymous/{sessionId:[0-9]+}/accept",
             "/conversations/consultants/**")
         .hasAuthority(CONSULTANT_DEFAULT)
