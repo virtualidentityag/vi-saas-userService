@@ -37,6 +37,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
@@ -189,7 +190,7 @@ public class ConsultantAgencyAdminUserServiceTenantAwareIT {
 
     assertThat(teamConsultantsAfter, is(not(teamCosnultantsBefore)));
     assertThat(teamConsultantsAfter, is(lessThan(teamCosnultantsBefore)));
-    verify(this.removeConsultantFromRocketChatService, times(1))
+    verify(this.removeConsultantFromRocketChatService, Mockito.never())
         .removeConsultantFromSessions(any());
   }
 
