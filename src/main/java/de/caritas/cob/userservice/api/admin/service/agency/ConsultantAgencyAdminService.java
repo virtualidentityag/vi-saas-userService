@@ -172,7 +172,6 @@ public class ConsultantAgencyAdminService {
         this.sessionRepository.findByAgencyIdAndStatusAndTeamSessionIsTrue(
             agencyId, SessionStatus.IN_PROGRESS);
 
-
     teamSessionsInProgress.forEach(this::changeSessionToNonTeamSession);
 
     this.consultantRepository
