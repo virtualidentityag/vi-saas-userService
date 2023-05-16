@@ -172,7 +172,7 @@ public class ConsultantAgencyAdminService {
         this.sessionRepository.findByAgencyIdAndStatusAndTeamSessionIsTrue(
             agencyId, SessionStatus.IN_PROGRESS);
 
-    this.removeFromRocketChatService.removeConsultantFromSessions(teamSessionsInProgress);
+
     teamSessionsInProgress.forEach(this::changeSessionToNonTeamSession);
 
     this.consultantRepository

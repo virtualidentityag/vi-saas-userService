@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -93,7 +94,7 @@ public class ConsultantAgencyAdminUserServiceTest {
     this.consultantAgencyAdminService.removeConsultantsFromTeamSessionsByAgencyId(1L);
 
     verify(this.sessionRepository, times(1)).save(any());
-    verify(this.removeFromRocketChatService, times(1)).removeConsultantFromSessions(any());
+    verify(this.removeFromRocketChatService, Mockito.never()).removeConsultantFromSessions(any());
   }
 
   @Test
