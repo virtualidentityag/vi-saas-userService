@@ -47,4 +47,5 @@
   <include file="db/changelog/changeset/0039_session_main_topic_type/0039_changeSet.xml"/>
   <include file="db/changelog/changeset/0040_add_notification_settings/0040_changeSet.xml"/>
   <include file="db/changelog/changeset/0041_migrate_notification_settings/0041_changeSet.xml"/>
+  <include file="db/changelog/changeset/0043_add_booking_id_to_appointment/0043_changeSet.xml"/>
 </databaseChangeLog>
