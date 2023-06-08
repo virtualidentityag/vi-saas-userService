@@ -493,7 +493,8 @@ public class KeycloakService implements IdentityClient {
     UsersResource userRessource = realmResource.users();
     UserResource user = userRessource.get(userId);
     // Remove role
-    var optionalRole = findRole(user, roleName);
+    List<RoleRepresentation> userRoles = user.roles().realmLevel().listAll();
+    var optionalRole = findRole(userRoles, roleName);
     if (optionalRole.isPresent()) {
       RoleRepresentation roleRepresentation =
           realmResource.roles().get(optionalRole.get()).toRepresentation();
@@ -503,9 +504,7 @@ public class KeycloakService implements IdentityClient {
     }
   }
 
-  Optional<String> findRole(UserResource user, String roleName) {
-
-    List<RoleRepresentation> userRoles = user.roles().realmLevel().listAll();
+  Optional<String> findRole(List<RoleRepresentation> userRoles, String roleName) {
     if (userRoles != null) {
       return userRoles.stream()
           .filter(role -> role.getName() != null && role.getName().equals(roleName))
