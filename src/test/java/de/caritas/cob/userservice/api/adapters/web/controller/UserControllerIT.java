@@ -219,7 +219,7 @@ import de.caritas.cob.userservice.api.service.LogService;
 import de.caritas.cob.userservice.api.service.SessionDataService;
 import de.caritas.cob.userservice.api.service.archive.SessionArchiveService;
 import de.caritas.cob.userservice.api.service.session.SessionService;
-import de.caritas.cob.userservice.api.service.user.ValidatedUserAccountProvider;
+import de.caritas.cob.userservice.api.service.user.UserAccountService;
 import de.caritas.cob.userservice.api.tenant.TenantContext;
 import de.caritas.cob.userservice.api.workflow.delete.action.asker.DeleteSingleRoomAndSessionAction;
 import de.caritas.cob.userservice.api.workflow.delete.model.SessionDeletionWorkflowDTO;
@@ -423,7 +423,7 @@ public class UserControllerIT {
 
   @Autowired private MockMvc mvc;
 
-  @MockBean private ValidatedUserAccountProvider accountProvider;
+  @MockBean private UserAccountService accountProvider;
   @MockBean private SessionService sessionService;
   @MockBean private AuthenticatedUser authenticatedUser;
   @MockBean private CreateEnquiryMessageFacade createEnquiryMessageFacade;
