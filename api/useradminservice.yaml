@@ -1227,6 +1227,7 @@ components:
           maxLength: 10000
         tenantId:
           type: integer
+          format: int64
           example: "1"
         isGroupchatConsultant:
           $ref: '#/components/schemas/IsGroupchatConsultant'
@@ -1331,6 +1332,10 @@ components:
             $ref: './../services/agencyadminservice.yaml#/components/schemas/AgencyAdminResponseDTO'
         isGroupchatConsultant:
           $ref: '#/components/schemas/IsGroupchatConsultant'
+        tenantId:
+          type: integer
+        tenantName:
+          type: string
 
     CreateAdminDTO:
       type: object
@@ -1424,6 +1429,8 @@ components:
         deleteDate:
           type: string
         tenantId:
+          type: string
+        tenantName:
           type: string
         tenantSubdomain:
           type: string
