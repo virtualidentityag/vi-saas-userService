@@ -35,7 +35,6 @@ import de.caritas.cob.userservice.api.service.LogService;
 import de.caritas.cob.userservice.api.service.agency.AgencyService;
 import de.caritas.cob.userservice.api.service.user.UserService;
 import de.caritas.cob.userservice.consultingtypeservice.generated.web.model.ExtendedConsultingTypeResponseDTO;
-import de.caritas.cob.userservice.consultingtypeservice.generated.web.model.MonitoringDTO;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -212,13 +211,13 @@ public class SessionService {
             .status(sessionStatus)
             .teamSession(isTeamSession)
             .isPeerChat(isTrue(extendedConsultingTypeResponseDTO.getIsPeerChat()))
-            .monitoring(retrieveCheckedMonitoringProperty(extendedConsultingTypeResponseDTO))
             .createDate(nowInUtc())
             .updateDate(nowInUtc())
             .mainTopicId(userDto.getMainTopicId())
             .userGender(userDto.getUserGender())
             .userAge(userDto.getUserAge())
             .counsellingRelation(userDto.getCounsellingRelation())
+            .referer(userDto.getReferer())
             .isConsultantDirectlySet(false)
             .build();
 
@@ -257,13 +256,6 @@ public class SessionService {
       throw new BadRequestException("Consulting type id must not be null");
     }
     return consultingTypeId;
-  }
-
-  private boolean retrieveCheckedMonitoringProperty(
-      ExtendedConsultingTypeResponseDTO extendedConsultingTypeResponseDTO) {
-    MonitoringDTO monitoring = extendedConsultingTypeResponseDTO.getMonitoring();
-
-    return nonNull(monitoring) && isTrue(monitoring.getInitializeMonitoring());
   }
 
   /**
@@ -633,14 +625,14 @@ public class SessionService {
             .askerUserName(session.getUser().getUsername())
             .feedbackGroupId(session.getFeedbackGroupId())
             .groupId(session.getGroupId())
-            .isMonitoring(session.isMonitoring())
             .postcode(session.getPostcode())
             .consultantId(nonNull(session.getConsultant()) ? session.getConsultant().getId() : null)
             .consultantRcId(
                 nonNull(session.getConsultant()) ? session.getConsultant().getRocketChatId() : null)
             .age(session.getUserAge())
             .gender(session.getUserGender())
-            .counsellingRelation(session.getCounsellingRelation());
+            .counsellingRelation(session.getCounsellingRelation())
+            .referer(session.getReferer());
 
     if (topicsFeatureEnabled) {
       consultantSessionDTO

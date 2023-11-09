@@ -3,7 +3,6 @@ package de.caritas.cob.userservice.api.admin.service.consultant.create;
 import static de.caritas.cob.userservice.api.config.auth.UserRole.CONSULTANT;
 import static de.caritas.cob.userservice.api.config.auth.UserRole.GROUP_CHAT_CONSULTANT;
 import static de.caritas.cob.userservice.api.helper.json.JsonSerializationUtils.serializeToJsonString;
-import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.hibernate.validator.internal.util.CollectionHelper.asSet;
 
@@ -16,10 +15,12 @@ import de.caritas.cob.userservice.api.adapters.web.dto.UserDTO;
 import de.caritas.cob.userservice.api.admin.service.consultant.validation.CreateConsultantDTOAbsenceInputAdapter;
 import de.caritas.cob.userservice.api.admin.service.consultant.validation.UserAccountInputValidator;
 import de.caritas.cob.userservice.api.admin.service.tenant.TenantAdminService;
+import de.caritas.cob.userservice.api.exception.httpresponses.BadRequestException;
 import de.caritas.cob.userservice.api.exception.httpresponses.CustomValidationHttpStatusException;
 import de.caritas.cob.userservice.api.exception.httpresponses.InternalServerErrorException;
 import de.caritas.cob.userservice.api.exception.httpresponses.customheader.HttpStatusExceptionReason;
 import de.caritas.cob.userservice.api.exception.rocketchat.RocketChatLoginException;
+import de.caritas.cob.userservice.api.helper.AuthenticatedUser;
 import de.caritas.cob.userservice.api.helper.UserHelper;
 import de.caritas.cob.userservice.api.helper.UsernameTranscoder;
 import de.caritas.cob.userservice.api.model.Consultant;
@@ -32,6 +33,7 @@ import de.caritas.cob.userservice.tenantadminservice.generated.web.model.TenantD
 import java.util.Set;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +42,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ConsultantCreatorService {
 
   private final @NonNull IdentityClient identityClient;
@@ -51,6 +54,8 @@ public class ConsultantCreatorService {
 
   @Value("${multitenancy.enabled}")
   private boolean multiTenancyEnabled;
+
+  private final @NonNull AuthenticatedUser authenticatedUser;
 
   /**
    * Creates a new {@link Consultant} by {@link CreateConsultantDTO} in database, keycloak and
@@ -71,6 +76,29 @@ public class ConsultantCreatorService {
     addGroupChatConsultantRole(createConsultantDTO, roles);
 
     return createNewConsultant(consultantCreationInput, roles);
+  }
+
+  private void validateTenantId(CreateConsultantDTO createConsultantDTO) {
+    if (authenticatedUser.isTenantSuperAdmin()) {
+      if (createConsultantDTO.getTenantId() == null) {
+        throw new BadRequestException(
+            "TenantId must be set if consultant is created by superadmin");
+      }
+    } else {
+      checkIfTenantIdMatch(createConsultantDTO);
+    }
+  }
+
+  private void checkIfTenantIdMatch(CreateConsultantDTO createConsultantDTO) {
+    if (createConsultantDTO.getTenantId() != null
+        && !createConsultantDTO.getTenantId().equals(TenantContext.getCurrentTenant())) {
+      log.error(
+          "TenantId of createConsultantDTO {} does not match current tenant {}",
+          createConsultantDTO.getTenantId(),
+          TenantContext.getCurrentTenant());
+      throw new BadRequestException(
+          "TenantId of createConsultantDTO does not match current tenant");
+    }
   }
 
   /**
@@ -103,10 +131,10 @@ public class ConsultantCreatorService {
 
   private void assignCurrentTenantContext(CreateConsultantDTO createConsultantDTO) {
     if (multiTenancyEnabled) {
-      createConsultantDTO.setTenantId(TenantContext.getCurrentTenant().intValue());
-    } else {
-      // TODO: replace this quick fix
-      createConsultantDTO.setTenantId(1);
+      validateTenantId(createConsultantDTO);
+      if (!authenticatedUser.isTenantSuperAdmin() && createConsultantDTO.getTenantId() == null) {
+        createConsultantDTO.setTenantId(TenantContext.getCurrentTenant());
+      }
     }
   }
 
@@ -203,15 +231,8 @@ public class ConsultantCreatorService {
 
   private void addGroupChatConsultantRole(
       CreateConsultantDTO createConsultantDTO, Set<String> roles) {
-    if (isFeatureGroupChatV2Enabled(createConsultantDTO.getTenantId())) {
+    if (Boolean.TRUE.equals(createConsultantDTO.getIsGroupchatConsultant())) {
       roles.add(GROUP_CHAT_CONSULTANT.getValue());
     }
-  }
-
-  private boolean isFeatureGroupChatV2Enabled(Integer tenantId) {
-    var tenant = tenantAdminService.getTenantById(Long.valueOf(tenantId));
-    return nonNull(tenant)
-        && nonNull(tenant.getSettings())
-        && isTrue(tenant.getSettings().getFeatureGroupChatV2Enabled());
   }
 }

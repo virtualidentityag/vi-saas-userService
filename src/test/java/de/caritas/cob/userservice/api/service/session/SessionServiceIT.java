@@ -131,7 +131,6 @@ class SessionServiceIT {
     assertEquals(session.getUser().getRcUserId(), result.getAskerRcId());
     assertEquals(session.getUser().getUsername(), result.getAskerUserName());
     assertEquals(session.getPostcode(), result.getPostcode());
-    assertEquals(session.isMonitoring(), result.getIsMonitoring());
     assertEquals(session.getStatus().getValue(), result.getStatus().intValue());
     assertEquals(session.getGroupId(), result.getGroupId());
     assertEquals(session.getFeedbackGroupId(), result.getFeedbackGroupId());
@@ -139,6 +138,7 @@ class SessionServiceIT {
     assertEquals(session.getUserAge(), result.getAge());
     assertEquals(session.getUserGender(), result.getGender());
     assertEquals(session.getCounsellingRelation(), result.getCounsellingRelation());
+    assertEquals(session.getReferer(), result.getReferer());
     assertNotNull(result.getMainTopic());
     assertEquals(1, result.getMainTopic().getId());
     assertEquals("topic name", result.getMainTopic().getName());

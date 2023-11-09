@@ -17,6 +17,9 @@ import de.caritas.cob.userservice.api.port.out.IdentityClient;
 import de.caritas.cob.userservice.api.port.out.IdentityClientConfig;
 import de.caritas.cob.userservice.api.service.ConsultantService;
 import de.caritas.cob.userservice.api.service.appointment.AppointmentService;
+import de.caritas.cob.userservice.api.service.statistics.StatisticsService;
+import de.caritas.cob.userservice.api.service.statistics.event.DeleteAccountStatisticsEvent;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +31,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ValidatedUserAccountProvider {
+public class UserAccountService {
 
   private final @NonNull UserService userService;
   private final @NonNull ConsultantService consultantService;
@@ -39,6 +42,16 @@ public class ValidatedUserAccountProvider {
   private final @NonNull UserHelper userHelper;
 
   private final @NonNull IdentityClientConfig identityClientConfig;
+
+  private final @NonNull StatisticsService statisticsService;
+
+  public Optional<User> findUserByEmail(String email) {
+    return this.userService.findUserByEmail(email);
+  }
+
+  public Optional<Consultant> findConsultantByEmail(String email) {
+    return this.consultantService.findConsultantByEmail(email);
+  }
 
   /**
    * Tries to retrieve the user of the current {@link AuthenticatedUser} and throws an 500 - Server
@@ -176,6 +189,18 @@ public class ValidatedUserAccountProvider {
     this.identityClient.deactivateUser(user.getUserId());
     user.setDeleteDate(nowInUtc());
     userService.saveUser(user);
+    fireAccountDeletionStatisticsEvent(user);
+  }
+
+  private void fireAccountDeletionStatisticsEvent(User user) {
+    try {
+      DeleteAccountStatisticsEvent deleteAccountStatisticsEvent =
+          new DeleteAccountStatisticsEvent(user, LocalDateTime.now());
+      log.debug("Firing account deletion statistics event: {}", deleteAccountStatisticsEvent);
+      statisticsService.fireEvent(deleteAccountStatisticsEvent);
+    } catch (Exception e) {
+      log.error("Could not create account deletion statistics event", e);
+    }
   }
 
   /**

@@ -69,7 +69,6 @@ public class SessionMapper {
         .isTeamSession(session.isTeamSession())
         .language(LanguageCode.fromValue(session.getLanguageCode().name()))
         .isPeerChat(session.isPeerChat())
-        .monitoring(session.isMonitoring())
         .registrationType(session.getRegistrationType().name())
         .createDate(toIsoTime(session.getCreateDate()))
         .topic(new SessionTopicDTO().id(session.getMainTopicId()));
@@ -78,6 +77,7 @@ public class SessionMapper {
   private SessionUserDTO convertToSessionUserDTO(Session session) {
     if (nonNull(session.getUser()) && nonNull(session.getSessionData())) {
       var sessionUserDto = new SessionUserDTO();
+      sessionUserDto.setId(session.getUser().getUserId());
       sessionUserDto.setUsername(
           new UsernameTranscoder().decodeUsername(session.getUser().getUsername()));
       sessionUserDto.setSessionData(buildSessionDataMapFromSession(session));

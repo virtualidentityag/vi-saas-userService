@@ -3,162 +3,25 @@ package de.caritas.cob.userservice.api.adapters.web.controller;
 import static de.caritas.cob.userservice.api.exception.httpresponses.customheader.HttpStatusExceptionReason.USERNAME_NOT_AVAILABLE;
 import static de.caritas.cob.userservice.api.helper.CustomLocalDateTime.nowInUtc;
 import static de.caritas.cob.userservice.api.model.Session.RegistrationType.REGISTERED;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_ACCEPT_ENQUIRY;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_ACTIVATE_2FA;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_ARCHIVE_SESSION;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_ARCHIVE_SESSION_INVALID_PATH_VAR;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_CREATE_ENQUIRY_MESSAGE;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_DEARCHIVE_SESSION;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_DEARCHIVE_SESSION_INVALID_PATH_VAR;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_DELETE_FLAG_USER_DELETED;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_CHAT;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_CHAT_MEMBERS;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_CHAT_MEMBERS_WITH_INVALID_PATH_PARAMS;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_CHAT_WITH_INVALID_PATH_PARAMS;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_CONSULTANTS_FOR_AGENCY;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_CONSULTANTS_FOR_AGENCY_WITHOUT_PARAM;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_SESSIONS_FOR_AUTHENTICATED_CONSULTANT;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_SESSIONS_FOR_AUTHENTICATED_CONSULTANT_WITHOUT_COUNT;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_SESSIONS_FOR_AUTHENTICATED_CONSULTANT_WITHOUT_OFFSET;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_SESSIONS_FOR_AUTHENTICATED_CONSULTANT_WITHOUT_STATUS;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_SESSIONS_FOR_AUTHENTICATED_CONSULTANT_WITH_INVALID_FILTER;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_SESSIONS_FOR_AUTHENTICATED_CONSULTANT_WITH_NEGATIVE_COUNT;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_SESSIONS_FOR_AUTHENTICATED_CONSULTANT_WITH_NEGATIVE_OFFSET;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_SESSIONS_FOR_AUTHENTICATED_USER;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_SESSION_FOR_CONSULTANT;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_TEAM_SESSIONS_FOR_AUTHENTICATED_CONSULTANT;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_TEAM_SESSIONS_FOR_AUTHENTICATED_CONSULTANT_WITHOUT_COUNT;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_TEAM_SESSIONS_FOR_AUTHENTICATED_CONSULTANT_WITHOUT_OFFSET;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_TEAM_SESSIONS_FOR_AUTHENTICATED_CONSULTANT_WITH_INVALID_FILTER;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_TEAM_SESSIONS_FOR_AUTHENTICATED_CONSULTANT_WITH_NEGATIVE_COUNT;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_TEAM_SESSIONS_FOR_AUTHENTICATED_CONSULTANT_WITH_NEGATIVE_OFFSET;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_GET_USER_DATA;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_POST_CHAT_NEW;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_POST_CHAT_NEW_V2;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_POST_REGISTER_NEW_CONSULTING_TYPE;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_POST_REGISTER_USER;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_ADD_MOBILE_TOKEN;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_ASSIGN_CHAT;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_ASSIGN_SESSION;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_ASSIGN_SESSION_INVALID_PARAMS;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_CHAT_START;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_CHAT_START_WITH_INVALID_PATH_PARAMS;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_CHAT_STOP;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_CHAT_STOP_INVALID;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_CONSULTANT_ABSENT;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_JOIN_CHAT;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_JOIN_CHAT_WITH_INVALID_PATH_PARAMS;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_UPDATE_CHAT;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_UPDATE_CHAT_INVALID_PATH_PARAMS;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_UPDATE_EMAIL;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_UPDATE_MOBILE_TOKEN;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_UPDATE_PASSWORD;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_UPDATE_SESSION_DATA;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_PUT_UPDATE_SESSION_DATA_INVALID_PATH_VAR;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_REGISTER_USER;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_SEND_NEW_MESSAGE_NOTIFICATION;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_UPDATE_KEY;
-import static de.caritas.cob.userservice.api.testHelper.PathConstants.PATH_USER_DATA;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.ACTIVATE_2FA_BODY;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.INVALID_NEW_REGISTRATION_BODY_WITHOUT_AGENCY_ID;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.INVALID_NEW_REGISTRATION_BODY_WITHOUT_CONSULTING_TYPE;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.INVALID_NEW_REGISTRATION_BODY_WITHOUT_POSTCODE;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.INVALID_NEW_REGISTRATION_BODY_WITH_INVALID_POSTCODE;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.INVALID_U25_USER_REQUEST_BODY_AGE;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.INVALID_U25_USER_REQUEST_BODY_STATE;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.INVALID_USER_REQUEST_BODY;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.INVALID_USER_REQUEST_BODY_WITH_INVALID_POSTCODE;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.INVALID_USER_REQUEST_BODY_WITOUT_POSTCODE;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.USER_REQUEST_BODY_WITH_USERNAME_TOO_LONG;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.USER_REQUEST_BODY_WITH_USERNAME_TOO_SHORT;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.VALID_CREATE_CHAT_BODY;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.VALID_NEW_REGISTRATION_BODY;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.VALID_U25_USER_REQUEST_BODY;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.VALID_UPDATE_CHAT_BODY;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.VALID_USER_REQUEST_BODY;
-import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.VALID_USER_REQUEST_BODY_WITH_ENCODED_PASSWORD;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.ABSENCE_MESSAGE;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.AGENCY_ID;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.CITY;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.CONSULTANT;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.CONSULTANT_ID;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.CONSULTING_TYPE_ID_SUCHT;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.CONSULTING_TYPE_SETTINGS_SUCHT;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.CONSULTING_TYPE_SETTINGS_U25;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.CONSULTING_TYPE_SETTINGS_WITHOUT_MANDATORY_FIELDS;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.CONSULTING_TYPE_SETTINGS_WITH_MANDATORY_FIELDS;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.CREATE_CHAT_RESPONSE_DTO;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.DECODED_PASSWORD;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.DESCRIPTION;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.FIRST_NAME;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.INACTIVE_CHAT;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.IS_ABSENT;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.IS_MONITORING;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.IS_NO_TEAM_SESSION;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.LAST_NAME;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.MASTER_KEY_1;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.MASTER_KEY_DTO_KEY_1;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.MASTER_KEY_DTO_KEY_2;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.MESSAGE;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.MESSAGE_DATE;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.NAME;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.POSTCODE;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.RC_GROUP_ID;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.RC_TOKEN;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.RC_TOKEN_HEADER_PARAMETER_NAME;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.RC_USER_ID;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.RC_USER_ID_HEADER_PARAMETER_NAME;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.ROCKETCHAT_ID;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.SESSION_ID;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.USER_ID;
+import static de.caritas.cob.userservice.api.testHelper.PathConstants.*;
+import static de.caritas.cob.userservice.api.testHelper.RequestBodyConstants.*;
+import static de.caritas.cob.userservice.api.testHelper.TestConstants.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 import static org.powermock.reflect.Whitebox.setInternalState;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neovisionaries.i18n.LanguageCode;
-import de.caritas.cob.userservice.api.actions.registry.ActionContainer;
 import de.caritas.cob.userservice.api.actions.registry.ActionsRegistry;
-import de.caritas.cob.userservice.api.actions.user.DeactivateKeycloakUserActionCommand;
 import de.caritas.cob.userservice.api.adapters.rocketchat.RocketChatCredentials;
 import de.caritas.cob.userservice.api.adapters.rocketchat.RocketChatService;
 import de.caritas.cob.userservice.api.adapters.web.controller.interceptor.ApiResponseEntityExceptionHandler;
-import de.caritas.cob.userservice.api.adapters.web.dto.AgencyDTO;
-import de.caritas.cob.userservice.api.adapters.web.dto.ConsultantResponseDTO;
-import de.caritas.cob.userservice.api.adapters.web.dto.CreateEnquiryMessageResponseDTO;
-import de.caritas.cob.userservice.api.adapters.web.dto.E2eKeyDTO;
-import de.caritas.cob.userservice.api.adapters.web.dto.MobileTokenDTO;
-import de.caritas.cob.userservice.api.adapters.web.dto.MonitoringDTO;
-import de.caritas.cob.userservice.api.adapters.web.dto.NewRegistrationResponseDto;
-import de.caritas.cob.userservice.api.adapters.web.dto.SessionConsultantForUserDTO;
-import de.caritas.cob.userservice.api.adapters.web.dto.SessionDTO;
-import de.caritas.cob.userservice.api.adapters.web.dto.UpdateAdminConsultantDTO;
-import de.caritas.cob.userservice.api.adapters.web.dto.UpdateConsultantDTO;
-import de.caritas.cob.userservice.api.adapters.web.dto.UserDTO;
-import de.caritas.cob.userservice.api.adapters.web.dto.UserDataResponseDTO;
-import de.caritas.cob.userservice.api.adapters.web.dto.UserSessionListResponseDTO;
-import de.caritas.cob.userservice.api.adapters.web.dto.UserSessionResponseDTO;
+import de.caritas.cob.userservice.api.adapters.web.dto.*;
 import de.caritas.cob.userservice.api.adapters.web.dto.validation.MandatoryFieldsProvider;
 import de.caritas.cob.userservice.api.adapters.web.mapping.ConsultantDtoMapper;
 import de.caritas.cob.userservice.api.adapters.web.mapping.UserDtoMapper;
@@ -169,73 +32,33 @@ import de.caritas.cob.userservice.api.config.auth.Authority;
 import de.caritas.cob.userservice.api.config.auth.Authority.AuthorityValue;
 import de.caritas.cob.userservice.api.config.auth.RoleAuthorizationAuthorityMapper;
 import de.caritas.cob.userservice.api.config.auth.UserRole;
-import de.caritas.cob.userservice.api.exception.httpresponses.BadRequestException;
-import de.caritas.cob.userservice.api.exception.httpresponses.ConflictException;
-import de.caritas.cob.userservice.api.exception.httpresponses.CustomValidationHttpStatusException;
-import de.caritas.cob.userservice.api.exception.httpresponses.ForbiddenException;
-import de.caritas.cob.userservice.api.exception.httpresponses.InternalServerErrorException;
-import de.caritas.cob.userservice.api.exception.httpresponses.RocketChatUnauthorizedException;
-import de.caritas.cob.userservice.api.facade.AssignChatFacade;
-import de.caritas.cob.userservice.api.facade.CreateChatFacade;
-import de.caritas.cob.userservice.api.facade.CreateEnquiryMessageFacade;
-import de.caritas.cob.userservice.api.facade.CreateNewConsultingTypeFacade;
-import de.caritas.cob.userservice.api.facade.CreateUserFacade;
-import de.caritas.cob.userservice.api.facade.EmailNotificationFacade;
-import de.caritas.cob.userservice.api.facade.GetChatFacade;
-import de.caritas.cob.userservice.api.facade.GetChatMembersFacade;
-import de.caritas.cob.userservice.api.facade.JoinAndLeaveChatFacade;
-import de.caritas.cob.userservice.api.facade.StartChatFacade;
-import de.caritas.cob.userservice.api.facade.StopChatFacade;
-import de.caritas.cob.userservice.api.facade.UsersStatisticsFacade;
+import de.caritas.cob.userservice.api.exception.httpresponses.*;
+import de.caritas.cob.userservice.api.facade.*;
 import de.caritas.cob.userservice.api.facade.assignsession.AssignEnquiryFacade;
 import de.caritas.cob.userservice.api.facade.assignsession.AssignSessionFacade;
 import de.caritas.cob.userservice.api.facade.sessionlist.SessionListFacade;
-import de.caritas.cob.userservice.api.facade.userdata.AskerDataProvider;
-import de.caritas.cob.userservice.api.facade.userdata.ConsultantDataFacade;
-import de.caritas.cob.userservice.api.facade.userdata.ConsultantDataProvider;
-import de.caritas.cob.userservice.api.facade.userdata.KeycloakUserDataProvider;
+import de.caritas.cob.userservice.api.facade.userdata.*;
 import de.caritas.cob.userservice.api.helper.AuthenticatedUser;
 import de.caritas.cob.userservice.api.helper.ChatPermissionVerifier;
 import de.caritas.cob.userservice.api.helper.UserHelper;
 import de.caritas.cob.userservice.api.manager.consultingtype.ConsultingTypeManager;
 import de.caritas.cob.userservice.api.manager.consultingtype.registration.mandatoryfields.MandatoryFields;
-import de.caritas.cob.userservice.api.model.Chat;
-import de.caritas.cob.userservice.api.model.Consultant;
-import de.caritas.cob.userservice.api.model.ConsultantStatus;
-import de.caritas.cob.userservice.api.model.EnquiryData;
-import de.caritas.cob.userservice.api.model.Session;
+import de.caritas.cob.userservice.api.model.*;
 import de.caritas.cob.userservice.api.model.Session.SessionStatus;
-import de.caritas.cob.userservice.api.model.User;
 import de.caritas.cob.userservice.api.port.in.AccountManaging;
 import de.caritas.cob.userservice.api.port.in.IdentityManaging;
 import de.caritas.cob.userservice.api.port.in.Messaging;
 import de.caritas.cob.userservice.api.port.out.IdentityClient;
 import de.caritas.cob.userservice.api.port.out.IdentityClientConfig;
-import de.caritas.cob.userservice.api.service.AskerImportService;
-import de.caritas.cob.userservice.api.service.ChatService;
-import de.caritas.cob.userservice.api.service.ConsultantAgencyService;
-import de.caritas.cob.userservice.api.service.ConsultantImportService;
-import de.caritas.cob.userservice.api.service.ConsultantService;
-import de.caritas.cob.userservice.api.service.DecryptionService;
-import de.caritas.cob.userservice.api.service.LogService;
-import de.caritas.cob.userservice.api.service.MonitoringService;
-import de.caritas.cob.userservice.api.service.SessionDataService;
+import de.caritas.cob.userservice.api.service.*;
 import de.caritas.cob.userservice.api.service.archive.SessionArchiveService;
+import de.caritas.cob.userservice.api.service.archive.SessionDeleteService;
 import de.caritas.cob.userservice.api.service.session.SessionService;
-import de.caritas.cob.userservice.api.service.user.ValidatedUserAccountProvider;
+import de.caritas.cob.userservice.api.service.user.UserAccountService;
 import de.caritas.cob.userservice.api.tenant.TenantContext;
-import de.caritas.cob.userservice.api.workflow.delete.action.asker.DeleteSingleRoomAndSessionAction;
-import de.caritas.cob.userservice.api.workflow.delete.model.SessionDeletionWorkflowDTO;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import javax.servlet.http.Cookie;
+import lombok.val;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.service.spi.ServiceException;
@@ -315,8 +138,7 @@ public class UserControllerIT {
           .groupId(RC_GROUP_ID)
           .askerRcId(RC_USER_ID)
           .messageDate(MESSAGE_DATE)
-          .isTeamSession(IS_NO_TEAM_SESSION)
-          .monitoring(IS_MONITORING);
+          .isTeamSession(IS_NO_TEAM_SESSION);
   private final AgencyDTO AGENCY_DTO =
       new AgencyDTO()
           .id(AGENCY_ID)
@@ -334,13 +156,8 @@ public class UserControllerIT {
           .session(SESSION_DTO)
           .agency(AGENCY_DTO)
           .consultant(SESSION_CONSULTANT_DTO);
-  private final String PATH_PUT_SESSIONS_MONITORING = "/users/sessions/monitoring/" + SESSION_ID;
-  private final String PATH_GET_MONITORING = "/users/sessions/" + SESSION_ID + "/monitoring";
   protected static final String PATH_GET_PUBLIC_CONSULTANT_DATA =
       "/users/consultants/65c1095e-b977-493a-a34f-064b729d1d6c";
-  private final String VALID_SESSION_MONITORING_REQUEST_BODY =
-      "{\"addictiveDrugs\": { \"drugs\":"
-          + "{\"others\": false} }, \"intervention\": { \"information\": false } }";
   private final String ERROR = "error";
   private final Session SESSION =
       Session.builder()
@@ -358,7 +175,6 @@ public class UserControllerIT {
           .updateDate(nowInUtc())
           .teamSession(false)
           .isPeerChat(false)
-          .monitoring(true)
           .build();
 
   private final Session SESSION_WITHOUT_CONSULTANT =
@@ -376,7 +192,6 @@ public class UserControllerIT {
           .updateDate(nowInUtc())
           .teamSession(false)
           .isPeerChat(false)
-          .monitoring(true)
           .build();
 
   private final Session TEAM_SESSION =
@@ -395,7 +210,6 @@ public class UserControllerIT {
           .updateDate(nowInUtc())
           .teamSession(true)
           .isPeerChat(false)
-          .monitoring(true)
           .build();
 
   private final Session TEAM_SESSION_WITHOUT_GROUP_ID =
@@ -413,7 +227,6 @@ public class UserControllerIT {
           .updateDate(nowInUtc())
           .teamSession(true)
           .isPeerChat(false)
-          .monitoring(true)
           .build();
 
   private final ConsultantResponseDTO CONSULTANT_RESPONSE_DTO =
@@ -430,14 +243,13 @@ public class UserControllerIT {
               AuthorityValue.ASSIGN_CONSULTANT_TO_SESSION));
   private final Set<String> AUTHORITY_ASSIGN_SESSION =
       new HashSet<>(Collections.singletonList(AuthorityValue.ASSIGN_CONSULTANT_TO_SESSION));
-  private final MonitoringDTO MONITORING_DTO = new MonitoringDTO();
 
   private final EasyRandom easyRandom = new EasyRandom();
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Autowired private MockMvc mvc;
 
-  @MockBean private ValidatedUserAccountProvider accountProvider;
+  @MockBean private UserAccountService accountProvider;
   @MockBean private SessionService sessionService;
   @MockBean private AuthenticatedUser authenticatedUser;
   @MockBean private CreateEnquiryMessageFacade createEnquiryMessageFacade;
@@ -447,7 +259,6 @@ public class UserControllerIT {
   private ConsultantImportService consultantImportService;
 
   @MockBean private EmailNotificationFacade emailNotificationFacade;
-  @MockBean private MonitoringService monitoringService;
 
   @MockBean
   @SuppressWarnings("unused")
@@ -528,15 +339,15 @@ public class UserControllerIT {
   @SuppressWarnings("unused")
   private KeycloakUserDataProvider keycloakUserDataProvider;
 
-  @SuppressWarnings("unused")
-  @MockBean
-  private UsersStatisticsFacade usersStatisticsFacade;
-
   @MockBean
   @SuppressWarnings("unused")
   private VideoChatConfig videoChatConfig;
 
   @MockBean private AdminUserFacade adminUserFacade;
+
+  @MockBean private EmailNotificationMapper emailNotificationMapper;
+
+  @MockBean private SessionDeleteService sessionDeleteService;
 
   @Mock private Logger logger;
 
@@ -548,11 +359,33 @@ public class UserControllerIT {
     drugsMap.put("others", false);
     HashMap<String, Object> addictiveDrugsMap = new HashMap<>();
     addictiveDrugsMap.put("drugs", drugsMap);
-    MONITORING_DTO.addProperties("addictiveDrugs", addictiveDrugsMap);
     setInternalState(UserController.class, "log", logger);
     setInternalState(LogService.class, "LOGGER", logger);
     setInternalState(ApiResponseEntityExceptionHandler.class, "log", logger);
     TenantContext.clear();
+  }
+
+  @Test
+  public void userExists_Should_Return404_When_UserDoesNotExist() throws Exception {
+    /* given */
+    val username = "john@doe.com";
+    when(identityClient.isUsernameAvailable(username)).thenReturn(Boolean.TRUE);
+    /* when */
+    mvc.perform(get("/users/{username}", username).accept(MediaType.APPLICATION_JSON))
+        /* then */
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void userExists_Should_Return200_When_UserDoesExist() throws Exception {
+    /* given */
+    val username = "john@doe.com";
+    when(identityClient.isUsernameAvailable(username)).thenReturn(Boolean.FALSE);
+
+    /* when */
+    mvc.perform(get("/users/{username}", username).accept(MediaType.APPLICATION_JSON))
+        /* then */
+        .andExpect(status().isOk());
   }
 
   /** Method: registerUser */
@@ -1603,187 +1436,6 @@ public class UserControllerIT {
             RC_GROUP_ID, authenticatedUser.getRoles(), authenticatedUser.getUserId(), null);
   }
 
-  /** getMonitoring() */
-  @Test
-  public void getMonitoring_Should_ReturnBadRequestAndLogError_WhenSessionNotFound()
-      throws Exception {
-
-    when(sessionService.getSession(Mockito.anyLong())).thenReturn(Optional.empty());
-
-    mvc.perform(get(PATH_GET_MONITORING).accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
-
-    verify(logger).warn(anyString(), any(Object.class));
-  }
-
-  @Test
-  public void getMonitoring_Should_ReturnInternalServerError_WhenSessionServiceThrowsException()
-      throws Exception {
-
-    when(sessionService.getSession(Mockito.anyLong())).thenThrow(new ServiceException(ERROR));
-
-    mvc.perform(get(PATH_GET_MONITORING).accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().is(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-  }
-
-  @Test
-  public void
-      getMonitoring_Should_ReturnBadRequestAndLogError_WhenUserHasNoPermissionToAccessSession()
-          throws Exception {
-
-    when(sessionService.getSession(Mockito.anyLong())).thenReturn(Optional.of(SESSION));
-
-    mvc.perform(get(PATH_GET_MONITORING).accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
-
-    verify(logger).warn(anyString(), eq(null), any(Object.class));
-  }
-
-  @Test
-  public void getMonitoring_Should_ReturnOKAndMonitoring() throws Exception {
-
-    when(sessionService.getSession(Mockito.anyLong())).thenReturn(Optional.of(SESSION));
-    when(authenticatedUser.getUserId()).thenReturn(SESSION.getConsultant().getId());
-    when(monitoringService.getMonitoring(SESSION)).thenReturn(MONITORING_DTO);
-
-    var validMonitoringResponseJson =
-        "{\"addictiveDrugs\": { \"drugs\": {" + "\"others\": false } } }";
-    mvc.perform(get(PATH_GET_MONITORING).accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().is(HttpStatus.OK.value()))
-        .andExpect(content().json(validMonitoringResponseJson));
-  }
-
-  @Test
-  public void getMonitoring_Should_ReturnNoContent_WhenNoMonitoringFoundForSession()
-      throws Exception {
-
-    when(sessionService.getSession(Mockito.anyLong())).thenReturn(Optional.of(SESSION));
-    when(authenticatedUser.getUserId()).thenReturn(SESSION.getConsultant().getId());
-    when(monitoringService.getMonitoring(SESSION)).thenReturn(null);
-
-    mvc.perform(get(PATH_GET_MONITORING).accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().is(HttpStatus.NO_CONTENT.value()));
-  }
-
-  /** updateMonitoring() */
-  @Test
-  public void updateMonitoring_Should_ReturnInternalServerError_WhenSessionServiceThrowsException()
-      throws Exception {
-
-    when(sessionService.getSession(Mockito.anyLong())).thenThrow(new ServiceException(ERROR));
-
-    mvc.perform(
-            put(PATH_PUT_SESSIONS_MONITORING)
-                .content(VALID_SESSION_MONITORING_REQUEST_BODY)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().is(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-  }
-
-  @Test
-  public void
-      updateMonitoring_Should_ReturnInternalServerError_WhenMonitoringServiceThrowsException()
-          throws Exception {
-
-    when(sessionService.getSession(Mockito.anyLong())).thenReturn(Optional.of(SESSION));
-    when(authenticatedUser.getUserId()).thenReturn(CONSULTANT_ID);
-    doThrow(new ServiceException(ERROR))
-        .when(monitoringService)
-        .updateMonitoring(Mockito.any(), Mockito.any());
-
-    mvc.perform(
-            put(PATH_PUT_SESSIONS_MONITORING)
-                .content(VALID_SESSION_MONITORING_REQUEST_BODY)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().is(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-  }
-
-  @Test
-  public void updateMonitoring_Should_ReturnOK_WhenMonitoringWasUpdatedForSingleSession()
-      throws Exception {
-
-    when(sessionService.getSession(Mockito.anyLong())).thenReturn(Optional.of(SESSION));
-    when(authenticatedUser.getUserId()).thenReturn(CONSULTANT_ID);
-
-    mvc.perform(
-            put(PATH_PUT_SESSIONS_MONITORING)
-                .content(VALID_SESSION_MONITORING_REQUEST_BODY)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().is(HttpStatus.OK.value()));
-  }
-
-  @Test
-  public void updateMonitoring_Should_ReturnOK_WhenMonitoringWasUpdatedForTeamSession()
-      throws Exception {
-
-    when(sessionService.getSession(Mockito.anyLong())).thenReturn(Optional.of(TEAM_SESSION));
-    when(authenticatedUser.getUserId()).thenReturn(CONSULTANT_ID);
-
-    mvc.perform(
-            put(PATH_PUT_SESSIONS_MONITORING)
-                .content(VALID_SESSION_MONITORING_REQUEST_BODY)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().is(HttpStatus.OK.value()));
-  }
-
-  @Test
-  public void
-      updateMonitoring_Should_ReturnUnauthorized_WhenConsultantIsNotAssignedToSingleSession()
-          throws Exception {
-
-    when(sessionService.getSession(Mockito.anyLong())).thenReturn(Optional.of(SESSION));
-    when(authenticatedUser.getUserId()).thenReturn(CONSULTANT_ID + "notAssignedToAgency");
-
-    mvc.perform(
-            put(PATH_PUT_SESSIONS_MONITORING)
-                .content(VALID_SESSION_MONITORING_REQUEST_BODY)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().is(HttpStatus.UNAUTHORIZED.value()));
-
-    verify(logger, atLeastOnce()).warn(anyString(), any(Object.class), any(Object.class));
-  }
-
-  @Test
-  public void
-      updateMonitoring_Should_ReturnUnauthorized_WhenConsultantIsNotAssignedToAgencyOfTeamSession()
-          throws Exception {
-
-    var session = easyRandom.nextObject(Session.class);
-    session.setId(TEAM_SESSION.getId());
-
-    when(sessionService.getSession(Mockito.anyLong())).thenReturn(Optional.of(session));
-    when(authenticatedUser.getUserId()).thenReturn(CONSULTANT_ID);
-    when(accountManager.isTeamAdvisedBy(TEAM_SESSION.getId(), CONSULTANT_ID)).thenReturn(false);
-
-    mvc.perform(
-            put(PATH_PUT_SESSIONS_MONITORING)
-                .content(VALID_SESSION_MONITORING_REQUEST_BODY)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().is(HttpStatus.UNAUTHORIZED.value()));
-
-    verify(logger, atLeastOnce()).warn(anyString(), any(Object.class), any(Object.class));
-  }
-
-  @Test
-  public void updateMonitoring_Should_ReturnBadRequest_WhenSessionDoesNotExist() throws Exception {
-
-    when(sessionService.getSession(Mockito.anyLong())).thenReturn(Optional.empty());
-
-    mvc.perform(
-            put(PATH_PUT_SESSIONS_MONITORING)
-                .content(VALID_SESSION_MONITORING_REQUEST_BODY)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
-
-    verify(logger, atLeastOnce()).warn(anyString(), any(Object.class));
-  }
-
   /** Method: getConsultants (authority: VIEW_AGENCY_CONSULTANTS) */
   @Test
   public void getConsultants_Should_ReturnBadRequest_WhenQueryParamIsMissing() throws Exception {
@@ -2411,43 +2063,22 @@ public class UserControllerIT {
       throws Exception {
     var sessionId = easyRandom.nextLong();
 
+    doThrow(new NotFoundException("")).when(sessionDeleteService).deleteSession(sessionId);
     mvc.perform(delete("/users/sessions/{sessionId}", sessionId).accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
 
-    verify(sessionService).getSession(sessionId);
-    verifyNoMoreInteractions(actionsRegistry);
+    verify(sessionDeleteService).deleteSession(sessionId);
   }
 
   @Test
   public void deleteSessionAndInactiveUser_Should_ReturnOK_When_SessionIdIsKnown()
       throws Exception {
     var sessionId = givenAPresentSession(false);
-    var actionContainer = givenActionRegistryDeletesSession();
 
     mvc.perform(delete("/users/sessions/{sessionId}", sessionId).accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    verify(sessionService).getSession(sessionId);
-    verify(actionContainer).executeActions(any(SessionDeletionWorkflowDTO.class));
-    verify(actionsRegistry).buildContainerForType(SessionDeletionWorkflowDTO.class);
-    verifyNoMoreInteractions(actionsRegistry);
-  }
-
-  @Test
-  public void deleteSessionAndInactiveUser_Should_DeactivateKeycloakUser_When_OnlySession()
-      throws Exception {
-    var sessionId = givenAPresentSession(true);
-    var actionContainerDelete = givenActionRegistryDeletesSession();
-    var actionContainerDeactivate = givenActionRegistryDeactivatesKeycloakUser();
-
-    mvc.perform(delete("/users/sessions/{sessionId}", sessionId).accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk());
-
-    verify(sessionService).getSession(sessionId);
-    verify(actionContainerDelete).executeActions(any(SessionDeletionWorkflowDTO.class));
-    verify(actionContainerDeactivate).executeActions(any(User.class));
-    verify(actionsRegistry).buildContainerForType(SessionDeletionWorkflowDTO.class);
-    verify(actionsRegistry).buildContainerForType(User.class);
+    verify(sessionDeleteService).deleteSession(sessionId);
   }
 
   @Test
@@ -2699,27 +2330,6 @@ public class UserControllerIT {
     when(sessionService.getSession(sessionId)).thenReturn(Optional.of(session));
 
     return sessionId;
-  }
-
-  private ActionContainer<SessionDeletionWorkflowDTO> givenActionRegistryDeletesSession() {
-    @SuppressWarnings("unchecked")
-    var actionContainer = (ActionContainer<SessionDeletionWorkflowDTO>) mock(ActionContainer.class);
-    when(actionContainer.addActionToExecute(DeleteSingleRoomAndSessionAction.class))
-        .thenReturn(actionContainer);
-    when(actionsRegistry.buildContainerForType(SessionDeletionWorkflowDTO.class))
-        .thenReturn(actionContainer);
-
-    return actionContainer;
-  }
-
-  private ActionContainer<User> givenActionRegistryDeactivatesKeycloakUser() {
-    @SuppressWarnings("unchecked")
-    var actionContainer = (ActionContainer<User>) mock(ActionContainer.class);
-    when(actionContainer.addActionToExecute(DeactivateKeycloakUserActionCommand.class))
-        .thenReturn(actionContainer);
-    when(actionsRegistry.buildContainerForType(User.class)).thenReturn(actionContainer);
-
-    return actionContainer;
   }
 
   private Map<String, Object> givenAnUpdateConsultantDtoWithInvalidLanguage() {

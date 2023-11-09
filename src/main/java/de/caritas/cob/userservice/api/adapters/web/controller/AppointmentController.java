@@ -22,7 +22,7 @@ import de.caritas.cob.userservice.api.port.out.ConsultantRepository;
 import de.caritas.cob.userservice.api.service.ConsultantService;
 import de.caritas.cob.userservice.api.service.session.SessionService;
 import de.caritas.cob.userservice.api.service.statistics.StatisticsService;
-import de.caritas.cob.userservice.api.service.user.ValidatedUserAccountProvider;
+import de.caritas.cob.userservice.api.service.user.UserAccountService;
 import de.caritas.cob.userservice.generated.api.adapters.web.controller.AppointmentsApi;
 import io.swagger.annotations.Api;
 import java.util.List;
@@ -45,13 +45,17 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags = "appointment-controller")
 public class AppointmentController implements AppointmentsApi {
 
+  private static final String APPOINTMENT_NOT_FOUND = "Appointment (%s) not found.";
+
+  private static final String APPOINTMENT_WITH_BOOKING_ID_NOT_FOUND =
+      "Appointment with booking id (%s) not found.";
   private final Organizing organizer;
 
   private final AppointmentDtoMapper mapper;
 
   private final AuthenticatedUser currentUser;
 
-  private final @NotNull ValidatedUserAccountProvider userAccountProvider;
+  private final @NotNull UserAccountService userAccountProvider;
 
   private final @NotNull CreateEnquiryMessageFacade createEnquiryMessageFacade;
 
@@ -70,7 +74,22 @@ public class AppointmentController implements AppointmentsApi {
     var appointmentMap =
         organizer
             .findAppointment(id.toString())
-            .orElseThrow(() -> new NotFoundException("Appointment (%s) not found.", id.toString()));
+            .orElseThrow(() -> new NotFoundException(APPOINTMENT_NOT_FOUND, id.toString()));
+
+    var appointment = mapper.appointmentOf(appointmentMap, currentUser.isConsultant());
+
+    return ResponseEntity.ok(appointment);
+  }
+
+  @Override
+  public ResponseEntity<Appointment> getAppointmentByBookingId(Integer bookingId) {
+    var appointmentMap =
+        organizer
+            .findAppointmentByBookingId(bookingId)
+            .orElseThrow(
+                () ->
+                    new NotFoundException(
+                        APPOINTMENT_WITH_BOOKING_ID_NOT_FOUND, bookingId.toString()));
 
     var appointment = mapper.appointmentOf(appointmentMap, currentUser.isConsultant());
 
@@ -85,7 +104,7 @@ public class AppointmentController implements AppointmentsApi {
     var savedAppointmentMap =
         organizer
             .findAppointment(id.toString())
-            .orElseThrow(() -> new NotFoundException("Appointment (%s) not found.", id.toString()));
+            .orElseThrow(() -> new NotFoundException(APPOINTMENT_NOT_FOUND, id.toString()));
 
     var updatedAppointmentMap = mapper.mapOf(savedAppointmentMap, appointment);
     var savedMap = organizer.upsertAppointment(updatedAppointmentMap);
@@ -101,7 +120,7 @@ public class AppointmentController implements AppointmentsApi {
   @Override
   public ResponseEntity<Void> deleteAppointment(UUID id) {
     if (!organizer.deleteAppointment(id.toString())) {
-      throw new NotFoundException("Appointment (%s) not found.", id.toString());
+      throw new NotFoundException(APPOINTMENT_NOT_FOUND, id.toString());
     }
 
     return ResponseEntity.noContent().build();
@@ -175,9 +194,11 @@ public class AppointmentController implements AppointmentsApi {
     var response = createEnquiryMessageFacade.createEnquiryMessage(enquiryData);
 
     var consultant =
-        consultantService.getConsultantByEmail(enquiryAppointmentDTO.getCounselorEmail());
+        consultantService.findConsultantByEmail(enquiryAppointmentDTO.getCounselorEmail());
     var session = sessionService.getSession(sessionId);
-    this.assignEnquiryFacade.assignRegisteredEnquiry(session.get(), consultant.get());
+
+    this.assignEnquiryFacade.assignRegisteredEnquiry(
+        session.orElseThrow(), consultant.orElseThrow(), true);
 
     return new ResponseEntity<>(response, HttpStatus.CREATED);
   }

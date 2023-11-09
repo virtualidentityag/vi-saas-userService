@@ -8,8 +8,6 @@ import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
 import com.google.common.collect.Lists;
-import de.caritas.cob.userservice.api.actions.registry.ActionsRegistry;
-import de.caritas.cob.userservice.api.actions.user.DeactivateKeycloakUserActionCommand;
 import de.caritas.cob.userservice.api.adapters.rocketchat.RocketChatCredentials;
 import de.caritas.cob.userservice.api.adapters.web.dto.AbsenceDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.AgencyAdminResponseDTO;
@@ -26,12 +24,12 @@ import de.caritas.cob.userservice.api.adapters.web.dto.CreateEnquiryMessageRespo
 import de.caritas.cob.userservice.api.adapters.web.dto.DeleteUserAccountDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.E2eKeyDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.EmailDTO;
+import de.caritas.cob.userservice.api.adapters.web.dto.EmailNotificationsDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.EnquiryMessageDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.GroupSessionListResponseDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.LanguageResponseDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.MasterKeyDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.MobileTokenDTO;
-import de.caritas.cob.userservice.api.adapters.web.dto.MonitoringDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.NewMessageNotificationDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.NewRegistrationDto;
 import de.caritas.cob.userservice.api.adapters.web.dto.NewRegistrationResponseDto;
@@ -39,7 +37,6 @@ import de.caritas.cob.userservice.api.adapters.web.dto.OneTimePasswordDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.PasswordDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.PatchUserDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.ReassignmentNotificationDTO;
-import de.caritas.cob.userservice.api.adapters.web.dto.RegistrationStatisticsListResponseDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.RocketChatGroupIdDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.SessionDataDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.UpdateChatResponseDTO;
@@ -68,23 +65,24 @@ import de.caritas.cob.userservice.api.facade.GetChatMembersFacade;
 import de.caritas.cob.userservice.api.facade.JoinAndLeaveChatFacade;
 import de.caritas.cob.userservice.api.facade.StartChatFacade;
 import de.caritas.cob.userservice.api.facade.StopChatFacade;
-import de.caritas.cob.userservice.api.facade.UsersStatisticsFacade;
 import de.caritas.cob.userservice.api.facade.assignsession.AssignEnquiryFacade;
 import de.caritas.cob.userservice.api.facade.assignsession.AssignSessionFacade;
 import de.caritas.cob.userservice.api.facade.sessionlist.SessionListFacade;
 import de.caritas.cob.userservice.api.facade.userdata.AskerDataProvider;
 import de.caritas.cob.userservice.api.facade.userdata.ConsultantDataFacade;
 import de.caritas.cob.userservice.api.facade.userdata.ConsultantDataProvider;
+import de.caritas.cob.userservice.api.facade.userdata.EmailNotificationMapper;
 import de.caritas.cob.userservice.api.facade.userdata.KeycloakUserDataProvider;
 import de.caritas.cob.userservice.api.helper.AuthenticatedUser;
 import de.caritas.cob.userservice.api.model.Chat;
+import de.caritas.cob.userservice.api.model.Consultant;
 import de.caritas.cob.userservice.api.model.EnquiryData;
-import de.caritas.cob.userservice.api.model.Session;
 import de.caritas.cob.userservice.api.model.Session.SessionStatus;
 import de.caritas.cob.userservice.api.model.User;
 import de.caritas.cob.userservice.api.port.in.AccountManaging;
 import de.caritas.cob.userservice.api.port.in.IdentityManaging;
 import de.caritas.cob.userservice.api.port.in.Messaging;
+import de.caritas.cob.userservice.api.port.out.IdentityClient;
 import de.caritas.cob.userservice.api.port.out.IdentityClientConfig;
 import de.caritas.cob.userservice.api.service.AskerImportService;
 import de.caritas.cob.userservice.api.service.ChatService;
@@ -93,15 +91,13 @@ import de.caritas.cob.userservice.api.service.ConsultantImportService;
 import de.caritas.cob.userservice.api.service.ConsultantService;
 import de.caritas.cob.userservice.api.service.DecryptionService;
 import de.caritas.cob.userservice.api.service.LogService;
-import de.caritas.cob.userservice.api.service.MonitoringService;
 import de.caritas.cob.userservice.api.service.SessionDataService;
 import de.caritas.cob.userservice.api.service.archive.SessionArchiveService;
+import de.caritas.cob.userservice.api.service.archive.SessionDeleteService;
 import de.caritas.cob.userservice.api.service.session.SessionFilter;
 import de.caritas.cob.userservice.api.service.session.SessionService;
-import de.caritas.cob.userservice.api.service.user.ValidatedUserAccountProvider;
+import de.caritas.cob.userservice.api.service.user.UserAccountService;
 import de.caritas.cob.userservice.api.tenant.TenantContext;
-import de.caritas.cob.userservice.api.workflow.delete.action.asker.DeleteSingleRoomAndSessionAction;
-import de.caritas.cob.userservice.api.workflow.delete.model.SessionDeletionWorkflowDTO;
 import de.caritas.cob.userservice.generated.api.adapters.web.controller.UsersApi;
 import io.swagger.annotations.Api;
 import java.net.URLDecoder;
@@ -118,7 +114,7 @@ import javax.ws.rs.InternalServerErrorException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.MapUtils;
+import lombok.val;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -134,13 +130,12 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags = "user-controller")
 public class UserController implements UsersApi {
 
-  private final @NotNull ValidatedUserAccountProvider userAccountProvider;
+  private final @NotNull UserAccountService userAccountProvider;
   private final @NotNull SessionService sessionService;
   private final @NotNull AuthenticatedUser authenticatedUser;
   private final @NotNull CreateEnquiryMessageFacade createEnquiryMessageFacade;
   private final @NotNull ConsultantImportService consultantImportService;
   private final @NotNull EmailNotificationFacade emailNotificationFacade;
-  private final @NotNull MonitoringService monitoringService;
   private final @NotNull AskerImportService askerImportService;
   private final @NotNull SessionListFacade sessionListFacade;
   private final @NotNull ConsultantAgencyService consultantAgencyService;
@@ -164,7 +159,6 @@ public class UserController implements UsersApi {
   private final @NonNull IdentityManaging identityManager;
   private final @NonNull AccountManaging accountManager;
   private final @NonNull Messaging messenger;
-  private final @NotNull ActionsRegistry actionsRegistry;
   private final @NonNull ConsultantDtoMapper consultantDtoMapper;
   private final @NonNull UserDtoMapper userDtoMapper;
   private final @NonNull ConsultantService consultantService;
@@ -173,9 +167,23 @@ public class UserController implements UsersApi {
   private final @NonNull AskerDataProvider askerDataProvider;
   private final @NonNull VideoChatConfig videoChatConfig;
   private final @NonNull KeycloakUserDataProvider keycloakUserDataProvider;
-  private final @NotNull UsersStatisticsFacade usersStatisticsFacade;
+  private final @NotNull IdentityClient identityClient;
 
   private final @NotNull AdminUserFacade adminUserFacade;
+
+  private final @NonNull EmailNotificationMapper emailNotificationMapper;
+
+  private final @NonNull SessionDeleteService sessionDeleteService;
+
+  @Override
+  public ResponseEntity<Void> userExists(String username) {
+    val usernameAvailable = identityClient.isUsernameAvailable(username);
+    val userExists = !usernameAvailable;
+    if (userExists) {
+      return ResponseEntity.ok().build();
+    }
+    return ResponseEntity.notFound().build();
+  }
 
   /**
    * Creates an user account and returns a 201 CREATED on success.
@@ -221,14 +229,6 @@ public class UserController implements UsersApi {
             newRegistrationDto, user, rocketChatCredentials);
 
     return new ResponseEntity<>(registrationResponse, registrationResponse.getStatus());
-  }
-
-  @Override
-  public ResponseEntity<RegistrationStatisticsListResponseDTO> getRegistrationStatistics() {
-
-    var registrationResponse = usersStatisticsFacade.getRegistrationStatistics();
-
-    return new ResponseEntity<>(registrationResponse, HttpStatus.OK);
   }
 
   /**
@@ -293,26 +293,7 @@ public class UserController implements UsersApi {
 
   @Override
   public ResponseEntity<Void> deleteSessionAndInactiveUser(@PathVariable Long sessionId) {
-    var session =
-        sessionService
-            .getSession(sessionId)
-            .orElseThrow(
-                () -> new NotFoundException("A session with an id %s does not exist.", sessionId));
-
-    var user = session.getUser();
-    if (user.getSessions().size() == 1) {
-      actionsRegistry
-          .buildContainerForType(User.class)
-          .addActionToExecute(DeactivateKeycloakUserActionCommand.class)
-          .executeActions(user);
-    }
-
-    var deleteSession = new SessionDeletionWorkflowDTO(session, null);
-    actionsRegistry
-        .buildContainerForType(SessionDeletionWorkflowDTO.class)
-        .addActionToExecute(DeleteSingleRoomAndSessionAction.class)
-        .executeActions(deleteSession);
-
+    sessionDeleteService.deleteSession(sessionId);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
@@ -454,6 +435,32 @@ public class UserController implements UsersApi {
     this.consultantDataFacade.updateConsultantAbsent(consultant, absence);
 
     return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @Override
+  public ResponseEntity<EmailNotificationsDTO> getUserEmailNotifications(String email) {
+
+    Optional<Consultant> consultantByEmail = userAccountProvider.findConsultantByEmail(email);
+    if (consultantByEmail.isPresent()) {
+      return new ResponseEntity<>(getEmailNotifications(consultantByEmail.get()), HttpStatus.OK);
+    } else {
+      Optional<User> userByEmail = userAccountProvider.findUserByEmail(email);
+      if (userByEmail.isPresent()) {
+        return new ResponseEntity<>(getEmailNotifications(userByEmail.get()), HttpStatus.OK);
+      } else {
+        throw new NotFoundException("No adviceseeker nor consultant with given email found.");
+      }
+    }
+  }
+
+  private EmailNotificationsDTO getEmailNotifications(Consultant consultant) {
+    var consultantDTO = consultantDataProvider.retrieveData(consultant);
+    return consultantDTO.getEmailNotifications();
+  }
+
+  private EmailNotificationsDTO getEmailNotifications(User user) {
+    var userDTO = askerDataProvider.retrieveData(user);
+    return userDTO.getEmailNotifications();
   }
 
   /**
@@ -738,71 +745,6 @@ public class UserController implements UsersApi {
     }
 
     return new ResponseEntity<>(HttpStatus.OK);
-  }
-
-  /**
-   * Returns the monitoring for the given session.
-   *
-   * @param sessionId Session Id (required)
-   * @return {@link ResponseEntity} containing {@link MonitoringDTO}
-   */
-  @Override
-  public ResponseEntity<MonitoringDTO> getMonitoring(@PathVariable Long sessionId) {
-    var sessionOptional = sessionService.getSession(sessionId);
-    if (sessionOptional.isEmpty()) {
-      log.warn("Bad request: Session with id {} not found", sessionId);
-
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
-    var session = sessionOptional.get();
-    var userId = authenticatedUser.getUserId();
-    if (!session.isAdvisedBy(userId) && !accountManager.isTeamAdvisedBy(sessionId, userId)) {
-      log.warn(
-          "Bad request: Consultant with id {} has no permission to access session with id {}",
-          userId,
-          sessionId);
-
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
-    var responseDTO = monitoringService.getMonitoring(session);
-
-    if (nonNull(responseDTO) && MapUtils.isNotEmpty(responseDTO.getProperties())) {
-      return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-    } else {
-      return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-  }
-
-  /**
-   * Updates the monitoring values of a {@link Session}. Only a consultant which is directly
-   * assigned to the session can update the values (MVP only).
-   *
-   * @param sessionId Session Id (required)
-   * @param monitoring {@link MonitoringDTO} (required)
-   * @return {@link ResponseEntity} containing {@link HttpStatus}
-   */
-  @Override
-  public ResponseEntity<Void> updateMonitoring(
-      @PathVariable Long sessionId, @RequestBody MonitoringDTO monitoring) {
-    var sessionOptional = sessionService.getSession(sessionId);
-    if (sessionOptional.isEmpty()) {
-      log.warn("Bad request: Session with id {} not found", sessionId);
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
-    var userId = authenticatedUser.getUserId();
-    var session = sessionOptional.get();
-    if (session.isAdvisedBy(userId) || accountManager.isTeamAdvisedBy(sessionId, userId)) {
-      monitoringService.updateMonitoring(session.getId(), monitoring);
-      return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    var message =
-        "Unauthorized: Consultant with id {} is not authorized to update monitoring of session {}";
-    log.warn(message, userId, sessionId);
-    return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
   }
 
   /**
@@ -1108,9 +1050,13 @@ public class UserController implements UsersApi {
    */
   @Override
   public ResponseEntity<Void> joinChat(@PathVariable Long chatId) {
-
     joinAndLeaveChatFacade.joinChat(chatId, authenticatedUser);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
 
+  @Override
+  public ResponseEntity<Void> verifyCanModerateChat(@PathVariable Long chatId) {
+    joinAndLeaveChatFacade.verifyCanModerate(chatId);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 

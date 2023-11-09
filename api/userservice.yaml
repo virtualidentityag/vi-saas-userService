@@ -4,6 +4,24 @@ info:
   description: This information will be replaced by the SpringFox config information
   version: 0.0.1
 paths:
+  /users/{username}:
+    get:
+      tags:
+        - user-controller
+      summary: Checks if a given user exists, provided a username
+      operationId: userExists
+      parameters:
+        - name: username
+          in: path
+          description: username
+          required: true
+          schema:
+              type: string
+      responses:
+        200:
+          description: OK - user exists
+        404:
+          description: NOT FOUND - user does not exist
   /users/askers/new:
     post:
       tags:
@@ -540,6 +558,36 @@ paths:
           description: INTERNAL SERVER ERROR - server encountered unexpected condition
       security:
         - Bearer: [ ]
+  /users/notifications:
+    get:
+      tags:
+        - user-controller
+      summary: 'Returns notification settings for the currently authenticated user [Authorization:
+        Role: technical-calcom]'
+      operationId: getUserEmailNotifications
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK - successful operation
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/EmailNotificationsDTO'
+        400:
+          description: BAD REQUEST - invalid/incomplete request or body object
+        401:
+          description: UNAUTHORIZED - no/invalid Keycloak token
+        403:
+          description: FORBIDDEN - no/invalid role/authorization or CSRF token
+        500:
+          description: INTERNAL SERVER ERROR - server encountered unexpected condition
+      security:
+        - Bearer: [ ]
   /users/email:
     put:
       tags:
@@ -803,29 +851,6 @@ paths:
           description: INTERNAL SERVER ERROR - server encountered unexpected condition
       security:
         - Bearer: [ ]
-  /users/statistics/registration:
-    get:
-      tags:
-        - user-controller
-      summary: 'Returns a list of user registration data per tenant'
-      operationId: getRegistrationStatistics
-      responses:
-        200:
-          description: successful operation
-          content:
-            'application/json':
-              schema:
-                $ref: '#/components/schemas/RegistrationStatisticsListResponseDTO'
-        204:
-          description: successful operation, but no content
-        401:
-          description: UNAUTHORIZED - no/invalid Keycloak token
-        403:
-          description: FORBIDDEN - no/invalid role/authorization or CSRF token
-        500:
-          description: INTERNAL SERVER ERROR - server encountered unexpected condition
-      security:
-        - Bearer: [ ]
   /users/mails/messages/new:
     post:
       tags:
@@ -899,39 +924,6 @@ paths:
           description: BAD REQUEST - invalid/incomplete request or body object
         401:
           description: UNAUTHORIZED - invalid token
-        500:
-          description: INTERNAL SERVER ERROR - server encountered unexpected condition
-      security:
-        - Bearer: [ ]
-  /users/sessions/monitoring/{sessionId}:
-    put:
-      tags:
-        - user-controller
-      summary: 'Update the monitoring values of a session [Authorization: Role: consultant]'
-      operationId: updateMonitoring
-      parameters:
-        - name: sessionId
-          in: path
-          description: Session Id
-          required: true
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        content:
-          'application/json':
-            schema:
-              $ref: '#/components/schemas/MonitoringDTO'
-        required: true
-      responses:
-        200:
-          description: OK - successful operation
-        400:
-          description: BAD REQUEST - invalid/incomplete request or body object
-        401:
-          description: UNAUTHORIZED - no/invalid Keycloak token
-        403:
-          description: FORBIDDEN - no/invalid role/authorization or CSRF token
         500:
           description: INTERNAL SERVER ERROR - server encountered unexpected condition
       security:
@@ -1010,7 +1002,7 @@ paths:
       parameters:
         - name: query
           in: query
-          description: URL-encoded infix to search for in first name, last name, or email.
+          description: URL-encoded infix to search for in id, first name, last name, or email.
             A non-encoded star symbol searches for all.
           required: true
           schema:
@@ -1184,40 +1176,6 @@ paths:
           description: FORBIDDEN - no/invalid role/authorization
         409:
           description: CONFLICT - there was a key in the service
-        500:
-          description: INTERNAL SERVER ERROR - server encountered unexpected condition
-      security:
-        - Bearer: [ ]
-  /users/sessions/{sessionId}/monitoring:
-    get:
-      tags:
-        - user-controller
-      summary: 'Returns the monitoring for the given session [Authorization: Role:
-        consultant]'
-      operationId: getMonitoring
-      parameters:
-        - name: sessionId
-          in: path
-          description: Session Id
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        200:
-          description: successful operation
-          content:
-            'application/json':
-              schema:
-                $ref: '#/components/schemas/MonitoringDTO'
-        204:
-          description: successful operation, but no content
-        400:
-          description: BAD REQUEST - invalid/incomplete request or body object
-        401:
-          description: UNAUTHORIZED - no/invalid Keycloak token
-        403:
-          description: FORBIDDEN - no/invalid role/authorization or CSRF token
         500:
           description: INTERNAL SERVER ERROR - server encountered unexpected condition
       security:
@@ -1579,6 +1537,37 @@ paths:
           description: INTERNAL SERVER ERROR - server encountered unexpected condition
       security:
         - Bearer: [ ]
+  /users/chat/{chatId}/verify:
+    put:
+      tags:
+        - user-controller
+      summary: 'Verify consultant has access to this chat [Authorization: Role: consultant]'
+      operationId: verifyCanModerateChat
+      parameters:
+        - name: chatId
+          in: path
+          description: Chat Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: OK - successful operation
+        400:
+          description: BAD REQUEST - invalid/incomplete request or body object
+        401:
+          description: UNAUTHORIZED - no/invalid Keycloak token
+        403:
+          description: FORBIDDEN - No permission for chat
+        404:
+          description: NOT FOUND - Chat not found
+        409:
+          description: CONFLICT - Chat has not startet yet
+        500:
+          description: INTERNAL SERVER ERROR - server encountered unexpected condition
+      security:
+        - Bearer: [ ]
   /users/chat/{chatId}/members:
     get:
       tags:
@@ -1875,7 +1864,7 @@ components:
   schemas:
     UserDTO:
       allOf:
-        - $ref: '#/components/schemas/MandatorySessionDataDTO'
+        - $ref: '#/components/schemas/SessionDataDTO'
       type: object
       required:
         - username
@@ -1927,23 +1916,8 @@ components:
         preferredLanguage:
           $ref: "#/components/schemas/LanguageCode"
 
-    SessionDataDTO:
-      allOf:
-        - $ref: '#/components/schemas/MandatorySessionDataDTO'
-      type: object
-      properties:
-        addictiveDrugs:
-          type: string
-          example: 2,4
-          description: comma separated list of addictive drug IDs
-        relation:
-          type: string
-          example: 2
-        gender:
-          type: string
-          example: 0
 
-    MandatorySessionDataDTO:
+    SessionDataDTO:
       type: object
       properties:
         age:
@@ -1954,47 +1928,6 @@ components:
           type: string
           example: 8
           description: mandatory depending on the consulting type
-
-    RegistrationStatisticsListResponseDTO:
-      type: object
-      properties:
-        registrationStatistics:
-          type: array
-          items:
-            $ref: '#/components/schemas/RegistrationStatisticsResponseDTO'
-
-    RegistrationStatisticsResponseDTO:
-      type: object
-      required:
-        - userId
-        - registrationDate
-      properties:
-        userId:
-          type: string
-        registrationDate:
-          type: string
-          example: '2022-08-15T21:11:29'
-        age:
-          type: integer
-          example: '25'
-        gender:
-          type: string
-          example: 'FEMALE'
-        counsellingRelation:
-          type: string
-          example: 'SELF_COUNSELLING'
-        topicsInternalAttributes:
-          type: array
-          items:
-            type: string
-          example: [ 'angeho01','angeho13' ]
-        mainTopicInternalAttribute:
-          type: string
-          example: 'angeho01'
-        postalCode:
-          type: string
-          example: '99999'
-
 
     ConsultantSessionListResponseDTO:
       type: object
@@ -2155,9 +2088,6 @@ components:
         isTeamSession:
           type: boolean
           example: false
-        monitoring:
-          type: boolean
-          example: true
         registrationType:
           type: string
           example: ANONYMOUS
@@ -2345,9 +2275,6 @@ components:
         isTeamSession:
           type: boolean
           example: false
-        isMonitoring:
-          type: boolean
-          example: true
         age:
           type: integer
           example: 17
@@ -2363,6 +2290,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SessionTopicDTO'
+        referer:
+          type: string
+          pattern: "^[a-zA-Z0-9]{1,8}$"
+          maxLength: 8
+          example: '12345678'
 
     UserChatDTO:
       type: object
@@ -2436,6 +2368,9 @@ components:
     SessionUserDTO:
       type: object
       properties:
+        id:
+          type: string
+          example: 926b9777-4eef-443d-925a-4aa534797bd7
         username:
           type: string
           example: max94
@@ -2781,12 +2716,6 @@ components:
           type: string
           example: "8cc2058"
 
-    MonitoringDTO:
-      type: object
-      properties:
-        additionalProperties:
-          $ref: "#/components/schemas/Properties"
-
     Properties:
       type: object
       properties:
@@ -2907,6 +2836,8 @@ components:
           type: string
         utcOffset:
           type: string
+        userId:
+          type: string
 
     E2eKeyDTO:
       type: object
@@ -2964,6 +2895,11 @@ components:
         counsellingRelation:
           type: string
           example: 'SELF_COUNSELLING'
+        referer:
+          type: string
+          pattern: "^[a-zA-Z0-9]{1,8}$"
+          maxLength: 8
+          example: '12345678'
 
 
     NewRegistrationResponseDto:
