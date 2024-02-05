@@ -180,6 +180,13 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         .hasAuthority(TENANT_ADMIN)
         .antMatchers("/useradmin/data/*")
         .hasAnyAuthority(SINGLE_TENANT_ADMIN, RESTRICTED_AGENCY_ADMIN)
+        .antMatchers(HttpMethod.POST, "/useradmin/consultants/")
+        .hasAnyAuthority(CONSULTANT_CREATE, TECHNICAL_DEFAULT)
+        .antMatchers(HttpMethod.PUT, "/useradmin/consultants/{consultantId:" + UUID_PATTERN + "}")
+        .hasAnyAuthority(CONSULTANT_UPDATE, TECHNICAL_DEFAULT)
+        .antMatchers(
+            HttpMethod.PUT, "/useradmin/consultants/{consultantId:" + UUID_PATTERN + "}/agencies")
+        .hasAnyAuthority(CONSULTANT_UPDATE, TECHNICAL_DEFAULT)
         .antMatchers("/useradmin", "/useradmin/**")
         .hasAnyAuthority(USER_ADMIN, TECHNICAL_DEFAULT)
         .antMatchers("/users/consultants/search")
