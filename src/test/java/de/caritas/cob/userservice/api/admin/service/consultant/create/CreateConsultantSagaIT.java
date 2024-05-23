@@ -7,7 +7,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hibernate.validator.internal.util.CollectionHelper.asSet;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -17,27 +18,31 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import de.caritas.cob.userservice.api.UserServiceApplication;
 import de.caritas.cob.userservice.api.adapters.keycloak.KeycloakService;
 import de.caritas.cob.userservice.api.adapters.keycloak.dto.KeycloakCreateUserResponseDTO;
 import de.caritas.cob.userservice.api.adapters.rocketchat.RocketChatService;
 import de.caritas.cob.userservice.api.adapters.web.dto.ConsultantDTO;
+import de.caritas.cob.userservice.api.adapters.web.dto.ConsultantSessionResponseDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.CreateConsultantDTO;
+import de.caritas.cob.userservice.api.adapters.web.dto.SessionDTO;
 import de.caritas.cob.userservice.api.admin.service.tenant.TenantAdminService;
 import de.caritas.cob.userservice.api.exception.httpresponses.BadRequestException;
 import de.caritas.cob.userservice.api.exception.httpresponses.CustomValidationHttpStatusException;
 import de.caritas.cob.userservice.api.exception.httpresponses.DistributedTransactionException;
+import de.caritas.cob.userservice.api.exception.rocketchat.RocketChatAddUserToGroupException;
 import de.caritas.cob.userservice.api.exception.rocketchat.RocketChatLoginException;
 import de.caritas.cob.userservice.api.facade.rollback.RollbackFacade;
 import de.caritas.cob.userservice.api.model.Consultant;
 import de.caritas.cob.userservice.api.service.ConsultantImportService.ImportRecord;
 import de.caritas.cob.userservice.api.service.appointment.AppointmentService;
+import de.caritas.cob.userservice.api.service.session.SessionService;
 import de.caritas.cob.userservice.tenantadminservice.generated.web.model.Settings;
 import de.caritas.cob.userservice.tenantadminservice.generated.web.model.TenantDTO;
 import org.jeasy.random.EasyRandom;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -45,10 +50,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = UserServiceApplication.class)
 @TestPropertySource(properties = "spring.profiles.active=testing")
 @AutoConfigureTestDatabase(replace = Replace.ANY)
@@ -71,16 +74,18 @@ public class CreateConsultantSagaIT {
 
   @MockBean private AppointmentService appointmentService;
 
+  @MockBean private SessionService sessionService;
+
   private final EasyRandom easyRandom = new EasyRandom();
 
-  @Before
+  @BeforeEach
   public void setup() {
     ReflectionTestUtils.setField(createConsultantSaga, "appointmentFeatureEnabled", false);
   }
 
   @Test
   public void createNewConsultant_Should_returnExpectedCreatedConsultant_When_inputDataIsCorrect()
-      throws RocketChatLoginException {
+      throws RocketChatLoginException, RocketChatAddUserToGroupException {
     when(rocketChatService.getUserID(anyString(), anyString(), anyBoolean()))
         .thenReturn(DUMMY_RC_ID);
     when(keycloakService.createKeycloakUser(any(), anyString(), any()))
@@ -89,6 +94,11 @@ public class CreateConsultantSagaIT {
     createConsultantDTO.setUsername(VALID_USERNAME);
     createConsultantDTO.setEmail(VALID_EMAILADDRESS);
     createConsultantDTO.setIsGroupchatConsultant(false);
+
+    when(sessionService.getRegisteredEnquiriesForConsultant(any()))
+        .thenReturn(
+            Lists.newArrayList(
+                new ConsultantSessionResponseDTO().session(new SessionDTO().groupId("groupId"))));
 
     var consultantAdminResponseDTO =
         this.createConsultantSaga.createNewConsultant(createConsultantDTO);
@@ -105,6 +115,9 @@ public class CreateConsultantSagaIT {
     assertThat(consultant.getFirstname(), notNullValue());
     assertThat(consultant.getLastname(), notNullValue());
     assertThat(consultant.getEmail(), notNullValue());
+
+    verify(rocketChatService).getUserID(anyString(), anyString(), anyBoolean());
+    verify(rocketChatService).addUserToGroup(Mockito.anyString(), Mockito.eq("groupId"));
   }
 
   @Test
@@ -291,37 +304,47 @@ public class CreateConsultantSagaIT {
     assertThat(consultant.getFullName(), notNullValue());
   }
 
-  @Test(expected = DistributedTransactionException.class)
+  @Test
   public void
       createNewConsultant_Should_throwCustomValidationHttpStatusException_When_userCanNotBeCreatedInRocketChat()
           throws RocketChatLoginException {
-    when(rocketChatService.getUserID(anyString(), anyString(), anyBoolean()))
-        .thenThrow(new RocketChatLoginException(""));
-    KeycloakCreateUserResponseDTO validKeycloakResponse =
-        easyRandom.nextObject(KeycloakCreateUserResponseDTO.class);
-    when(keycloakService.createKeycloakUser(any(), anyString(), any()))
-        .thenReturn(validKeycloakResponse);
-    CreateConsultantDTO createConsultantDTO = this.easyRandom.nextObject(CreateConsultantDTO.class);
-    createConsultantDTO.setUsername(VALID_USERNAME);
-    createConsultantDTO.setEmail(VALID_EMAILADDRESS);
+    assertThrows(
+        DistributedTransactionException.class,
+        () -> {
+          when(rocketChatService.getUserID(anyString(), anyString(), anyBoolean()))
+              .thenThrow(new RocketChatLoginException(""));
+          KeycloakCreateUserResponseDTO validKeycloakResponse =
+              easyRandom.nextObject(KeycloakCreateUserResponseDTO.class);
+          when(keycloakService.createKeycloakUser(any(), anyString(), any()))
+              .thenReturn(validKeycloakResponse);
+          CreateConsultantDTO createConsultantDTO =
+              this.easyRandom.nextObject(CreateConsultantDTO.class);
+          createConsultantDTO.setUsername(VALID_USERNAME);
+          createConsultantDTO.setEmail(VALID_EMAILADDRESS);
 
-    this.createConsultantSaga.createNewConsultant(createConsultantDTO);
+          this.createConsultantSaga.createNewConsultant(createConsultantDTO);
+        });
   }
 
-  @Test(expected = CustomValidationHttpStatusException.class)
+  @Test
   public void
       createNewConsultant_Should_throwCustomValidationHttpStatusException_When_keycloakIdIsMissing()
           throws RocketChatLoginException {
-    when(rocketChatService.getUserID(anyString(), anyString(), anyBoolean()))
-        .thenReturn(DUMMY_RC_ID);
-    KeycloakCreateUserResponseDTO keycloakResponse =
-        easyRandom.nextObject(KeycloakCreateUserResponseDTO.class);
-    keycloakResponse.setUserId(null);
-    when(keycloakService.createKeycloakUser(any(), anyString(), any()))
-        .thenReturn(keycloakResponse);
-    CreateConsultantDTO createConsultantDTO = this.easyRandom.nextObject(CreateConsultantDTO.class);
+    assertThrows(
+        CustomValidationHttpStatusException.class,
+        () -> {
+          when(rocketChatService.getUserID(anyString(), anyString(), anyBoolean()))
+              .thenReturn(DUMMY_RC_ID);
+          KeycloakCreateUserResponseDTO keycloakResponse =
+              easyRandom.nextObject(KeycloakCreateUserResponseDTO.class);
+          keycloakResponse.setUserId(null);
+          when(keycloakService.createKeycloakUser(any(), anyString(), any()))
+              .thenReturn(keycloakResponse);
+          CreateConsultantDTO createConsultantDTO =
+              this.easyRandom.nextObject(CreateConsultantDTO.class);
 
-    this.createConsultantSaga.createNewConsultant(createConsultantDTO);
+          this.createConsultantSaga.createNewConsultant(createConsultantDTO);
+        });
   }
 
   @Test
