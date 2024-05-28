@@ -4,6 +4,7 @@ import static de.caritas.cob.userservice.api.config.auth.UserRole.CONSULTANT;
 import static de.caritas.cob.userservice.api.config.auth.UserRole.GROUP_CHAT_CONSULTANT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -17,6 +18,7 @@ import de.caritas.cob.userservice.api.UserServiceApplication;
 import de.caritas.cob.userservice.api.adapters.keycloak.KeycloakService;
 import de.caritas.cob.userservice.api.adapters.keycloak.dto.KeycloakCreateUserResponseDTO;
 import de.caritas.cob.userservice.api.adapters.rocketchat.RocketChatService;
+import de.caritas.cob.userservice.api.adapters.web.dto.ConsultantAdminResponseDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.CreateConsultantDTO;
 import de.caritas.cob.userservice.api.admin.service.tenant.TenantAdminService;
 import de.caritas.cob.userservice.api.exception.httpresponses.CustomValidationHttpStatusException;
@@ -28,9 +30,8 @@ import de.caritas.cob.userservice.api.tenant.TenantData;
 import de.caritas.cob.userservice.tenantadminservice.generated.web.model.Licensing;
 import de.caritas.cob.userservice.tenantadminservice.generated.web.model.TenantDTO;
 import org.jeasy.random.EasyRandom;
-import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -38,24 +39,22 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = UserServiceApplication.class)
 @TestPropertySource(properties = "spring.profiles.active=testing")
 @AutoConfigureTestDatabase(replace = Replace.ANY)
 @TestPropertySource(properties = "multitenancy.enabled=true")
 @Transactional
-public class ConsultantCreatorServiceTenantAwareIT {
+public class CreateConsultantSagaTenantAwareIT {
 
   private static final String DUMMY_RC_ID = "rcUserId";
   private static final String VALID_USERNAME = "validUsername";
   private static final String VALID_EMAILADDRESS = "valid@emailaddress.de";
   private static final long TENANT_ID = 1;
 
-  @Autowired private ConsultantCreatorService consultantCreatorService;
+  @Autowired private CreateConsultantSaga createConsultantSaga;
 
   @Autowired private ConsultantRepository consultantRepository;
 
@@ -72,16 +71,21 @@ public class ConsultantCreatorServiceTenantAwareIT {
     TenantContext.clear();
   }
 
-  @Test(expected = CustomValidationHttpStatusException.class)
+  @Test
   public void
       createNewConsultant_Should_throwCustomValidationHttpStatusException_When_LicensesAreExceeded() {
-    // given
-    givenTenantApiCall();
-    createConsultant("username1");
-    createConsultant("username2");
-    CreateConsultantDTO createConsultantDTO = this.easyRandom.nextObject(CreateConsultantDTO.class);
-    this.consultantCreatorService.createNewConsultant(createConsultantDTO);
-    rollbackDBState();
+    assertThrows(
+        CustomValidationHttpStatusException.class,
+        () -> {
+          // given
+          givenTenantApiCall();
+          createConsultant("username1");
+          createConsultant("username2");
+          CreateConsultantDTO createConsultantDTO =
+              this.easyRandom.nextObject(CreateConsultantDTO.class);
+          this.createConsultantSaga.createNewConsultant(createConsultantDTO);
+          rollbackDBState();
+        });
   }
 
   @Test
@@ -110,15 +114,16 @@ public class ConsultantCreatorServiceTenantAwareIT {
     createConsultantDTO.setTenantId(1L);
 
     // when
-    Consultant consultant = consultantCreatorService.createNewConsultant(createConsultantDTO);
+    ConsultantAdminResponseDTO consultant =
+        createConsultantSaga.createNewConsultant(createConsultantDTO);
 
     // then
     verify(keycloakService, times(2)).updateRole(anyString(), anyString());
     verify(keycloakService).updateRole(anyString(), eq(CONSULTANT.getValue()));
     verify(keycloakService).updateRole(anyString(), eq(GROUP_CHAT_CONSULTANT.getValue()));
 
-    assertThat(consultant, notNullValue());
-    assertThat(consultant.getId(), notNullValue());
+    assertThat(consultant.getEmbedded(), notNullValue());
+    assertThat(consultant.getEmbedded().getId(), notNullValue());
   }
 
   private void createConsultant(String username) {
@@ -157,8 +162,7 @@ public class ConsultantCreatorServiceTenantAwareIT {
     var licensing = new Licensing();
     licensing.setAllowedNumberOfUsers(2);
     dummyTenant.setLicensing(licensing);
-    ReflectionTestUtils.setField(
-        consultantCreatorService, "tenantAdminService", tenantAdminService);
+    ReflectionTestUtils.setField(createConsultantSaga, "tenantAdminService", tenantAdminService);
     when(tenantAdminService.getTenantById(TenantContext.getCurrentTenant()))
         .thenReturn(dummyTenant);
   }
