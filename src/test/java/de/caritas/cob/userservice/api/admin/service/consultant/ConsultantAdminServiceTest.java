@@ -1,12 +1,14 @@
 package de.caritas.cob.userservice.api.admin.service.consultant;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
 
-import de.caritas.cob.userservice.api.admin.service.consultant.create.ConsultantCreatorService;
+import de.caritas.cob.userservice.api.AccountManager;
+import de.caritas.cob.userservice.api.admin.service.consultant.create.CreateConsultantSaga;
 import de.caritas.cob.userservice.api.admin.service.consultant.delete.ConsultantPreDeletionService;
 import de.caritas.cob.userservice.api.admin.service.consultant.update.ConsultantUpdateService;
 import de.caritas.cob.userservice.api.exception.httpresponses.NotFoundException;
@@ -16,20 +18,20 @@ import de.caritas.cob.userservice.api.port.out.ConsultantRepository;
 import de.caritas.cob.userservice.api.port.out.SessionRepository;
 import de.caritas.cob.userservice.api.service.appointment.AppointmentService;
 import java.util.Optional;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ConsultantAdminServiceTest {
 
   @InjectMocks private ConsultantAdminService consultantAdminService;
 
   @Mock private ConsultantRepository consultantRepository;
 
-  @Mock private ConsultantCreatorService consultantCreatorService;
+  @Mock private CreateConsultantSaga createConsultantSaga;
 
   @Mock private ConsultantUpdateService consultantUpdateService;
 
@@ -41,12 +43,19 @@ public class ConsultantAdminServiceTest {
 
   @Mock private AuthenticatedUser authenticatedUser;
 
-  @Test(expected = NotFoundException.class)
+  @Mock private AccountManager accountManager;
+
+  @Test
   public void
       markConsultantForDeletion_Should_throwNotFoundException_When_consultantdoesNotExist() {
-    when(this.consultantRepository.findByIdAndDeleteDateIsNull(any())).thenReturn(Optional.empty());
+    assertThrows(
+        NotFoundException.class,
+        () -> {
+          when(this.consultantRepository.findByIdAndDeleteDateIsNull(any()))
+              .thenReturn(Optional.empty());
 
-    this.consultantAdminService.markConsultantForDeletion("id", false);
+          this.consultantAdminService.markConsultantForDeletion("id", false);
+        });
   }
 
   @Test
