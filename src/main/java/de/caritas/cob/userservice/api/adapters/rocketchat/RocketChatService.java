@@ -803,6 +803,7 @@ public class RocketChatService implements MessageClient {
    * @return al members of the group
    * @deprecated use getChatUsers
    */
+  @Deprecated
   public List<GroupMemberDTO> getMembersOfGroup(String rcGroupId)
       throws RocketChatGetGroupMembersException {
 
