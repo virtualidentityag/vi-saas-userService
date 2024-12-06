@@ -185,7 +185,7 @@ class DeleteInactiveSessionsAndUserServiceTest {
   }
 
   @Test
-  void deleteInactiveSessionsAndUsers_Should_SendWorkflowErrorMail_WhenUserCouldNotBeFound() {
+  void deleteInactiveSessionsAndUsers_Should_Not_SendWorkflowErrorMail_WhenUserCouldNotBeFound() {
 
     EasyRandom easyRandom = new EasyRandom();
     User user = easyRandom.nextObject(User.class);
@@ -203,8 +203,8 @@ class DeleteInactiveSessionsAndUserServiceTest {
 
     deleteInactiveSessionsAndUserService.deleteInactiveSessionsAndUsers();
 
-    verify(workflowErrorLogService, Mockito.times(1)).logWorkflowErrors(Collections.emptyList());
-    verify(workflowErrorMailService, Mockito.times(1))
+    verify(workflowErrorLogService, Mockito.times(0)).logWorkflowErrors(Collections.emptyList());
+    verify(workflowErrorMailService, Mockito.times(0))
         .buildAndSendErrorMail(argThat(list -> !list.isEmpty()));
   }
 }
