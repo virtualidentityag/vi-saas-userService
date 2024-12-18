@@ -20,8 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 abstract class DeleteRoomsAndSessionAction {
 
-  private static final String USER_SERVICE_DELETE_WORKFLOW_ERROR =
-      "UserService delete workflow error: ";
   protected final @NonNull SessionRepository sessionRepository;
   protected final @NonNull SessionDataRepository sessionDataRepository;
   protected final @NonNull RocketChatService rocketChatService;
@@ -31,7 +29,7 @@ abstract class DeleteRoomsAndSessionAction {
       try {
         this.rocketChatService.deleteGroupAsTechnicalUser(rcGroupId);
       } catch (RocketChatDeleteGroupException e) {
-        log.error(USER_SERVICE_DELETE_WORKFLOW_ERROR, e);
+        log.error("UserService delete workflow error: ", e);
         workflowErrors.add(
             DeletionWorkflowError.builder()
                 .deletionSourceType(ASKER)
@@ -49,7 +47,7 @@ abstract class DeleteRoomsAndSessionAction {
       var sessionData = this.sessionDataRepository.findBySessionId(session.getId());
       this.sessionDataRepository.deleteAll(sessionData);
     } catch (Exception e) {
-      log.error(USER_SERVICE_DELETE_WORKFLOW_ERROR, e);
+      log.error("UserService delete workflow error: ", e);
       workflowErrors.add(
           DeletionWorkflowError.builder()
               .deletionSourceType(ASKER)
@@ -65,7 +63,7 @@ abstract class DeleteRoomsAndSessionAction {
     try {
       this.sessionRepository.delete(session);
     } catch (Exception e) {
-      log.error(USER_SERVICE_DELETE_WORKFLOW_ERROR, e);
+      log.error("UserService delete workflow error: ", e);
       workflowErrors.add(
           DeletionWorkflowError.builder()
               .deletionSourceType(ASKER)
