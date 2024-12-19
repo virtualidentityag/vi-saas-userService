@@ -87,7 +87,7 @@ public class JoinAndLeaveChatFacade {
 
   private void deleteMessengerChat(String groupId) {
     if (!rocketChatService.deleteGroupAsSystemUser(groupId)) {
-      var message = String.format("Could not delete Rocket.Chat group with id %s", groupId);
+      var message = "Could not delete Rocket.Chat group with id %s".formatted(groupId);
       throw new InternalServerErrorException(message);
     }
   }

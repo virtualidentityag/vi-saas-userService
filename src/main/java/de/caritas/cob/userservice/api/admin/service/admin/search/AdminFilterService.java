@@ -3,21 +3,24 @@ package de.caritas.cob.userservice.api.admin.service.admin.search;
 import static java.util.Objects.nonNull;
 
 import de.caritas.cob.userservice.api.adapters.web.dto.AdminFilter;
+import de.caritas.cob.userservice.api.adapters.web.dto.AdminResponseDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.AdminSearchResultDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.Sort;
 import de.caritas.cob.userservice.api.adapters.web.dto.Sort.FieldEnum;
-import de.caritas.cob.userservice.api.admin.service.admin.AdminSearchResultBuilder;
-import de.caritas.cob.userservice.api.admin.service.admin.search.querybuilder.AdminFilterQueryBuilder;
+import de.caritas.cob.userservice.api.admin.service.admin.AdminResponseDTOBuilder;
 import de.caritas.cob.userservice.api.model.Admin;
+import jakarta.persistence.EntityManagerFactory;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import javax.persistence.EntityManagerFactory;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.apache.lucene.search.SortField;
-import org.hibernate.search.jpa.FullTextEntityManager;
-import org.hibernate.search.jpa.FullTextQuery;
-import org.hibernate.search.jpa.Search;
+import org.hibernate.Session;
+import org.hibernate.search.engine.search.sort.dsl.SearchSortFactory;
+import org.hibernate.search.engine.search.sort.dsl.SortFinalStep;
+import org.hibernate.search.engine.search.sort.dsl.SortOrder;
+import org.hibernate.search.mapper.orm.Search;
+import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,56 +31,85 @@ public class AdminFilterService {
 
   public AdminSearchResultDTO findFilteredAdmins(
       final Integer page, final Integer perPage, final AdminFilter adminFilter, Sort sort) {
-    var fullTextEntityManager =
-        Search.getFullTextEntityManager(entityManagerFactory.createEntityManager());
 
-    sort = getValidSorter(sort);
-    var fullTextQuery = buildFilteredQuery(adminFilter, fullTextEntityManager);
-    fullTextQuery.setMaxResults(Math.max(perPage, 1));
-    fullTextQuery.setFirstResult(Math.max((page - 1) * perPage, 0));
-    fullTextQuery.setSort(buildSort(sort));
+    try (var entityManager = entityManagerFactory.createEntityManager()) {
+      var session = entityManager.unwrap(Session.class);
 
-    var searchResultDTO =
-        AdminSearchResultBuilder.getInstance(fullTextQuery)
-            .withFilter(adminFilter)
-            .withSort(sort)
-            .withPage(page)
-            .withPerPage(perPage)
-            .buildSearchResult();
+      // Obtain a SearchSession from the Hibernate Session
+      SearchSession searchSession = Search.session(session);
 
-    fullTextEntityManager.close();
-    return searchResultDTO;
-  }
+      // Ensure the sort is valid
+      sort = getValidSorter(sort);
 
-  protected FullTextQuery buildFilteredQuery(
-      AdminFilter adminFilter, FullTextEntityManager fullTextEntityManager) {
+      // Build the search query
+      var admins = fetchAdmins(adminFilter, searchSession, sort, page, perPage);
 
-    var queryBuilder =
-        fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Admin.class).get();
-
-    var query =
-        AdminFilterQueryBuilder.getInstance(queryBuilder).onAdminFilter(adminFilter).buildQuery();
-
-    return fullTextEntityManager.createFullTextQuery(query, Admin.class);
-  }
-
-  private org.apache.lucene.search.Sort buildSort(Sort sort) {
-    var luceneSort = new org.apache.lucene.search.Sort();
-    if (nonNull(sort) && nonNull(sort.getField())) {
-      var reverse = Sort.OrderEnum.DESC.equals(sort.getOrder());
-      luceneSort.setSort(
-          SortField.FIELD_SCORE,
-          new SortField(sort.getField().getValue(), SortField.Type.STRING, reverse));
+      // Build the result
+      return convertToSearchResultDTO(admins);
     }
+  }
 
-    return luceneSort;
+  private AdminSearchResultDTO convertToSearchResultDTO(List<Admin> admins) {
+    AdminSearchResultDTO result = new AdminSearchResultDTO();
+    for (Admin admin : admins) {
+      AdminResponseDTO adminResponseDTO =
+          AdminResponseDTOBuilder.getInstance(admin).buildAgencyAdminResponseDTO();
+      result.addEmbeddedItem(adminResponseDTO);
+    }
+    return result;
+  }
+
+  protected List<Admin> fetchAdmins(
+      AdminFilter adminFilter,
+      SearchSession searchSession,
+      Sort sortDefinition,
+      Integer page,
+      Integer perPage) {
+    int offset = Math.max((page - 1) * perPage, 0);
+
+    return searchSession
+        .search(Admin.class)
+        .where(
+            f ->
+                f.bool(
+                    bool -> {
+                      // Apply username filter if present
+                      if (adminFilter.getUsername() != null) {
+                        bool.must(f.match().field("username").matching(adminFilter.getUsername()));
+                      }
+                      // Apply lastname filter if present
+                      if (adminFilter.getLastname() != null) {
+                        bool.must(f.match().field("lastname").matching(adminFilter.getLastname()));
+                      }
+                      // Apply email filter if present
+                      if (adminFilter.getEmail() != null) {
+                        bool.must(f.match().field("email").matching(adminFilter.getEmail()));
+                      }
+                      // Apply agencyId filter if present
+                      if (adminFilter.getAgencyId() != null) {
+                        bool.must(f.match().field("agencyId").matching(adminFilter.getAgencyId()));
+                      }
+                    }))
+        .sort(f -> buildSort(f, sortDefinition)) // Apply sorting here
+        .fetchHits(offset, Math.max(perPage, 1)); // Apply pagination
+  }
+
+  private SortFinalStep buildSort(SearchSortFactory factory, Sort sort) {
+    if (sort != null && sort.getField() != null) {
+      boolean reverse = Sort.OrderEnum.DESC.equals(sort.getOrder());
+      return factory
+          .field(sort.getField().getValue())
+          .order(reverse ? SortOrder.DESC : SortOrder.ASC);
+    } else {
+      return factory.field(FieldEnum.LAST_NAME.getValue()).order(SortOrder.ASC);
+    }
   }
 
   private Sort getValidSorter(Sort sort) {
     if (sort == null
         || Stream.of(Sort.FieldEnum.values()).noneMatch(providedSortFieldIgnoringCase(sort))) {
       sort = new Sort();
-      sort.setField(Sort.FieldEnum.LASTNAME);
+      sort.setField(FieldEnum.LAST_NAME);
       sort.setOrder(Sort.OrderEnum.ASC);
     }
     return sort;

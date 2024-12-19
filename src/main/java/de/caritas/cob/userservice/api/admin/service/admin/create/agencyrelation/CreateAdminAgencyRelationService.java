@@ -34,9 +34,7 @@ public class CreateAdminAgencyRelationService {
     var agencyDto = this.agencyService.getAgencyWithoutCaching(agencyId);
     return Optional.ofNullable(agencyDto)
         .orElseThrow(
-            () ->
-                new BadRequestException(
-                    String.format("AgencyId %s is not a valid agency", agencyId)));
+            () -> new BadRequestException("AgencyId %s is not a valid agency".formatted(agencyId)));
   }
 
   private AdminAgency buildAdminAgency(final Admin admin, final Long agencyId) {

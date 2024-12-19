@@ -25,6 +25,7 @@ import de.caritas.cob.userservice.api.model.SuccessWithEmail;
 import de.caritas.cob.userservice.api.port.out.IdentityClient;
 import de.caritas.cob.userservice.api.port.out.IdentityClientConfig;
 import de.caritas.cob.userservice.api.tenant.TenantContext;
+import jakarta.ws.rs.BadRequestException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -154,8 +154,7 @@ public class KeycloakService implements IdentityClient {
 
     } catch (RestClientResponseException exception) {
       throw new BadRequestException(
-          String.format(
-              "Could not log in user %s into Keycloak: %s", userName, exception.getMessage()),
+          "Could not log in user %s into Keycloak: %s".formatted(userName, exception.getMessage()),
           exception);
     }
   }
@@ -360,8 +359,8 @@ public class KeycloakService implements IdentityClient {
       handleCreateKeycloakUserError(response);
     }
     throw new InternalServerErrorException(
-        String.format(
-            "Could not create Keycloak account for: %s %nKeycloak error: %s", user, keycloakError));
+        "Could not create Keycloak account for: %s %nKeycloak error: %s"
+            .formatted(user, keycloakError));
   }
 
   private void handleCreateKeycloakUserError(Response response) {
@@ -669,12 +668,11 @@ public class KeycloakService implements IdentityClient {
     try {
       return getUserRoles(userId).stream()
           .map(role -> UserRole.getRoleByValue(role.getName()))
-          .filter(Optional::isPresent)
-          .map(Optional::get)
+          .flatMap(Optional::stream)
           .map(Authority::getAuthoritiesByUserRole)
           .anyMatch(currentAuthority -> currentAuthority.contains(authority));
     } catch (Exception ex) {
-      var error = String.format("Could not get roles for user id %s", userId);
+      var error = "Could not get roles for user id %s".formatted(userId);
       log.error("Keycloak error: " + error, ex);
       throw new KeycloakException(error);
     }
@@ -691,12 +689,11 @@ public class KeycloakService implements IdentityClient {
     try {
       return getUserRoles(userId).stream()
           .map(this::toUserRole)
-          .filter(Optional::isPresent)
-          .map(Optional::get)
+          .flatMap(Optional::stream)
           .map(UserRole::getValue)
           .anyMatch(userRole::equals);
     } catch (Exception ex) {
-      var error = String.format("Could not get roles for user id %s", userId);
+      var error = "Could not get roles for user id %s".formatted(userId);
       log.error("Keycloak error: " + error, ex);
       throw new KeycloakException(error);
     }

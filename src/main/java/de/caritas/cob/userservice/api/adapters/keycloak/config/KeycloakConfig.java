@@ -4,10 +4,10 @@ import static java.util.Objects.nonNull;
 
 import de.caritas.cob.userservice.api.exception.keycloak.KeycloakException;
 import de.caritas.cob.userservice.api.helper.AuthenticatedUser;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
 import org.keycloak.KeycloakSecurityContext;
@@ -34,25 +34,25 @@ import org.springframework.web.context.WebApplicationContext;
 public class KeycloakConfig {
 
   @Bean("keycloakRestTemplate")
-  public RestTemplate keycloakRestTemplate(RestTemplateBuilder restTemplateBuilder) {
+  RestTemplate keycloakRestTemplate(RestTemplateBuilder restTemplateBuilder) {
     return restTemplateBuilder.build();
   }
 
   @Bean
   @Scope(scopeName = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
-  public KeycloakAuthenticationToken keycloakAuthenticationToken(HttpServletRequest request) {
+  KeycloakAuthenticationToken keycloakAuthenticationToken(HttpServletRequest request) {
     return (KeycloakAuthenticationToken) request.getUserPrincipal();
   }
 
   @Bean
   @Scope(scopeName = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
-  public KeycloakSecurityContext keycloakSecurityContext(KeycloakAuthenticationToken token) {
+  KeycloakSecurityContext keycloakSecurityContext(KeycloakAuthenticationToken token) {
     return token.getAccount().getKeycloakSecurityContext();
   }
 
   @Bean
   @Scope(scopeName = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
-  public AuthenticatedUser authenticatedUser(HttpServletRequest request) {
+  AuthenticatedUser authenticatedUser(HttpServletRequest request) {
     var userPrincipal = request.getUserPrincipal();
     var authenticatedUser = new AuthenticatedUser();
 
@@ -83,7 +83,7 @@ public class KeycloakConfig {
   }
 
   @Bean
-  public Keycloak keycloak() {
+  Keycloak keycloak() {
     return KeycloakBuilder.builder()
         .serverUrl(authServerUrl)
         .realm(realm)
@@ -98,7 +98,7 @@ public class KeycloakConfig {
    * application properties.
    */
   @Bean
-  public KeycloakConfigResolver keyCloakConfigResolver() {
+  KeycloakConfigResolver keyCloakConfigResolver() {
     return new KeycloakSpringBootConfigResolver();
   }
 

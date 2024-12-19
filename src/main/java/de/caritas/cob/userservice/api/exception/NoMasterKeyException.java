@@ -1,8 +1,10 @@
 package de.caritas.cob.userservice.api.exception;
 
+import java.io.Serial;
+
 public class NoMasterKeyException extends RuntimeException {
 
-  private static final long serialVersionUID = 362702101121444833L;
+  @Serial private static final long serialVersionUID = 362702101121444833L;
 
   /**
    * Exception, when no master key is set

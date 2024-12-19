@@ -5,27 +5,26 @@ import de.caritas.cob.userservice.api.tenant.TenantContext;
 import java.util.Iterator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.EmptyInterceptor;
+import org.hibernate.Interceptor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class TenantHibernateInterceptor extends EmptyInterceptor {
+public class TenantHibernateInterceptor implements Interceptor {
 
   @Override
-  public void preFlush(Iterator entities) {
+  public void preFlush(Iterator<Object> entities) {
     Object entity;
     while (entities.hasNext()) {
       entity = entities.next();
-      if (entity instanceof TenantAware) {
-        var tenantAware = (TenantAware) entity;
+      if (entity instanceof TenantAware tenantAware) {
         if (tenantAware.getTenantId() == null && !TenantContext.isTechnicalOrSuperAdminContext()) {
-          ((TenantAware) entity).setTenantId(TenantContext.getCurrentTenant());
+          tenantAware.setTenantId(TenantContext.getCurrentTenant());
         }
       }
     }
 
-    super.preFlush(entities);
+    Interceptor.super.preFlush(entities);
   }
 }

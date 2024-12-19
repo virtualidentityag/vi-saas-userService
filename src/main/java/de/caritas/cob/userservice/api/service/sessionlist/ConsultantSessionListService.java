@@ -10,6 +10,7 @@ import de.caritas.cob.userservice.api.adapters.web.dto.ConsultantSessionListResp
 import de.caritas.cob.userservice.api.adapters.web.dto.ConsultantSessionResponseDTO;
 import de.caritas.cob.userservice.api.container.SessionListQueryParameter;
 import de.caritas.cob.userservice.api.exception.httpresponses.BadRequestException;
+import de.caritas.cob.userservice.api.helper.LatestMessageParseUtil;
 import de.caritas.cob.userservice.api.model.Consultant;
 import de.caritas.cob.userservice.api.model.Session.SessionStatus;
 import de.caritas.cob.userservice.api.service.ChatService;
@@ -116,8 +117,7 @@ public class ConsultantSessionListService {
 
   private SessionStatus getVerifiedSessionStatus(Integer status) {
     return SessionStatus.valueOf(status)
-        .orElseThrow(
-            () -> new BadRequestException(String.format("Invalid session status %s ", status)));
+        .orElseThrow(() -> new BadRequestException("Invalid session status %s ".formatted(status)));
   }
 
   /**
@@ -166,7 +166,9 @@ public class ConsultantSessionListService {
   }
 
   private void sortSessionsByLastMessageDateDesc(List<ConsultantSessionResponseDTO> sessions) {
-    sessions.sort(Comparator.comparing(ConsultantSessionResponseDTO::getLatestMessage).reversed());
+    sessions.sort(
+        Comparator.comparing(LatestMessageParseUtil::parseLatestMessageForConsultantSession)
+            .reversed());
   }
 
   private void removeAllChatsAndSessionsWithoutUnreadFeedback(

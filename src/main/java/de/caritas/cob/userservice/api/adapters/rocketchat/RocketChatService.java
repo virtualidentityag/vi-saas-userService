@@ -56,6 +56,7 @@ import de.caritas.cob.userservice.api.exception.rocketchat.RocketChatRemoveUserF
 import de.caritas.cob.userservice.api.exception.rocketchat.RocketChatUserNotInitializedException;
 import de.caritas.cob.userservice.api.port.out.MessageClient;
 import de.caritas.cob.userservice.api.service.LogService;
+import jakarta.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -64,7 +65,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -353,7 +353,7 @@ public class RocketChatService implements MessageClient {
 
     if (!isCreateGroupResponseSuccess(response)) {
       throw new RocketChatCreateGroupException(
-          String.format("Rocket.Chat group with name %s could not be created", name));
+          "Rocket.Chat group with name %s could not be created".formatted(name));
     }
 
     return Optional.ofNullable(response);
@@ -528,7 +528,7 @@ public class RocketChatService implements MessageClient {
           username,
           ex);
       throw new RocketChatLoginException(
-          String.format("Could not login user (%s) in Rocket.Chat for the first time", username));
+          "Could not login user (%s) in Rocket.Chat for the first time".formatted(username));
     }
   }
 
@@ -586,13 +586,12 @@ public class RocketChatService implements MessageClient {
           rcGroupId,
           ex);
       throw new RocketChatAddUserToGroupException(
-          String.format(
-              "Could not add user %s to Rocket.Chat group with id %s", rcUserId, rcGroupId));
+          "Could not add user %s to Rocket.Chat group with id %s".formatted(rcUserId, rcGroupId));
     }
 
     if (nonNull(response) && !response.isSuccess()) {
       var error = "Could not add user %s to Rocket.Chat group with id %s";
-      throw new RocketChatAddUserToGroupException(String.format(error, rcUserId, rcGroupId));
+      throw new RocketChatAddUserToGroupException(error.formatted(rcUserId, rcGroupId));
     }
   }
 
@@ -631,13 +630,13 @@ public class RocketChatService implements MessageClient {
           rcGroupId,
           ex);
       throw new RocketChatLeaveFromGroupException(
-          String.format(
-              "Could not leave as technical user from Rocket.Chat group with id %s", rcGroupId));
+          "Could not leave as technical user from Rocket.Chat group with id %s"
+              .formatted(rcGroupId));
     }
 
     if (response != null && !response.isSuccess()) {
       var error = "Could not leave as technical user from Rocket.Chat group with id %s";
-      throw new RocketChatLeaveFromGroupException(String.format(error, rcGroupId));
+      throw new RocketChatLeaveFromGroupException(error.formatted(rcGroupId));
     }
   }
 
@@ -668,13 +667,13 @@ public class RocketChatService implements MessageClient {
           rcGroupId,
           ex);
       throw new RocketChatRemoveUserFromGroupException(
-          String.format(
-              "Could not remove user %s from Rocket.Chat group with id %s", rcUserId, rcGroupId));
+          "Could not remove user %s from Rocket.Chat group with id %s"
+              .formatted(rcUserId, rcGroupId));
     }
 
     if (response != null && !response.isSuccess()) {
       var error = "Could not remove user %s from Rocket.Chat group with id %s";
-      throw new RocketChatRemoveUserFromGroupException(String.format(error, rcUserId, rcGroupId));
+      throw new RocketChatRemoveUserFromGroupException(error.formatted(rcUserId, rcGroupId));
     }
   }
 
@@ -708,7 +707,7 @@ public class RocketChatService implements MessageClient {
     } catch (Exception exception) {
       log.error("Could not get chat users. Reason: ", exception);
       throw new RocketChatGetGroupMembersException(
-          String.format("Group member list from group with id %s is empty", rcGroupId));
+          "Group member list from group with id %s is empty".formatted(rcGroupId));
     }
 
     Iterator<GroupMemberDTO> groupMemberListIterator = groupMemberList.iterator();
@@ -739,7 +738,7 @@ public class RocketChatService implements MessageClient {
 
     if (groupMemberList.isEmpty()) {
       throw new RocketChatGetGroupMembersException(
-          String.format("Group member list from group with id %s is empty", rcGroupId));
+          "Group member list from group with id %s is empty".formatted(rcGroupId));
     }
 
     for (GroupMemberDTO member : groupMemberList) {
@@ -814,15 +813,14 @@ public class RocketChatService implements MessageClient {
     } catch (Exception ex) {
       log.error("Could not get chat users. Reason: ", ex);
       throw new RocketChatGetGroupMembersException(
-          String.format("Could not get Rocket.Chat group" + " members for room id %s", rcGroupId),
-          ex);
+          ("Could not get Rocket.Chat group" + " members for room id %s").formatted(rcGroupId), ex);
     }
 
     if (response.getStatusCode() == HttpStatus.OK && nonNull(response.getBody())) {
       return asList(response.getBody().getMembers());
     } else {
       var error = "Could not get Rocket.Chat group members for room id %s";
-      throw new RocketChatGetGroupMembersException(String.format(error, rcGroupId));
+      throw new RocketChatGetGroupMembersException(error.formatted(rcGroupId));
     }
   }
 
@@ -883,12 +881,12 @@ public class RocketChatService implements MessageClient {
     } catch (Exception ex) {
       log.error("Could not clean history of Rocket.Chat group id {}. Reason: ", rcGroupId, ex);
       throw new RocketChatRemoveSystemMessagesException(
-          String.format("Could not clean history of Rocket.Chat group id %s", rcGroupId));
+          "Could not clean history of Rocket.Chat group id %s".formatted(rcGroupId));
     }
 
     if (nonNull(response) && !response.isSuccess()) {
       throw new RocketChatRemoveSystemMessagesException(
-          String.format("Could not clean history of Rocket.Chat group id %s", rcGroupId));
+          "Could not clean history of Rocket.Chat group id %s".formatted(rcGroupId));
     }
   }
 
@@ -1006,7 +1004,7 @@ public class RocketChatService implements MessageClient {
 
     } catch (RestClientResponseException | RocketChatUserNotInitializedException ex) {
       throw new InternalServerErrorException(
-          String.format("Could not get Rocket.Chat user info of user id %s", rcUserId),
+          "Could not get Rocket.Chat user info of user id %s".formatted(rcUserId),
           ex,
           LogService::logRocketChatError);
     }
@@ -1168,9 +1166,9 @@ public class RocketChatService implements MessageClient {
       LocalDateTime dateTimeSinceInactive) throws RocketChatGetGroupsListAllException {
 
     String filter =
-        String.format(
-            "{\"lm\": {\"$lt\": {\"$date\": \"%s\"}}, \"$and\": [{\"t\": \"p\"}]}",
-            dateTimeSinceInactive.format(DateTimeFormatter.ofPattern(RC_DATE_TIME_PATTERN)));
+        "{\"lm\": {\"$lt\": {\"$date\": \"%s\"}}, \"$and\": [{\"t\": \"p\"}]}"
+            .formatted(
+                dateTimeSinceInactive.format(DateTimeFormatter.ofPattern(RC_DATE_TIME_PATTERN)));
     return getGroupsListAll(filter);
   }
 
@@ -1302,8 +1300,7 @@ public class RocketChatService implements MessageClient {
       return users[0].getId();
     }
 
-    throw new RocketChatGetUserIdException(
-        String.format("Found %s users by username", users.length));
+    throw new RocketChatGetUserIdException("Found %s users by username".formatted(users.length));
   }
 
   private String buildUsersListGetUrl() {
@@ -1312,7 +1309,7 @@ public class RocketChatService implements MessageClient {
   }
 
   private String buildUsernameQuery(String username) {
-    return String.format("{\"username\":{\"$eq\":\"%s\"}}", username.toLowerCase());
+    return "{\"username\":{\"$eq\":\"%s\"}}".formatted(username.toLowerCase());
   }
 
   public boolean saveRoomSettings(String chatId, boolean encrypted) {

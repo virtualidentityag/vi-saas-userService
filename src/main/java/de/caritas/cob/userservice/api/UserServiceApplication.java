@@ -36,7 +36,7 @@ public class UserServiceApplication {
   }
 
   @Bean
-  public Executor taskExecutor() {
+  Executor taskExecutor() {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
     /*
      * This will create 10 threads at the time of initialization. If all 10 threads are busy and new

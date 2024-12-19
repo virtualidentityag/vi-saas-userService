@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Profile;
 public class LiquibaseConfig {
 
   @Bean
-  public SpringLiquibase liquibase(DataSource dataSource, LiquibaseProperties liquibaseProperties) {
+  SpringLiquibase liquibase(DataSource dataSource, LiquibaseProperties liquibaseProperties) {
 
     var liquibase = new BeanAwareSpringLiquibase();
     liquibase.setContexts(liquibaseProperties.getContexts());

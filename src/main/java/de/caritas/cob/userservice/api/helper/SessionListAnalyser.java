@@ -35,7 +35,7 @@ public class SessionListAnalyser {
       return decryptionService.decrypt(message, groupId);
     } catch (CustomCryptoException cryptoEx) {
       throw new InternalServerErrorException(
-          String.format("Could not decrypt message for group id %s", groupId),
+          "Could not decrypt message for group id %s".formatted(groupId),
           LogService::logInternalServerError);
     }
   }

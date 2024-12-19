@@ -40,9 +40,8 @@ public class RocketChatFacade {
       leaveFromGroupAsTechnicalUser(groupId);
     } catch (RocketChatAddUserToGroupException addUserEx) {
       var message =
-          String.format(
-              "Could not add user with id %s to Rocket.Chat group with id %s. Initiate rollback.",
-              rcUserId, groupId);
+          "Could not add user with id %s to Rocket.Chat group with id %s. Initiate rollback."
+              .formatted(rcUserId, groupId);
       throw new InternalServerErrorException(message, LogService::logInternalServerError);
     }
   }
@@ -61,7 +60,7 @@ public class RocketChatFacade {
       leaveFromGroupAsTechnicalUser(groupId);
     } catch (RocketChatRemoveSystemMessagesException | RocketChatUserNotInitializedException e) {
       var message =
-          String.format("Could not remove system messages from Rocket.Chat group id %s", groupId);
+          "Could not remove system messages from Rocket.Chat group id %s".formatted(groupId);
       throw new InternalServerErrorException(message, LogService::logInternalServerError);
     }
   }
@@ -83,9 +82,8 @@ public class RocketChatFacade {
       return memberList;
     } catch (Exception exception) {
       var message =
-          String.format(
-              "Could not get Rocket.Chat group members of group id %s. Initiate rollback.",
-              rcGroupId);
+          "Could not get Rocket.Chat group members of group id %s. Initiate rollback."
+              .formatted(rcGroupId);
       throw new InternalServerErrorException(message, LogService::logInternalServerError);
     }
   }
@@ -100,9 +98,8 @@ public class RocketChatFacade {
       rocketChatService.addTechnicalUserToGroup(groupId);
     } catch (RocketChatAddUserToGroupException | RocketChatUserNotInitializedException addUserEx) {
       var message =
-          String.format(
-              "Could not add Rocket.Chat technical user to Rocket.Chat group with id %s. Initiate rollback.",
-              groupId);
+          "Could not add Rocket.Chat technical user to Rocket.Chat group with id %s. Initiate rollback."
+              .formatted(groupId);
       throw new InternalServerErrorException(message, LogService::logInternalServerError);
     }
   }
@@ -117,7 +114,7 @@ public class RocketChatFacade {
       rocketChatService.leaveFromGroupAsTechnicalUser(groupId);
     } catch (RocketChatLeaveFromGroupException e) {
       var message =
-          String.format("Could not leave from Rocket.Chat group id %s as technical user", groupId);
+          "Could not leave from Rocket.Chat group id %s as technical user".formatted(groupId);
       throw new InternalServerErrorException(message, LogService::logInternalServerError);
     }
   }
@@ -133,8 +130,8 @@ public class RocketChatFacade {
       this.rocketChatService.removeUserFromGroup(rcUserId, groupId);
     } catch (RocketChatRemoveUserFromGroupException e) {
       var message =
-          String.format(
-              "Could not remove user with id %s from Rocket.Chat group id %s", rcUserId, groupId);
+          "Could not remove user with id %s from Rocket.Chat group id %s"
+              .formatted(rcUserId, groupId);
       throw new InternalServerErrorException(message, LogService::logInternalServerError);
     }
   }

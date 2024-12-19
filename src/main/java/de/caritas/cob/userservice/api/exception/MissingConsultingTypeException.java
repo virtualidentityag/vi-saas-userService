@@ -1,8 +1,10 @@
 package de.caritas.cob.userservice.api.exception;
 
+import java.io.Serial;
+
 public class MissingConsultingTypeException extends RuntimeException {
 
-  private static final long serialVersionUID = -6127271234647444277L;
+  @Serial private static final long serialVersionUID = -6127271234647444277L;
 
   /**
    * Exception, when settings for an requested consulting type are missing

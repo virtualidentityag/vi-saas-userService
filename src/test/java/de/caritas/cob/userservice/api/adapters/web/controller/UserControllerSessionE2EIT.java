@@ -79,6 +79,7 @@ import de.caritas.cob.userservice.api.port.out.SessionRepository;
 import de.caritas.cob.userservice.api.port.out.UserAgencyRepository;
 import de.caritas.cob.userservice.api.port.out.UserRepository;
 import de.caritas.cob.userservice.api.testConfig.TestAgencyControllerApi;
+import jakarta.servlet.http.Cookie;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -92,7 +93,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import javax.servlet.http.Cookie;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -187,7 +187,7 @@ class UserControllerSessionE2EIT {
   @TestConfiguration
   static class TestConfig {
     @Bean(name = "initializeFeedbackChat")
-    public Boolean initializeFeedbackChat() {
+    Boolean initializeFeedbackChat() {
       return false;
     }
   }

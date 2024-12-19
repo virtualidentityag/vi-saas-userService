@@ -64,7 +64,7 @@ public class ConsultantAdminService {
             .orElseThrow(
                 () ->
                     new NoContentException(
-                        String.format("Consultant with id %s not found", consultantId)));
+                        "Consultant with id %s not found".formatted(consultantId)));
     var response = ConsultantResponseDTOBuilder.getInstance(consultant).buildResponseDTO();
     enrichWithDisplayName(consultantId, response);
     return response;

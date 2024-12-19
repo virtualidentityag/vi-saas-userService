@@ -16,14 +16,14 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.18</version>
+		<version>3.0.13</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>11</java.version>
+		<java.version>17</java.version>
 		<skip.unit-tests>false</skip.unit-tests>
 		<skip.integration-tests>false</skip.integration-tests>
 		<keycloak.version>17.0.0</keycloak.version>
@@ -41,24 +41,31 @@
 		<commons-validator.version>1.7</commons-validator.version>
 		<liquibase-maven-plugin.version>4.8.0</liquibase-maven-plugin.version>
 		<javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
-		<spring-boot-starter-web.version>2.7.18</spring-boot-starter-web.version>
-		<spring-security-core.version>5.7.12</spring-security-core.version>
-		<spring-beans.version>5.3.35</spring-beans.version>
-		<spring-webmvc.version>5.3.35</spring-webmvc.version>
-		<spring-core.version>5.3.35</spring-core.version>
+		<spring-boot-starter-web.version>3.0.13</spring-boot-starter-web.version>
+		<spring-security-core.version>5.7.14</spring-security-core.version>
+		<spring-beans.version>6.0.23</spring-beans.version>
+		<spring-webmvc.version>6.0.23</spring-webmvc.version>
+		<spring-core.version>6.0.23</spring-core.version>
 		<json-smart.version>2.4.7</json-smart.version>
 		<springfox-swagger-ui.version>2.10.0</springfox-swagger-ui.version>
-		<spring-context-support.version>5.3.35</spring-context-support.version>
+		<spring-context-support.version>6.0.23</spring-context-support.version>
 		<ehcache.version>2.10.9.2</ehcache.version>
 		<testcontainers.version>1.17.6</testcontainers.version>
+		<openapi-generator-maven-plugin.version>7.10.0</openapi-generator-maven-plugin.version>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>javax.ws.rs</groupId>
+			<artifactId>javax.ws.rs-api</artifactId>
+			<version>2.1.1</version>
+		</dependency>
 		<!-- Spring Boot dependencies -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<version>${spring-boot-starter-web.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -67,7 +74,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
-			<version>5.3.35</version>
+			<version>6.0.23</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -101,7 +108,10 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-core</artifactId>
-			<version>${spring-security-core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -133,22 +143,26 @@
 		<dependency>
 			<groupId>net.minidev</groupId>
 			<artifactId>json-smart</artifactId>
-			<version>${json-smart.version}</version>
 		</dependency>
 
 		<!-- Search dependency -->
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-search-orm</artifactId>
-			<version>5.11.12.Final</version>
+			<groupId>org.hibernate.search</groupId>
+			<artifactId>hibernate-search-mapper-orm</artifactId>
+			<version>6.1.7.Final</version>
 		</dependency>
 
 		<!-- Swagger/OpenAPI dependencies -->
 		<dependency>
 			<groupId>org.openapitools</groupId>
 			<artifactId>openapi-generator-maven-plugin</artifactId>
-			<version>5.3.0</version>
+			<version>${openapi-generator-maven-plugin.version}</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.swagger.core.v3</groupId>
+			<artifactId>swagger-annotations</artifactId>
+			<version>2.2.15</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openapitools</groupId>
@@ -172,8 +186,8 @@
 			<version>${springfox.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
+			<groupId>jakarta.validation</groupId>
+			<artifactId>jakarta.validation-api</artifactId>
 		</dependency>
 
 		<!-- Keycloak dependencies -->
@@ -193,9 +207,8 @@
 			<version>${keycloak.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>javax.ws.rs</groupId>
-			<artifactId>javax.ws.rs-api</artifactId>
-			<version>${javax.ws.rs-api.version}</version>
+			<groupId>jakarta.ws.rs</groupId>
+			<artifactId>jakarta.ws.rs-api</artifactId>
 		</dependency>
 
 		<!-- Lombok dependencies -->
@@ -203,6 +216,11 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.1.0</version>
 		</dependency>
 
 		<dependency>
@@ -257,17 +275,14 @@
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
-			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
-			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-to-slf4j</artifactId>
-			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.logstash.logback</groupId>
@@ -327,7 +342,6 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
-			<version>1.4.200</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jeasy</groupId>
@@ -380,14 +394,6 @@
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy</artifactId>
 			<version>1.14.15</version>
-		</dependency>
-
-
-		<dependency>
-			<artifactId>powermock-api-mockito2</artifactId>
-			<groupId>org.powermock</groupId>
-			<scope>test</scope>
-			<version>${powermock.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.reflections</groupId>
@@ -492,17 +498,17 @@
 			<plugin>
 				<groupId>org.openrewrite.maven</groupId>
 				<artifactId>rewrite-maven-plugin</artifactId>
-				<version>5.30.0</version>
+				<version>5.46.2</version>
 				<configuration>
 					<activeRecipes>
-						<recipe>org.openrewrite.java.spring.boot2.UpgradeSpringBoot_2_7</recipe>
+						<recipe>org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_0</recipe>
 					</activeRecipes>
 				</configuration>
 				<dependencies>
 					<dependency>
 						<groupId>org.openrewrite.recipe</groupId>
 						<artifactId>rewrite-spring</artifactId>
-						<version>5.9.0</version>
+						<version>5.24.1</version>
 					</dependency>
 				</dependencies>
 			</plugin>
@@ -531,7 +537,7 @@
 			<plugin>
 				<groupId>org.openapitools</groupId>
 				<artifactId>openapi-generator-maven-plugin</artifactId>
-				<version>5.1.1</version>
+				<version>${openapi-generator-maven-plugin.version}</version>
 				<executions>
 					<execution>
 						<goals>
@@ -539,13 +545,17 @@
 						</goals>
 						<configuration>
 							<inputSpec>${project.basedir}/api/userservice.yaml</inputSpec>
+							<ignoreFileOverride>${project.basedir}/api/.openapi-generator-ignore</ignoreFileOverride>
 							<generatorName>spring</generatorName>
 							<apiPackage>${adapters.web.generated.path}.controller</apiPackage>
 							<modelPackage>${adapters.web.dto.path}</modelPackage>
 							<generateSupportingFiles>true</generateSupportingFiles>
 							<configOptions>
+
 								<interfaceOnly>true</interfaceOnly>
 								<sourceFolder>/</sourceFolder>
+								<useSpringBoot3>true</useSpringBoot3>
+								<skipOverwrite>true</skipOverwrite>
 							</configOptions>
 							<output>target/generated-sources</output>
 							<importMappings>
@@ -602,6 +612,7 @@
 								<sourceFolder>/</sourceFolder>
 								<interfaceOnly>true</interfaceOnly>
 								<dateLibrary>java8</dateLibrary>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<output>target/generated-sources</output>
 							<typeMappings>
@@ -623,6 +634,7 @@
 								<sourceFolder>/</sourceFolder>
 								<library>resttemplate</library>
 								<dateLibrary>java8</dateLibrary>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<inputSpec>${project.basedir}/services/applicationsettingsservice.yaml</inputSpec>
 							<generatorName>java</generatorName>
@@ -646,6 +658,7 @@
 							<configOptions>
 								<interfaceOnly>true</interfaceOnly>
 								<sourceFolder>/</sourceFolder>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<inputSpec>${project.basedir}/api/useradminservice.yaml</inputSpec>
 							<generatorName>spring</generatorName>
@@ -669,6 +682,7 @@
 							<configOptions>
 								<interfaceOnly>true</interfaceOnly>
 								<sourceFolder>/</sourceFolder>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<inputSpec>${project.basedir}/api/userstatisticsservice.yaml</inputSpec>
 							<generatorName>spring</generatorName>
@@ -689,6 +703,7 @@
 							<configOptions>
 								<interfaceOnly>true</interfaceOnly>
 								<sourceFolder>/</sourceFolder>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<inputSpec>${project.basedir}/api/conversationservice.yaml</inputSpec>
 							<generatorName>spring</generatorName>
@@ -718,6 +733,7 @@
 						</goals>
 						<configuration>
 							<configOptions>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<inputSpec>${project.basedir}/api/useradminservice.yaml</inputSpec>
 							<generatorName>markdown</generatorName>
@@ -742,6 +758,7 @@
 								<library>native</library>
 								<asyncNative>true</asyncNative>
 								<dateLibrary>java8</dateLibrary>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<inputSpec>${project.basedir}/services/liveservice.yaml</inputSpec>
 							<generatorName>java</generatorName>
@@ -763,6 +780,7 @@
 								<sourceFolder>/</sourceFolder>
 								<library>resttemplate</library>
 								<dateLibrary>java8</dateLibrary>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<inputSpec>${project.basedir}/services/consultingtypeservice.yaml</inputSpec>
 							<generatorName>java</generatorName>
@@ -794,6 +812,7 @@
 								<sourceFolder>/</sourceFolder>
 								<library>resttemplate</library>
 								<dateLibrary>java8</dateLibrary>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<inputSpec>${project.basedir}/services/agencyadminservice.yaml</inputSpec>
 							<generatorName>java</generatorName>
@@ -820,6 +839,7 @@
 								<sourceFolder>/</sourceFolder>
 								<library>resttemplate</library>
 								<dateLibrary>java8</dateLibrary>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<inputSpec>${project.basedir}/services/agencyservice.yaml</inputSpec>
 							<generatorName>java</generatorName>
@@ -846,6 +866,7 @@
 								<sourceFolder>/</sourceFolder>
 								<library>resttemplate</library>
 								<dateLibrary>java8</dateLibrary>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<inputSpec>${project.basedir}/services/messageservice.yaml</inputSpec>
 							<generatorName>java</generatorName>
@@ -871,6 +892,7 @@
 								<sourceFolder>/</sourceFolder>
 								<library>resttemplate</library>
 								<dateLibrary>java8</dateLibrary>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<inputSpec>${project.basedir}/services/mailservice.yaml</inputSpec>
 							<generatorName>java</generatorName>
@@ -892,6 +914,7 @@
 								<sourceFolder>/</sourceFolder>
 								<library>resttemplate</library>
 								<dateLibrary>java8</dateLibrary>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<inputSpec>${project.basedir}/services/statisticsservice.yaml</inputSpec>
 							<generatorName>java</generatorName>
@@ -914,6 +937,7 @@
 								<sourceFolder>/</sourceFolder>
 								<library>resttemplate</library>
 								<dateLibrary>java8</dateLibrary>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<inputSpec>${project.basedir}/services/tenantservice.yaml</inputSpec>
 							<generatorName>java</generatorName>
@@ -939,6 +963,7 @@
 								<sourceFolder>/</sourceFolder>
 								<library>resttemplate</library>
 								<dateLibrary>java8</dateLibrary>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<inputSpec>${project.basedir}/services/tenantadminservice.yaml</inputSpec>
 							<generatorName>java</generatorName>
@@ -964,6 +989,7 @@
 								<sourceFolder>/</sourceFolder>
 								<library>resttemplate</library>
 								<dateLibrary>java8</dateLibrary>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<inputSpec>${project.basedir}/services/topicservice.yaml</inputSpec>
 							<generatorName>java</generatorName>
@@ -989,6 +1015,7 @@
 								<sourceFolder>/</sourceFolder>
 								<library>resttemplate</library>
 								<dateLibrary>java8</dateLibrary>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<inputSpec>${project.basedir}/services/appointmentService.yaml</inputSpec>
 							<generatorName>java</generatorName>
@@ -1012,6 +1039,7 @@
 							<configOptions>
 								<interfaceOnly>true</interfaceOnly>
 								<sourceFolder>/</sourceFolder>
+								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
 							<inputSpec>${project.basedir}/services/keycloakextension.yaml</inputSpec>
 							<generateApis>false</generateApis>
@@ -1026,11 +1054,35 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.8</version>
+				<executions>
+					<execution>
+						<phase>process-sources</phase>
+						<configuration>
+							<tasks>
+								<delete file="${project.build.directory}/generated-sources/de/caritas/cob/userservice/api/adapters/web/dto/GroupSessionConsultantDTO.java"/>
+								<delete file="${project.build.directory}/generated-sources/de/caritas/cob/userservice/api/adapters/web/dto/ChatDTO.java"/>
+								<delete file="${project.build.directory}/generated-sources/de/caritas/cob/userservice/api/adapters/web/dto/NewRegistrationDto.java"/>
+								<delete file="${project.build.directory}/generated-sources/de/caritas/cob/userservice/api/adapters/web/dto/SessionConsultantForUserDTO.java"/>
+								<delete file="${project.build.directory}/generated-sources/de/caritas/cob/userservice/api/adapters/web/dto/SessionUserDTO.java"/>
+								<delete file="${project.build.directory}/generated-sources/de/caritas/cob/userservice/api/adapters/web/dto/UserChatDTO.java"/>
+								<delete file="${project.build.directory}/generated-sources/de/caritas/cob/userservice/api/adapters/web/dto/UserDataResponseDTO.java"/>
+								<delete file="${project.build.directory}/generated-sources/de/caritas/cob/userservice/api/adapters/web/dto/UserDTO.java"/>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<!-- Liquibase Maven plugin -->
 			<plugin>
 				<groupId>org.liquibase</groupId>
 				<artifactId>liquibase-maven-plugin</artifactId>
-				<version>${liquibase-maven-plugin.version}</version>
 				<configuration>
 					<propertyFile>src/main/resources/liquibase.properties</propertyFile>
 				</configuration>

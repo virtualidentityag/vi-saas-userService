@@ -24,12 +24,12 @@ import de.caritas.cob.userservice.api.service.session.SessionService;
 import de.caritas.cob.userservice.api.service.statistics.StatisticsService;
 import de.caritas.cob.userservice.api.service.user.UserAccountService;
 import de.caritas.cob.userservice.generated.api.adapters.web.controller.AppointmentsApi;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -40,9 +40,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
+@Tag(name = "appointment-controller")
 @RestController
 @RequiredArgsConstructor
-@Api(tags = "appointment-controller")
 public class AppointmentController implements AppointmentsApi {
 
   private static final String APPOINTMENT_NOT_FOUND = "Appointment (%s) not found.";
@@ -161,7 +161,7 @@ public class AppointmentController implements AppointmentsApi {
         && appointment.getConsultantEmail() != null) {
       Optional<Consultant> consultant =
           consultantRepository.findByEmailAndDeleteDateIsNull(appointment.getConsultantEmail());
-      if (!consultant.isPresent()) {
+      if (consultant.isEmpty()) {
         throw new BadRequestException(
             "Consultant doesn't exist for given email " + appointment.getConsultantEmail());
       }

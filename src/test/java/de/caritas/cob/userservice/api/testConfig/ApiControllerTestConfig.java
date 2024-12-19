@@ -14,7 +14,7 @@ public class ApiControllerTestConfig {
 
   @Bean
   @Primary
-  public AgencyServiceApiClientConfig agencyServiceApiClientConfig() {
+  AgencyServiceApiClientConfig agencyServiceApiClientConfig() {
     return new AgencyServiceApiClientConfig() {
       @Override
       public AgencyControllerApi agencyControllerApi(
@@ -26,7 +26,7 @@ public class ApiControllerTestConfig {
 
   @Bean
   @Primary
-  public MailServiceApiControllerFactory mailServiceApiControllerFactory() {
+  MailServiceApiControllerFactory mailServiceApiControllerFactory() {
     return new MailServiceApiControllerFactory() {
       @Override
       public MailsControllerApi createControllerApi() {

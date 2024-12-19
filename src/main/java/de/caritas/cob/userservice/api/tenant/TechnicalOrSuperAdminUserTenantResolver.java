@@ -3,10 +3,10 @@ package de.caritas.cob.userservice.api.tenant;
 import static de.caritas.cob.userservice.api.config.auth.UserRole.TECHNICAL;
 import static de.caritas.cob.userservice.api.config.auth.UserRole.TENANT_ADMIN;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
 import org.springframework.stereotype.Component;

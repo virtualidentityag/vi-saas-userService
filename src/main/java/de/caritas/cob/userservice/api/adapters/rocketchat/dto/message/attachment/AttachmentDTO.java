@@ -1,7 +1,7 @@
 package de.caritas.cob.userservice.api.adapters.rocketchat.dto.message.attachment;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class AttachmentDTO {
 
-  @ApiModelProperty(required = true, example = "/9j/2wBDAAYEBQYFBAYGBQY", position = 2)
+  @Schema(required = true, example = "/9j/2wBDAAYEBQYFBAYGBQY")
   @JsonProperty("image_preview")
   private String imagePreview;
 }

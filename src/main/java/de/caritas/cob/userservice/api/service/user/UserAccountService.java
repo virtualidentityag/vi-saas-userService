@@ -91,7 +91,7 @@ public class UserAccountService {
         .orElseThrow(
             () ->
                 new InternalServerErrorException(
-                    String.format("Consultant with id %s not found", consultantId)));
+                    "Consultant with id %s not found".formatted(consultantId)));
   }
 
   /**

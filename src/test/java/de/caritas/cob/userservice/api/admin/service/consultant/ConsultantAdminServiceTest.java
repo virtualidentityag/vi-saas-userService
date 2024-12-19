@@ -2,10 +2,7 @@ package de.caritas.cob.userservice.api.admin.service.consultant;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.*;
 
 import de.caritas.cob.userservice.api.AccountManager;
 import de.caritas.cob.userservice.api.admin.service.consultant.create.CreateConsultantSaga;

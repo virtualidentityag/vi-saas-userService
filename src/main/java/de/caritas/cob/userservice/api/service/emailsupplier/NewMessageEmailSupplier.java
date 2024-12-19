@@ -249,7 +249,7 @@ public class NewMessageEmailSupplier implements EmailSupplier {
           .orElseThrow(
               () ->
                   new InternalServerErrorException(
-                      String.format("Consultant with id %s not found.", userId)))
+                      "Consultant with id %s not found.".formatted(userId)))
           .getUsername();
     }
   }

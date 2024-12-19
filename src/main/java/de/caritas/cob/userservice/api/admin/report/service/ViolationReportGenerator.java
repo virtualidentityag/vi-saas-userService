@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
@@ -58,9 +57,9 @@ public class ViolationReportGenerator {
 
   private Path buildFilePath() throws IOException {
     String path = VIOLATION_REPORT_BASE_PATH + nowInUtc().format(DATE_TIME_FORMAT) + ".json";
-    if (!Paths.get(path).getParent().toFile().exists()) {
-      Files.createDirectory(Paths.get(path).getParent());
+    if (!Path.of(path).getParent().toFile().exists()) {
+      Files.createDirectory(Path.of(path).getParent());
     }
-    return Paths.get(path);
+    return Path.of(path);
   }
 }

@@ -112,7 +112,7 @@ public class MessageServiceProvider {
     } catch (RestClientException | RocketChatUserNotInitializedException exception) {
       log.error("Exception calling RocketChat API: {}", exception.getMessage());
       throw new RocketChatPostWelcomeMessageException(
-          String.format("Could not post welcome message in Rocket.Chat group %s", rcGroupId),
+          "Could not post welcome message in Rocket.Chat group %s".formatted(rcGroupId),
           exception,
           exceptionInformation);
     }
@@ -154,8 +154,8 @@ public class MessageServiceProvider {
 
     } catch (RestClientException exception) {
       throw new RocketChatPostFurtherStepsMessageException(
-          String.format(
-              "Could not post further steps message in Rocket.Chat group with id %s", rcGroupId),
+          "Could not post further steps message in Rocket.Chat group with id %s"
+              .formatted(rcGroupId),
           exception,
           exceptionInformation);
     }
@@ -174,8 +174,8 @@ public class MessageServiceProvider {
 
     } catch (RestClientException exception) {
       throw new RocketChatPostFurtherStepsMessageException(
-          String.format(
-              "Could not post further steps message in Rocket.Chat group with id %s", rcGroupId),
+          "Could not post further steps message in Rocket.Chat group with id %s"
+              .formatted(rcGroupId),
           exception,
           exceptionInformation);
     }

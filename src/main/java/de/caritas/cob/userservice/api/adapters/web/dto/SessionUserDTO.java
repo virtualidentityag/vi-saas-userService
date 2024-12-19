@@ -1,7 +1,6 @@
 package de.caritas.cob.userservice.api.adapters.web.dto;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,16 +11,16 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-@ApiModel(value = "SessionUser")
+@Schema(name = "SessionUser")
 public class SessionUserDTO {
 
-  @ApiModelProperty(example = "id", position = 0)
+  @Schema(example = "id")
   private String id;
 
-  @ApiModelProperty(example = "Username", position = 1)
+  @Schema(example = "Username")
   private String username;
 
-  @ApiModelProperty(example = "isDeleted", position = 2)
+  @Schema(example = "isDeleted")
   private boolean isDeleted;
 
   private Map<String, Object> sessionData;

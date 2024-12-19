@@ -1,8 +1,10 @@
 package de.caritas.cob.userservice.api.exception;
 
+import java.io.Serial;
+
 public class CustomCryptoException extends Exception {
 
-  private static final long serialVersionUID = 1232112575979020932L;
+  @Serial private static final long serialVersionUID = 1232112575979020932L;
 
   /**
    * Exception when something with the encryption goes wrong

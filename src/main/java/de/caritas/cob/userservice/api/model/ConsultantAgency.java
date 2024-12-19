@@ -1,18 +1,18 @@
 package de.caritas.cob.userservice.api.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,9 +21,6 @@ import lombok.Setter;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.ParamDef;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FieldBridge;
-import org.hibernate.search.bridge.builtin.LongBridge;
 
 /** Represents the relation between consultant and agency */
 @Entity
@@ -35,7 +32,7 @@ import org.hibernate.search.bridge.builtin.LongBridge;
 @Setter
 @FilterDef(
     name = "tenantFilter",
-    parameters = {@ParamDef(name = "tenantId", type = "long")})
+    parameters = {@ParamDef(name = "tenantId", type = Long.class)})
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class ConsultantAgency implements TenantAware {
 
@@ -53,8 +50,6 @@ public class ConsultantAgency implements TenantAware {
   private Consultant consultant;
 
   @Column(name = "agency_id")
-  @Field
-  @FieldBridge(impl = LongBridge.class)
   private Long agencyId;
 
   @Column(name = "create_date")
@@ -71,7 +66,6 @@ public class ConsultantAgency implements TenantAware {
 
   @Column(name = "status", length = 11)
   @Enumerated(EnumType.STRING)
-  @Field
   private ConsultantAgencyStatus status = ConsultantAgencyStatus.IN_PROGRESS;
 
   @Override

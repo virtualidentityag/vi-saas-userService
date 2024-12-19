@@ -20,15 +20,14 @@ import de.caritas.cob.userservice.api.adapters.web.dto.serialization.EncodeUsern
 import de.caritas.cob.userservice.api.adapters.web.dto.serialization.UrlDecodePasswordJsonDeserializer;
 import de.caritas.cob.userservice.api.adapters.web.dto.validation.ValidAge;
 import de.caritas.cob.userservice.api.adapters.web.dto.validation.ValidState;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.util.Collection;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -41,7 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 @NoArgsConstructor
 @Getter
 @Setter
-@ApiModel(value = "User")
+@Schema(name = "User")
 @ValidAge
 @ValidState
 @Builder
@@ -49,7 +48,7 @@ public class UserDTO implements UserRegistrationDTO {
 
   @NotBlank(message = "{user.username.notBlank}")
   @NotNull(message = "{user.username.notBlank}")
-  @ApiModelProperty(required = true, example = "max94")
+  @Schema(required = true, example = "max94")
   @JsonDeserialize(using = EncodeUsernameJsonDeserializer.class)
   @JsonProperty("username")
   private String username;
@@ -57,48 +56,48 @@ public class UserDTO implements UserRegistrationDTO {
   @NotBlank(message = "{user.custom.postcode.notNull}")
   @NotNull(message = "{user.custom.postcode.notNull}")
   @Pattern(regexp = VALID_POSTCODE_REGEX, message = "{user.custom.postcode.invalid}")
-  @ApiModelProperty(required = true, example = "\"79098\"", position = 1)
+  @Schema(required = true, example = "\"79098\"")
   @JsonProperty("postcode")
   private String postcode;
 
   @NotNull(message = "{user.custom.agency.notNull}")
   @Min(value = AGENCY_ID_MIN, message = "{user.custom.agency.invalid}")
   @Max(value = AGENCY_ID_MAX, message = "{user.custom.agency.invalid}")
-  @ApiModelProperty(required = true, example = "\"15\"", position = 2)
+  @Schema(required = true, example = "\"15\"")
   @JsonProperty("agencyId")
   private Long agencyId;
 
   @NotBlank(message = "{user.password.notBlank}")
-  @ApiModelProperty(required = true, example = "pass@w0rd", position = 3)
+  @Schema(required = true, example = "pass@w0rd")
   @JsonDeserialize(using = UrlDecodePasswordJsonDeserializer.class)
   @JsonProperty("password")
   private String password;
 
   @JsonInclude(value = Include.NON_NULL)
   @Email(message = "{user.email.invalid}")
-  @ApiModelProperty(example = "max@mustermann.de", position = 4)
+  @Schema(example = "max@mustermann.de")
   @JsonProperty("email")
   private String email;
 
   @JsonInclude(value = Include.NON_NULL)
   @Pattern(regexp = AGE_REGEXP, message = "{user.custom.age.invalid}")
-  @ApiModelProperty(example = "1", position = 7)
+  @Schema(example = "1")
   @JsonProperty("age")
   private String age;
 
   @JsonInclude(value = Include.NON_NULL)
   @Pattern(regexp = STATE_REGEXP, message = "{user.custom.state.invalid}")
   @JsonProperty("state")
-  @ApiModelProperty(example = "\"16\"", position = 9)
+  @Schema(example = "\"16\"")
   private String state;
 
   @Pattern(regexp = TERMS_ACCEPTED_REGEXP, message = "{user.custom.termsAccepted.invalid}")
-  @ApiModelProperty(required = true, example = "\"true\"", position = 10)
+  @Schema(required = true, example = "\"true\"")
   @JsonProperty("termsAccepted")
   private String termsAccepted;
 
   @Pattern(regexp = CONSULTING_TYPE_REGEXP, message = "{user.consultingType.invalid}")
-  @ApiModelProperty(required = true, example = "\"0\"", position = 11)
+  @Schema(required = true, example = "\"0\"")
   @JsonProperty("consultingType")
   private String consultingType;
 
@@ -107,29 +106,29 @@ public class UserDTO implements UserRegistrationDTO {
 
   private boolean newUserAccount;
 
-  @ApiModelProperty(required = false, example = "\"1\"", position = 12)
+  @Schema(required = false, example = "\"1\"")
   @JsonProperty("tenantId")
   private Long tenantId;
 
-  @ApiModelProperty(required = false, example = "\"2\"", position = 13)
+  @Schema(required = false, example = "\"2\"")
   @JsonProperty("mainTopicId")
   private Long mainTopicId;
 
-  @ApiModelProperty(required = false, example = "\"MALE\"", position = 14)
+  @Schema(required = false, example = "\"MALE\"")
   @JsonProperty("gender")
   private String userGender;
 
-  @ApiModelProperty(required = false, example = "\"[1,5]\"")
+  @Schema(required = false, example = "\"[1,5]\"")
   @JsonProperty("topicIds")
   private Collection<Long> topicIds = Lists.newArrayList();
 
-  @ApiModelProperty(required = false, example = "\"RELATIVE_COUNSELLING\"")
+  @Schema(required = false, example = "\"RELATIVE_COUNSELLING\"")
   @JsonProperty("counsellingRelation")
   private String counsellingRelation;
 
   private LanguageCode preferredLanguage;
 
-  @ApiModelProperty(required = false, example = "\"referer\"")
+  @Schema(required = false, example = "\"referer\"")
   @Pattern(regexp = REFERER_REGEXP, message = "{user.custom.referer.invalid}")
   @JsonProperty("referer")
   private String referer;

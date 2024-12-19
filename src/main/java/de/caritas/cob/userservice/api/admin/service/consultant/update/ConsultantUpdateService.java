@@ -54,7 +54,7 @@ public class ConsultantUpdateService {
             .orElseThrow(
                 () ->
                     new BadRequestException(
-                        String.format("Consultant with id %s does not exist", consultantId)));
+                        "Consultant with id %s does not exist".formatted(consultantId)));
 
     UserDTO userDTO = buildValidatedUserDTO(updateConsultantDTO, consultant);
     this.identityClient.updateUserData(

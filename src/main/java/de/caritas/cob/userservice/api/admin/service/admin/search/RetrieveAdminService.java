@@ -30,14 +30,13 @@ public class RetrieveAdminService {
   public Admin findAdmin(final String adminId, Admin.AdminType adminType) {
     Optional<Admin> byId = this.adminRepository.findByIdAndType(adminId, adminType);
     return byId.filter(admin -> admin.getType().equals(adminType))
-        .orElseThrow(
-            () -> new NoContentException(String.format(ADMIN_WITH_ID_S_NOT_FOUND, adminId)));
+        .orElseThrow(() -> new NoContentException(ADMIN_WITH_ID_S_NOT_FOUND.formatted(adminId)));
   }
 
   public List<Long> findAgencyIdsOfAdmin(final String adminId) {
     final Optional<Admin> admin = adminRepository.findById(adminId);
     if (admin.isEmpty()) {
-      throw new BadRequestException(String.format(ADMIN_WITH_ID_S_NOT_FOUND, adminId));
+      throw new BadRequestException(ADMIN_WITH_ID_S_NOT_FOUND.formatted(adminId));
     }
 
     return adminAgencyRepository.findByAdminId(adminId).stream()

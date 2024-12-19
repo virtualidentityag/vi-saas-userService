@@ -150,7 +150,7 @@ class UserAdminControllerIT {
       throws Exception {
     String consultantId = "1da238c6-cd46-4162-80f1-bff74eafeAAA";
 
-    String consultantAgencyPath = String.format(CONSULTANT_AGENCIES_PATH, consultantId);
+    String consultantAgencyPath = CONSULTANT_AGENCIES_PATH.formatted(consultantId);
 
     this.mvc.perform(get(consultantAgencyPath)).andExpect(status().isOk());
 
@@ -243,7 +243,7 @@ class UserAdminControllerIT {
   void createConsultantAgency_Should_returnCreated_When_requiredParamsAreGiven() throws Exception {
     String consultantId = "1da238c6-cd46-4162-80f1-bff74eafeAAA";
 
-    String consultantAgencyPath = String.format(CONSULTANT_AGENCY_PATH, consultantId);
+    String consultantAgencyPath = CONSULTANT_AGENCY_PATH.formatted(consultantId);
 
     CreateConsultantAgencyDTO createConsultantAgencyDTO = new CreateConsultantAgencyDTO();
     createConsultantAgencyDTO.setAgencyId(15L);
@@ -311,7 +311,7 @@ class UserAdminControllerIT {
     Long agencyId = 1L;
 
     String consultantAgencyDeletePath =
-        String.format(DELETE_CONSULTANT_AGENCY_PATH, consultantId, agencyId);
+        DELETE_CONSULTANT_AGENCY_PATH.formatted(consultantId, agencyId);
 
     this.mvc
         .perform(delete(consultantAgencyDeletePath).contentType(MediaType.APPLICATION_JSON))
@@ -354,7 +354,7 @@ class UserAdminControllerIT {
   @Test
   void getAgencyConsultants_Should_returnOk_When_requiredAgencyIdParamIsGiven() throws Exception {
     var agencyId = "1";
-    var agencyConsultantsPath = String.format(AGENCY_CONSULTANT_PATH, agencyId);
+    var agencyConsultantsPath = AGENCY_CONSULTANT_PATH.formatted(agencyId);
 
     this.mvc.perform(get(agencyConsultantsPath)).andExpect(status().isOk());
 
@@ -505,7 +505,7 @@ class UserAdminControllerIT {
     String adminId = "1da238c6-cd46-4162-80f1-bff74eafeAAA";
 
     // given
-    String adminAgencyPath = String.format(AGENCIES_OF_ADMIN_PATH, adminId);
+    String adminAgencyPath = AGENCIES_OF_ADMIN_PATH.formatted(adminId);
 
     CreateAdminAgencyRelationDTO createAdminAgencyRelationDTO = new CreateAdminAgencyRelationDTO();
     createAdminAgencyRelationDTO.setAgencyId(15L);
@@ -549,7 +549,7 @@ class UserAdminControllerIT {
     // when
     this.mvc
         .perform(
-            delete(String.format(DELETE_ADMIN_AGENCY_PATH, adminId, agencyId))
+            delete(DELETE_ADMIN_AGENCY_PATH.formatted(adminId, agencyId))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
@@ -565,7 +565,7 @@ class UserAdminControllerIT {
     // when
     this.mvc
         .perform(
-            delete(String.format(DELETE_AGENCY_ADMIN_PATH, adminId))
+            delete(DELETE_AGENCY_ADMIN_PATH.formatted(adminId))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 

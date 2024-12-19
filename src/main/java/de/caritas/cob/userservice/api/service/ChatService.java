@@ -250,18 +250,15 @@ public class ChatService {
     Chat chat =
         getChat(chatId)
             .orElseThrow(
-                () ->
-                    new BadRequestException(
-                        String.format("Chat with id %s does not exist", chatId)));
+                () -> new BadRequestException("Chat with id %s does not exist".formatted(chatId)));
 
     if (!authenticatedUser.getUserId().equals(chat.getChatOwner().getId())) {
       throw new ForbiddenException("Only the chat owner is allowed to change chat settings");
     }
     if (isTrue(chat.isActive())) {
       throw new ConflictException(
-          String.format(
-              "Chat with id %s is active. Therefore changing the chat settings is not supported.",
-              chatId));
+          "Chat with id %s is active. Therefore changing the chat settings is not supported."
+              .formatted(chatId));
     }
 
     LocalDateTime startDate = LocalDateTime.of(chatDTO.getStartDate(), chatDTO.getStartTime());
