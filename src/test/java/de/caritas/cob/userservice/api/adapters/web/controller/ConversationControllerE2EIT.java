@@ -38,13 +38,13 @@ import de.caritas.cob.userservice.api.port.out.SessionRepository;
 import de.caritas.cob.userservice.api.port.out.UserRepository;
 import de.caritas.cob.userservice.consultingtypeservice.generated.web.ConsultingTypeControllerApi;
 import de.caritas.cob.userservice.topicservice.generated.web.TopicControllerApi;
+import jakarta.servlet.http.Cookie;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.servlet.http.Cookie;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -399,7 +399,7 @@ class ConversationControllerE2EIT {
   }
 
   private void givenConsultingTypeServiceResponse(Integer consultingTypeId) {
-    consultingTypeControllerApi.getApiClient().setBasePath("https://www.google.de/");
+
     when(restTemplate.getUriTemplateHandler())
         .thenReturn(
             new UriTemplateHandler() {

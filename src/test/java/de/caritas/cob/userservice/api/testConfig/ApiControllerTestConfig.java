@@ -16,7 +16,7 @@ public class ApiControllerTestConfig {
   @Primary
   AgencyServiceApiClientConfig agencyServiceApiClientConfig() {
     return new AgencyServiceApiClientConfig() {
-      @Override
+
       public AgencyControllerApi agencyControllerApi(
           de.caritas.cob.userservice.agencyserivce.generated.ApiClient agencyServiceApiClient) {
         return new TestAgencyControllerApi(agencyServiceApiClient);

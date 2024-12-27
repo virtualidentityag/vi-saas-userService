@@ -95,6 +95,7 @@ import de.caritas.cob.userservice.mailservice.generated.web.MailsControllerApi;
 import de.caritas.cob.userservice.topicservice.generated.ApiClient;
 import de.caritas.cob.userservice.topicservice.generated.web.TopicControllerApi;
 import de.caritas.cob.userservice.topicservice.generated.web.model.TopicDTO;
+import jakarta.servlet.http.Cookie;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -105,7 +106,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
-import javax.servlet.http.Cookie;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -1989,7 +1989,6 @@ class UserControllerE2EIT {
   }
 
   private void givenConsultingTypeServiceResponse(Integer consultingTypeId) {
-    consultingTypeControllerApi.getApiClient().setBasePath("https://www.google.de/");
     when(restTemplate.getUriTemplateHandler())
         .thenReturn(
             new UriTemplateHandler() {

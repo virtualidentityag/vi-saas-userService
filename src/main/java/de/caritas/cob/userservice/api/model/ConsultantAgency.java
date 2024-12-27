@@ -30,9 +30,6 @@ import org.hibernate.annotations.ParamDef;
 @Builder
 @Getter
 @Setter
-@FilterDef(
-    name = "tenantFilter",
-    parameters = {@ParamDef(name = "tenantId", type = Long.class)})
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class ConsultantAgency implements TenantAware {
 

@@ -205,7 +205,7 @@ public class ConsultantAdminFilterServiceBase {
 
   public void
       findFilteredConsultants_Should_orderResultByFirstNameDESC_When_sortParameterIsGiven() {
-    var sort = new Sort().field(FieldEnum.FIRSTNAME).order(OrderEnum.DESC);
+    var sort = new Sort().field(FieldEnum.FIRST_NAME).order(OrderEnum.DESC);
 
     var result =
         this.consultantAdminFilterService.findFilteredConsultants(

@@ -28,6 +28,7 @@ import de.caritas.cob.userservice.api.port.out.SessionRepository;
 import de.caritas.cob.userservice.api.port.out.UserRepository;
 import de.caritas.cob.userservice.api.service.user.UserAccountService;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -110,7 +111,9 @@ class ArchivedSessionConversationListProviderTestIT {
       ConsultantSessionResponseDTO current = peeker.next();
       ConsultantSessionResponseDTO next = peeker.peek();
       if (nonNull(next)) {
-        assertThat(next.getLatestMessage(), greaterThanOrEqualTo(current.getLatestMessage()));
+        assertThat(
+            (Date) next.getLatestMessage(),
+            greaterThanOrEqualTo((Date) current.getLatestMessage()));
       }
     }
   }

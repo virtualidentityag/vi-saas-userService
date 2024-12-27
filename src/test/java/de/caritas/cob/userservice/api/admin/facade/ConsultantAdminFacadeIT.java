@@ -78,7 +78,7 @@ class ConsultantAdminFacadeIT {
             1,
             100,
             new ConsultantFilter(),
-            new Sort().field(FieldEnum.FIRSTNAME).order(OrderEnum.ASC));
+            new Sort().field(FieldEnum.FIRST_NAME).order(OrderEnum.ASC));
     var resultConsultant =
         searchResult.getEmbedded().stream()
             .filter(
@@ -102,7 +102,7 @@ class ConsultantAdminFacadeIT {
             1,
             100,
             new ConsultantFilter(),
-            new Sort().field(FieldEnum.FIRSTNAME).order(OrderEnum.ASC));
+            new Sort().field(FieldEnum.FIRST_NAME).order(OrderEnum.ASC));
     var resultConsultant =
         searchResult.getEmbedded().stream()
             .filter(
@@ -201,7 +201,7 @@ class ConsultantAdminFacadeIT {
 
     var searchResult =
         this.consultantAdminFacade.findFilteredConsultants(
-            1, 100, consultantFilter, new Sort().field(FieldEnum.FIRSTNAME).order(OrderEnum.ASC));
+            1, 100, consultantFilter, new Sort().field(FieldEnum.FIRST_NAME).order(OrderEnum.ASC));
 
     assertThat(searchResult.getEmbedded(), hasSize(0));
 
@@ -209,7 +209,7 @@ class ConsultantAdminFacadeIT {
 
     searchResult =
         this.consultantAdminFacade.findFilteredConsultants(
-            1, 100, consultantFilter, new Sort().field(FieldEnum.FIRSTNAME).order(OrderEnum.ASC));
+            1, 100, consultantFilter, new Sort().field(FieldEnum.FIRST_NAME).order(OrderEnum.ASC));
     assertThat(searchResult.getEmbedded(), hasSize(greaterThanOrEqualTo(1)));
   }
 

@@ -49,9 +49,6 @@ import org.springframework.lang.Nullable;
 @Getter
 @Setter
 @ToString
-@FilterDef(
-    name = "tenantFilter",
-    parameters = {@ParamDef(name = "tenantId", type = Long.class)})
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class Session implements TenantAware {
 

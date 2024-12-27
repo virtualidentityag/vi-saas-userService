@@ -5,14 +5,15 @@ import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.assertj.core.util.Sets;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.AccessToken.Access;
-import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -20,15 +21,19 @@ class TechnicalUserTenantResolverTest {
   public static final long TECHNICAL_CONTEXT = 0L;
   @Mock HttpServletRequest authenticatedRequest;
 
-  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-  KeycloakAuthenticationToken token;
+  @Mock KeycloakAuthenticationToken token;
 
-  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-  AccessToken accessToken;
+  @Mock AccessToken accessToken;
 
   @Mock Access access;
 
   @InjectMocks TechnicalOrSuperAdminUserTenantResolver technicalOrSuperadminUserTenantResolver;
+
+  @BeforeEach
+  public void setUp() {
+    token = Mockito.mock(KeycloakAuthenticationToken.class, Mockito.RETURNS_DEEP_STUBS);
+    accessToken = Mockito.mock(AccessToken.class, Mockito.RETURNS_DEEP_STUBS);
+  }
 
   @Test
   void resolve_should_ResolveTechnicalTenantId_ForTechnicalUserRole() {

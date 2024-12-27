@@ -432,7 +432,7 @@ class UserControllerSessionE2EIT {
     givenAValidUser();
     givenAValidConsultant(true);
     givenASessionInProgress();
-    givenAValidRocketChatGetRoomsResponse(session.getGroupId(), MessageType.E2EE_ACTIVATED, null);
+    givenAValidRocketChatGetRoomsResponse(session.getGroupId(), MessageType.E2_EE_ACTIVATED, null);
     givenAnEmptyRocketChatGetSubscriptionsResponse();
 
     mockMvc
@@ -461,7 +461,7 @@ class UserControllerSessionE2EIT {
     givenADeletedUser(false);
     givenAValidConsultant(true);
     givenASessionInProgress();
-    givenAValidRocketChatGetRoomsResponse(session.getGroupId(), MessageType.E2EE_ACTIVATED, null);
+    givenAValidRocketChatGetRoomsResponse(session.getGroupId(), MessageType.E2_EE_ACTIVATED, null);
     givenAnEmptyRocketChatGetSubscriptionsResponse();
 
     mockMvc
@@ -545,7 +545,7 @@ class UserControllerSessionE2EIT {
     givenAValidConsultant();
     givenASessionInProgress();
     givenAValidRocketChatSystemUser();
-    givenAValidRocketChatGetRoomsResponse(session.getGroupId(), MessageType.E2EE_ACTIVATED, null);
+    givenAValidRocketChatGetRoomsResponse(session.getGroupId(), MessageType.E2_EE_ACTIVATED, null);
     givenAnEmptyRocketChatGetSubscriptionsResponse();
     user.getSessions()
         .forEach(session -> givenAValidRocketChatInfoUserResponse(session.getConsultant()));

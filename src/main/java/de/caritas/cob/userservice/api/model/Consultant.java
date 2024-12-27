@@ -52,9 +52,6 @@ import org.springframework.lang.Nullable;
 @Setter
 @Builder
 @Indexed
-@FilterDef(
-    name = "tenantFilter",
-    parameters = {@ParamDef(name = "tenantId", type = Long.class)})
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class Consultant implements TenantAware, NotificationsAware {
 
