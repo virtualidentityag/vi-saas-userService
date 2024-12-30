@@ -83,6 +83,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.hibernate.orm</groupId>
+					<artifactId>hibernate-core</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -146,7 +152,6 @@
 			<version>6.2.4.Final</version>
 		</dependency>
 
-
 		<dependency>
 			<groupId>org.hibernate.search</groupId>
 			<artifactId>hibernate-search-mapper-orm</artifactId>
@@ -155,6 +160,10 @@
 				<exclusion>
 					<groupId>org.hibernate</groupId>
 					<artifactId>hibernate-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.hibernate.common</groupId>
+					<artifactId>hibernate-commons-annotations</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -516,17 +525,17 @@
 			<plugin>
 				<groupId>org.openrewrite.maven</groupId>
 				<artifactId>rewrite-maven-plugin</artifactId>
-				<version>5.46.2</version>
+				<version>5.47.0</version>
 				<configuration>
 					<activeRecipes>
-						<recipe>org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_0</recipe>
+						<recipe>org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_1</recipe>
 					</activeRecipes>
 				</configuration>
 				<dependencies>
 					<dependency>
 						<groupId>org.openrewrite.recipe</groupId>
 						<artifactId>rewrite-spring</artifactId>
-						<version>5.24.1</version>
+						<version>5.25.0</version>
 					</dependency>
 				</dependencies>
 			</plugin>
