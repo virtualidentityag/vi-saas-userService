@@ -55,7 +55,7 @@ public class SessionData {
   @NonNull
   private Session session;
 
-  @Column(name = "type", updatable = false, nullable = false, columnDefinition = "tinyint(4)")
+  @Column(name = "type", updatable = false, nullable = false, columnDefinition = "tinyint")
   @NonNull
   private SessionDataType sessionDataType;
 
@@ -63,7 +63,7 @@ public class SessionData {
   @NonNull
   private String key;
 
-  @Column(name = "value")
+  @Column(name = "value_")
   @Size(max = 255)
   private String value;
 

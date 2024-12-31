@@ -54,6 +54,7 @@
 		<openapi-generator-maven-plugin.version>7.10.0</openapi-generator-maven-plugin.version>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
+		<hibernate.version>6.2.4.Final</hibernate.version>
 	</properties>
 
 	<dependencies>
@@ -152,8 +153,20 @@
 
 		<dependency>
 			<groupId>org.hibernate.search</groupId>
+			<artifactId>hibernate-search-mapper-orm-orm6</artifactId>
+			<version>6.1.8.Final</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate.search</groupId>
+			<artifactId>hibernate-search-backend-lucene</artifactId>
+			<version>6.1.8.Final</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate.search</groupId>
 			<artifactId>hibernate-search-mapper-orm</artifactId>
-			<version>6.2.4.Final</version>
+			<version>${hibernate.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.hibernate</groupId>

@@ -41,7 +41,7 @@ import org.springframework.lang.Nullable;
 
 @Entity
 @Builder
-@Table(name = "session")
+@Table(name = "`session`")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -156,10 +156,10 @@ public class Session implements TenantAware {
   @Exclude
   private List<SessionData> sessionData;
 
-  @Column(name = "is_team_session", columnDefinition = "tinyint(4) default '0'")
+  @Column(name = "is_team_session", columnDefinition = "tinyint default '0'")
   private boolean teamSession;
 
-  @Column(name = "is_peer_chat", columnDefinition = "tinyint(4) unsigned default '0'")
+  @Column(name = "is_peer_chat", columnDefinition = "tinyint default '0'")
   private boolean isPeerChat;
 
   @Column(nullable = false, columnDefinition = "bit default false")

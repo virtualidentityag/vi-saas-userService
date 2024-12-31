@@ -7,7 +7,7 @@ ALTER SEQUENCE sequence_session RESTART WITH 100000;
 ALTER SEQUENCE sequence_session_topic RESTART WITH 100000;
 ALTER SEQUENCE sequence_consultant_agency RESTART WITH 100000;
 ALTER SEQUENCE sequence_admin_agency RESTART WITH 100000;
-INSERT INTO user(`user_id`, `id_old`, `delete_date`, `username`, `email`, `rc_user_id`,
+INSERT INTO "user"(`user_id`, `id_old`, `delete_date`, `username`, `email`, `rc_user_id`,
                   `language_formal`, `create_date`, `update_date`,`notifications_enabled`)
 VALUES ('015d013d-95e7-4e91-85b5-12cdb3d317f3', 0, NULL, 'enc.OBSXEZTPOJWWC3TDMUWWC43LMVZC2NZS',
         '015d013d-95e7-4e91-85b5-12cdb3d317f3@beratungcaritas.de', 'dciScSDa9Qm8vmEBB', 1,
@@ -718,7 +718,7 @@ VALUES (0, '473f7c4b-f011-4fc2-847c-ceb636a5b399', 1, '2020-10-08 08:53:55', '20
         '2020-10-08 08:57:45'),
        (63, '0b3b1cc6-be98-4787-aa56-212259d811b9', 1, '2020-10-08 08:57:44',
         '2020-10-08 08:57:44');
-INSERT INTO session (`id`, `user_id`, `consultant_id`, `consulting_type`, `message_date`,
+INSERT INTO "session"(`id`, `user_id`, `consultant_id`, `consulting_type`, `message_date`,
                      `postcode`, `agency_id`, `rc_group_id`, `rc_feedback_group_id`, `status`,
                      `is_team_session`, `create_date`, `update_date`)
 VALUES (1, '1da238c6-cd46-4162-80f1-bff74eafe77f', '473f7c4b-f011-4fc2-847c-ceb636a5b399', 0,
@@ -1170,7 +1170,7 @@ VALUES (1, '1da238c6-cd46-4162-80f1-bff74eafe77f', '473f7c4b-f011-4fc2-847c-ceb6
         '2020-10-08 09:03:48', '12345', 0, 'DJrRTzFg8Ac2BqE8j', NULL, 4, 0,
         '2020-10-08 09:03:47', '2020-10-08 09:03:48');
 
-INSERT INTO session (`id`, `user_id`, `consultant_id`, `consulting_type`, `message_date`,
+INSERT INTO "session"(`id`, `user_id`, `consultant_id`, `consulting_type`, `message_date`,
                      `postcode`, `agency_id`, `rc_group_id`, `rc_feedback_group_id`, `status`,
                      `is_team_session`, `create_date`, `update_date`,
                      `main_topic_id`, `user_age`, `user_gender`, `counselling_relation`)
@@ -1191,7 +1191,7 @@ VALUES (1, 1200, 1, '2020-10-08 09:03:45', '2020-10-08 09:03:45'),
        (3, 1216, 1, '2020-10-08 09:03:45', '2020-10-08 09:03:45'),
        (4, 1216, 2, '2020-10-08 09:03:45', '2020-10-08 09:03:45');
 
-INSERT INTO admin (`admin_id`, `username`, `first_name`, `last_name`, `email`,
+INSERT INTO admin(`admin_id`, `username`, `first_name`, `last_name`, `email`,
                    `type`, `rc_user_id`, `tenant_id`, `create_date`, `update_date`)
 VALUES ('d42c2e5e-143c-4db1-a90f-7cccf82fbb15', 'ofarragher0', 'Olvan', 'Farragher',
         'ofarragher0@vk.com', 'AGENCY', 'z4TkzduI', 0, '2021-12-21 23:14:03',

@@ -12,23 +12,23 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface AdminRepository extends CrudRepository<Admin, String> {
 
-  @Query(
-      value =
-          "SELECT a.id as id, a.firstName as firstName, a.lastName as lastName, a.email as email, a.tenantId as tenantId "
-              + "FROM Admin a "
-              + "WHERE"
-              + "  type = ?2 "
-              + "AND ("
-              + "  ?1 = '*' "
-              + "  OR ("
-              + "    UPPER(a.id) = UPPER(?1)"
-              + "    OR UPPER(a.firstName) LIKE CONCAT('%', UPPER(?1), '%')"
-              + "    OR UPPER(a.lastName) LIKE CONCAT('%', UPPER(?1), '%')"
-              + "    OR UPPER(a.email) LIKE CONCAT('%', UPPER(?1), '%')"
-              + "    OR CONVERT(a.tenantId,char) LIKE CONCAT('%', UPPER(?1), '%')"
-              + "  )"
-              + " )")
-  Page<AdminBase> findAllByInfix(String infix, Admin.AdminType type, Pageable pageable);
+    @Query(
+        value =
+            "SELECT a.id as id, a.firstName as firstName, a.lastName as lastName, a.email as email, a.tenantId as tenantId "
+                + "FROM Admin a "
+                + "WHERE"
+                + "  type = ?2 "
+                + "AND ("
+                + "  ?1 = '*' "
+                + "  OR ("
+                + "    UPPER(a.id) = UPPER(?1)"
+                + "    OR UPPER(a.firstName) LIKE CONCAT('%', UPPER(?1), '%')"
+                + "    OR UPPER(a.lastName) LIKE CONCAT('%', UPPER(?1), '%')"
+                + "    OR UPPER(a.email) LIKE CONCAT('%', UPPER(?1), '%')"
+                + "    OR (STR(a.tenantId) LIKE CONCAT('%', UPPER(?1), '%'))"
+                + "  )"
+                + " )")
+    Page<AdminBase> findAllByInfix(String infix, Admin.AdminType type, Pageable pageable);
 
   @Query(value = "SELECT a FROM Admin a WHERE id = ?1 AND type = ?2")
   Optional<Admin> findByIdAndType(String adminId, Admin.AdminType type);

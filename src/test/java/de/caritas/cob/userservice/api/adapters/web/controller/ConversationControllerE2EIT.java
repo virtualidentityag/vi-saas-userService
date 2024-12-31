@@ -26,6 +26,7 @@ import de.caritas.cob.userservice.api.adapters.rocketchat.dto.subscriptions.Subs
 import de.caritas.cob.userservice.api.adapters.rocketchat.dto.subscriptions.SubscriptionsUpdateDTO;
 import de.caritas.cob.userservice.api.config.apiclient.TopicServiceApiControllerFactory;
 import de.caritas.cob.userservice.api.config.auth.Authority.AuthorityValue;
+import de.caritas.cob.userservice.api.config.auth.SecurityConfig;
 import de.caritas.cob.userservice.api.exception.rocketchat.RocketChatUserNotInitializedException;
 import de.caritas.cob.userservice.api.helper.AuthenticatedUser;
 import de.caritas.cob.userservice.api.model.Consultant;
@@ -60,9 +61,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.hateoas.server.LinkRelationProvider;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -97,6 +100,12 @@ class ConversationControllerE2EIT {
   @MockBean private RocketChatCredentialsProvider rocketChatCredentialsProvider;
 
   @MockBean
+  private LinkRelationProvider linkRelationProvider;
+
+  @MockBean
+  private SecurityConfig securityConfig;
+
+  @MockBean
   @Qualifier("restTemplate")
   private RestTemplate restTemplate;
 
@@ -109,10 +118,11 @@ class ConversationControllerE2EIT {
   private TopicControllerApi topicControllerApi;
 
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-  @Autowired
+  @MockBean
   private ConsultingTypeControllerApi consultingTypeControllerApi;
 
   @MockBean private TopicServiceApiControllerFactory topicServiceApiControllerFactory;
+
 
   private Consultant consultant;
 

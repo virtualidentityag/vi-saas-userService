@@ -54,7 +54,7 @@ public class Chat {
   @NonNull
   private String topic;
 
-  @Column(name = "consulting_type", updatable = false, columnDefinition = "tinyint(4) unsigned")
+  @Column(name = "consulting_type", updatable = false, columnDefinition = "tinyint")
   private Integer consultingTypeId;
 
   @Column(name = "initial_start_date", nullable = false)
@@ -78,7 +78,7 @@ public class Chat {
   @Column(name = "is_active", nullable = false)
   private boolean active;
 
-  @Column(name = "max_participants", columnDefinition = "tinyint(4) unsigned NULL")
+  @Column(name = "max_participants", columnDefinition = "tinyint NULL")
   private Integer maxParticipants;
 
   @Column(name = "rc_group_id")
