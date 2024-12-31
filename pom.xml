@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.13</version>
+		<version>3.1.12</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
@@ -58,9 +58,8 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>javax.ws.rs</groupId>
-			<artifactId>javax.ws.rs-api</artifactId>
-			<version>2.1.1</version>
+			<groupId>jakarta.ws.rs</groupId>
+			<artifactId>jakarta.ws.rs-api</artifactId>
 		</dependency>
 		<!-- Spring Boot dependencies -->
 		<dependency>
@@ -149,7 +148,6 @@
 		<dependency>
 			<groupId>org.hibernate.orm</groupId>
 			<artifactId>hibernate-core</artifactId>
-			<version>6.2.4.Final</version>
 		</dependency>
 
 		<dependency>
@@ -181,11 +179,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>io.swagger.core.v3</groupId>
-			<artifactId>swagger-annotations</artifactId>
-			<version>2.2.15</version>
-		</dependency>
-		<dependency>
 			<groupId>org.openapitools</groupId>
 			<artifactId>jackson-databind-nullable</artifactId>
 			<version>0.2.2</version>
@@ -199,12 +192,6 @@
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-utils</artifactId>
 			<version>3.3.0</version>
-		</dependency>
-		<!-- SpringFox: generate YAML file from POJOs and generate documentation -->
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger2</artifactId>
-			<version>${springfox.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.validation</groupId>
@@ -227,10 +214,6 @@
 			<artifactId>keycloak-admin-client</artifactId>
 			<version>${keycloak.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>jakarta.ws.rs</groupId>
-			<artifactId>jakarta.ws.rs-api</artifactId>
-		</dependency>
 
 		<!-- Lombok dependencies -->
 		<dependency>
@@ -241,7 +224,7 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.1.0</version>
+			<version>2.2.0</version>
 		</dependency>
 
 		<dependency>
@@ -407,20 +390,19 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>5.12.0</version>
+			<version>5.14.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-junit-jupiter</artifactId>
-			<version>5.12.0</version>
+			<version>5.14.2</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy -->
 		<dependency>
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy</artifactId>
-			<version>1.14.15</version>
 		</dependency>
 		<dependency>
 			<groupId>org.reflections</groupId>
@@ -441,13 +423,11 @@
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>junit-jupiter</artifactId>
-			<version>${testcontainers.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>mariadb</artifactId>
-			<version>${testcontainers.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -1084,12 +1064,11 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version>
 				<executions>
 					<execution>
 						<phase>process-sources</phase>
 						<configuration>
-							<tasks>
+							<target>
 								<delete file="${project.build.directory}/generated-sources/de/caritas/cob/userservice/api/adapters/web/dto/GroupSessionConsultantDTO.java"/>
 								<delete file="${project.build.directory}/generated-sources/de/caritas/cob/userservice/api/adapters/web/dto/ChatDTO.java"/>
 								<delete file="${project.build.directory}/generated-sources/de/caritas/cob/userservice/api/adapters/web/dto/NewRegistrationDto.java"/>
@@ -1098,7 +1077,7 @@
 								<delete file="${project.build.directory}/generated-sources/de/caritas/cob/userservice/api/adapters/web/dto/UserChatDTO.java"/>
 								<delete file="${project.build.directory}/generated-sources/de/caritas/cob/userservice/api/adapters/web/dto/UserDataResponseDTO.java"/>
 								<delete file="${project.build.directory}/generated-sources/de/caritas/cob/userservice/api/adapters/web/dto/UserDTO.java"/>
-							</tasks>
+							</target>
 						</configuration>
 						<goals>
 							<goal>run</goal>

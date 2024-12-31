@@ -22,11 +22,11 @@ public class LatestMessageParseUtil {
   }
 
   private static Date parseLatestMessageObject(Object latestMessage) {
-    if (latestMessage instanceof Date) {
-      return (Date) latestMessage;
-    } else if (latestMessage instanceof String) {
+    if (latestMessage instanceof Date date) {
+      return date;
+    } else if (latestMessage instanceof String string) {
       try {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").parse((String) latestMessage);
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").parse(string);
       } catch (ParseException e) {
         log.error("Could not parse timestamp string");
         return null;
