@@ -41,7 +41,7 @@ import de.caritas.cob.userservice.api.helper.UsernameTranscoder;
 import de.caritas.cob.userservice.api.port.out.IdentityClientConfig;
 import de.caritas.cob.userservice.api.tenant.TenantContext;
 import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.core.Response;
+import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
