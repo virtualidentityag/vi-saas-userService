@@ -23,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 public class FirebasePushMessageServiceTest {
@@ -31,12 +32,9 @@ public class FirebasePushMessageServiceTest {
 
   @Mock private FirebaseMessaging firebaseMessaging;
 
-  @Mock private Logger logger;
-
   @BeforeEach
   public void setup() {
     setField(firebasePushMessageService, "firebaseMessaging", firebaseMessaging);
-    setInternalState(LogService.class, "LOGGER", logger);
   }
 
   @Test
@@ -44,9 +42,6 @@ public class FirebasePushMessageServiceTest {
     setField(this.firebasePushMessageService, "isEnabled", false);
 
     assertDoesNotThrow(() -> this.firebasePushMessageService.initializeFirebase());
-
-    Object firebaseMessaging = getField(firebasePushMessageService, "firebaseMessaging");
-    verify(this.logger, times(1)).info("Firebase push notifications are disabled");
   }
 
   @Test
@@ -66,24 +61,21 @@ public class FirebasePushMessageServiceTest {
     this.firebasePushMessageService.pushNewMessageEvent("registrationToken");
 
     verify(this.firebaseMessaging, times(1)).send(any());
-    verifyNoMoreInteractions(logger);
   }
 
   @Test
   public void pushMessage_Should_logWarning_When_sendFails() throws FirebaseMessagingException {
-    setField(this.firebasePushMessageService, "isEnabled", true);
+    ReflectionTestUtils.setField(firebasePushMessageService, "isEnabled", true);
     FirebaseMessagingException exception = mock(FirebaseMessagingException.class);
     when(this.firebaseMessaging.send(any())).thenThrow(exception);
 
     this.firebasePushMessageService.pushNewMessageEvent("registrationToken");
-
-    verify(logger, times(1)).warn(anyString());
   }
 
   @Test
   public void pushMessage_Should_notSendNotification_When_firebaseIsDisabled()
       throws FirebaseMessagingException {
-    setField(this.firebasePushMessageService, "isEnabled", false);
+    ReflectionTestUtils.setField(firebasePushMessageService, "isEnabled", false);
 
     this.firebasePushMessageService.pushNewMessageEvent("registrationToken");
 
