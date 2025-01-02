@@ -30,8 +30,13 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.Where;
+import org.hibernate.search.engine.backend.types.ObjectStructure;
+import org.hibernate.search.engine.backend.types.Sortable;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexedEmbedded;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.KeywordField;
 import org.springframework.lang.Nullable;
 
 /** Represents a consultant */
@@ -69,21 +74,28 @@ public class Consultant implements TenantAware, NotificationsAware {
   @Column(name = "username", updatable = false, nullable = false)
   @Size(max = 255)
   @NonNull
+  @GenericField
   private String username;
 
   @Column(name = "first_name", nullable = false)
   @Size(max = 255)
   @NonNull
+  @FullTextField
+  @KeywordField(name = "firstName_sort", sortable = Sortable.YES) // For sorting
   private String firstName;
 
   @Column(name = "last_name", nullable = false)
   @Size(max = 255)
   @NonNull
+  @FullTextField
+  @KeywordField(name = "lastName_sort", sortable = Sortable.YES) // For sorting
   private String lastName;
 
   @Column(name = "email", nullable = false)
   @Size(max = 255)
   @NonNull
+  @GenericField
+  @KeywordField(name = "email_sort", sortable = Sortable.YES) // For sorting
   private String email;
 
   @Column(name = "is_absent", nullable = false, columnDefinition = "tinyint")
@@ -110,7 +122,7 @@ public class Consultant implements TenantAware, NotificationsAware {
   private Set<Session> sessions;
 
   @OneToMany(mappedBy = "consultant")
-  @IndexedEmbedded
+  @IndexedEmbedded(structure = ObjectStructure.NESTED)
   @Where(clause = "delete_date IS NULL")
   private Set<ConsultantAgency> consultantAgencies;
 

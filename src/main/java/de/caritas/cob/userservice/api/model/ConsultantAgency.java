@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Filter;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 
 /** Represents the relation between consultant and agency */
 @Entity
@@ -45,6 +46,7 @@ public class ConsultantAgency implements TenantAware {
   private Consultant consultant;
 
   @Column(name = "agency_id")
+  @GenericField
   private Long agencyId;
 
   @Column(name = "create_date")

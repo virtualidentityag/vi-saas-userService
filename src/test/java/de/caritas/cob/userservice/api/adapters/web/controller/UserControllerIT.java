@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
-import static org.powermock.reflect.Whitebox.setInternalState;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -21,7 +20,6 @@ import com.neovisionaries.i18n.LanguageCode;
 import de.caritas.cob.userservice.api.actions.registry.ActionsRegistry;
 import de.caritas.cob.userservice.api.adapters.rocketchat.RocketChatCredentials;
 import de.caritas.cob.userservice.api.adapters.rocketchat.RocketChatService;
-import de.caritas.cob.userservice.api.adapters.web.controller.interceptor.ApiResponseEntityExceptionHandler;
 import de.caritas.cob.userservice.api.adapters.web.dto.*;
 import de.caritas.cob.userservice.api.adapters.web.dto.SessionConsultantForUserDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.UserDTO;
@@ -57,6 +55,8 @@ import de.caritas.cob.userservice.api.port.out.IdentityClientConfig;
 import de.caritas.cob.userservice.api.service.*;
 import de.caritas.cob.userservice.api.service.archive.SessionArchiveService;
 import de.caritas.cob.userservice.api.service.archive.SessionDeleteService;
+import de.caritas.cob.userservice.api.service.security.AuthorisationService;
+import de.caritas.cob.userservice.api.service.security.JwtAuthConverterProperties;
 import de.caritas.cob.userservice.api.service.session.SessionService;
 import de.caritas.cob.userservice.api.service.user.UserAccountService;
 import de.caritas.cob.userservice.api.tenant.TenantContext;
@@ -352,6 +352,10 @@ class UserControllerIT {
 
   @MockBean private SessionDeleteService sessionDeleteService;
 
+  @MockBean private AuthorisationService authorisationService;
+
+  @MockBean private JwtAuthConverterProperties jwtAuthConverterProperties;
+
   @Mock private Logger logger;
 
   @Mock private Chat chat;
@@ -362,9 +366,10 @@ class UserControllerIT {
     drugsMap.put("others", false);
     HashMap<String, Object> addictiveDrugsMap = new HashMap<>();
     addictiveDrugsMap.put("drugs", drugsMap);
-    setInternalState(UserController.class, "log", logger);
-    setInternalState(LogService.class, "LOGGER", logger);
-    setInternalState(ApiResponseEntityExceptionHandler.class, "log", logger);
+    //    ReflectionTestUtils.setField(userCo);
+    //    setInternalState(UserController.class, "log", logger);
+    //    setInternalState(LogService.class, "LOGGER", logger);
+    //    setInternalState(ApiResponseEntityExceptionHandler.class, "log", logger);
     TenantContext.clear();
   }
 

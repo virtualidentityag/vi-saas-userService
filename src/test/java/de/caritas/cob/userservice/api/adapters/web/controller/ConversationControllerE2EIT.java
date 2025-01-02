@@ -65,7 +65,6 @@ import org.springframework.hateoas.server.LinkRelationProvider;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -99,11 +98,9 @@ class ConversationControllerE2EIT {
 
   @MockBean private RocketChatCredentialsProvider rocketChatCredentialsProvider;
 
-  @MockBean
-  private LinkRelationProvider linkRelationProvider;
+  @MockBean private LinkRelationProvider linkRelationProvider;
 
-  @MockBean
-  private SecurityConfig securityConfig;
+  @MockBean private SecurityConfig securityConfig;
 
   @MockBean
   @Qualifier("restTemplate")
@@ -122,7 +119,6 @@ class ConversationControllerE2EIT {
   private ConsultingTypeControllerApi consultingTypeControllerApi;
 
   @MockBean private TopicServiceApiControllerFactory topicServiceApiControllerFactory;
-
 
   private Consultant consultant;
 

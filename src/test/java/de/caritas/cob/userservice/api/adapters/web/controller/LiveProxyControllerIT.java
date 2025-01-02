@@ -9,6 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import de.caritas.cob.userservice.api.config.auth.RoleAuthorizationAuthorityMapper;
 import de.caritas.cob.userservice.api.service.liveevents.LiveEventNotificationService;
+import de.caritas.cob.userservice.api.service.security.AuthorisationService;
+import de.caritas.cob.userservice.api.service.security.JwtAuthConverterProperties;
 import org.junit.jupiter.api.Test;
 import org.keycloak.adapters.KeycloakConfigResolver;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,10 @@ class LiveProxyControllerIT {
   @MockBean private LinkDiscoverers linkDiscoverers;
 
   @MockBean private KeycloakConfigResolver keycloakConfigResolver;
+
+  @MockBean private AuthorisationService authorisationService;
+
+  @MockBean private JwtAuthConverterProperties jwtAuthConverterProperties;
 
   @Test
   void sendLiveEvent_Should_returnBadRequest_When_rcGroupIdIsNotProvided() throws Exception {

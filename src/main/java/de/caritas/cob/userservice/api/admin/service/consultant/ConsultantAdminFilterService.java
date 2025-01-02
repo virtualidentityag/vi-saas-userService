@@ -1,13 +1,11 @@
 package de.caritas.cob.userservice.api.admin.service.consultant;
 
-import de.caritas.cob.userservice.api.adapters.web.dto.ConsultantAdminResponseDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.ConsultantFilter;
 import de.caritas.cob.userservice.api.adapters.web.dto.ConsultantSearchResultDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.Sort;
 import de.caritas.cob.userservice.api.adapters.web.dto.Sort.FieldEnum;
 import de.caritas.cob.userservice.api.model.Consultant;
 import jakarta.persistence.EntityManagerFactory;
-import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,26 +45,26 @@ public class ConsultantAdminFilterService {
 
       // Obtain a SearchSession from the Hibernate Session
       SearchSession searchSession = Search.session(session);
+      searchSession.massIndexer().startAndWait();
 
       // Build the search query
-      var admins = fetchConsultants(consultantFilter, searchSession, sort, page, perPage);
+      var result = fetchConsultants(consultantFilter, searchSession, sort, page, perPage);
 
       // Build the result
-      return convertToSearchResultDTO(admins);
+      return convertToSearchResultDTO(result, page, perPage);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
     }
   }
 
-  private ConsultantSearchResultDTO convertToSearchResultDTO(List<Consultant> admins) {
-    ConsultantSearchResultDTO result = new ConsultantSearchResultDTO();
-    for (Consultant admin : admins) {
-      ConsultantAdminResponseDTO adminResponseDTO =
-          ConsultantResponseDTOBuilder.getInstance(admin).buildResponseDTO();
-      result.addEmbeddedItem(adminResponseDTO);
-    }
-    return result;
+  private ConsultantSearchResultDTO convertToSearchResultDTO(
+      SearchPaginatedResult<Consultant> searchPaginatedResult, Integer page, Integer perPage) {
+    ConsultantSearchResultBuilder consultantSearchResultBuilder =
+        new ConsultantSearchResultBuilder(searchPaginatedResult, page, perPage);
+    return consultantSearchResultBuilder.buildSearchResult();
   }
 
-  protected List<Consultant> fetchConsultants(
+  protected SearchPaginatedResult<Consultant> fetchConsultants(
       ConsultantFilter consultantFilter,
       SearchSession searchSession,
       Sort sortDefinition,
@@ -74,44 +72,80 @@ public class ConsultantAdminFilterService {
       Integer perPage) {
     int offset = Math.max((page - 1) * perPage, 0);
 
-    return searchSession
-        .search(Consultant.class)
-        .where(
-            f ->
-                f.bool(
-                    bool -> {
-                      // Apply username filter if present
-                      if (consultantFilter.getUsername() != null) {
-                        bool.must(
-                            f.match().field("username").matching(consultantFilter.getUsername()));
-                      }
-                      // Apply lastname filter if present
-                      if (consultantFilter.getLastname() != null) {
-                        bool.must(
-                            f.match().field("lastname").matching(consultantFilter.getLastname()));
-                      }
-                      // Apply email filter if present
-                      if (consultantFilter.getEmail() != null) {
-                        bool.must(f.match().field("email").matching(consultantFilter.getEmail()));
-                      }
-                      // Apply agencyId filter if present
-                      if (consultantFilter.getAgencyId() != null) {
-                        bool.must(
-                            f.match().field("agencyId").matching(consultantFilter.getAgencyId()));
-                      }
-                    }))
-        .sort(f -> buildSort(f, sortDefinition)) // Apply sorting here
-        .fetchHits(offset, Math.max(perPage, 1)); // Apply pagination
+    if (consultantFilter == null) {
+      var fetchedResult =
+          searchSession
+              .search(Consultant.class)
+              .where(f -> f.matchAll())
+              .sort(f -> buildSort(f, sortDefinition))
+              .fetch(offset, Math.max(perPage, 1));
+
+      return new SearchPaginatedResult<Consultant>(
+          fetchedResult.hits(), fetchedResult.total().hitCount());
+    }
+    var fetchedResult =
+        searchSession
+            .search(Consultant.class)
+            .where(
+                f ->
+                    f.bool(
+                        bool -> {
+                          // If no filters are applied, match all records
+                          if (consultantFilter.getUsername() == null
+                              && consultantFilter.getLastname() == null
+                              && consultantFilter.getEmail() == null
+                              && consultantFilter.getAgencyId() == null) {
+                            bool.must(f.matchAll()); // Match all documents if no filter is set
+                          }
+                          // Apply username filter if present
+                          if (consultantFilter.getUsername() != null) {
+                            bool.must(
+                                f.match()
+                                    .field("username")
+                                    .matching(consultantFilter.getUsername()));
+                          }
+                          // Apply lastname filter if present
+                          if (consultantFilter.getLastname() != null) {
+                            bool.must(
+                                f.match()
+                                    .field("lastName")
+                                    .matching(consultantFilter.getLastname()));
+                          }
+                          // Apply email filter if present
+                          if (consultantFilter.getEmail() != null) {
+                            bool.must(
+                                f.match().field("email").matching(consultantFilter.getEmail()));
+                          }
+                          // Apply agencyId filter if present
+                          if (consultantFilter.getAgencyId() != null) {
+                            bool.must(
+                                f.nested()
+                                    .objectField(
+                                        "consultantAgencies") // Navigate to the consultantAgencies
+                                    // field
+                                    .nest(
+                                        f.match()
+                                            .field("consultantAgencies.agencyId") // Match agencyId
+                                            // within
+                                            // consultantAgencies
+                                            .matching(consultantFilter.getAgencyId())));
+                          }
+                        }))
+            .sort(f -> buildSort(f, sortDefinition)) // Apply sorting here
+            .fetch(offset, Math.max(perPage, 1)); // Apply pagination
+
+    return new SearchPaginatedResult<Consultant>(
+        fetchedResult.hits(), fetchedResult.total().hitCount());
   }
 
   private SortFinalStep buildSort(SearchSortFactory factory, Sort sort) {
     if (sort != null && sort.getField() != null) {
       boolean reverse = Sort.OrderEnum.DESC.equals(sort.getOrder());
       return factory
-          .field(sort.getField().getValue())
+          .field(sort.getField().getValue() + "_sort")
           .order(reverse ? SortOrder.DESC : SortOrder.ASC);
     } else {
-      return factory.field(FieldEnum.LAST_NAME.getValue()).order(SortOrder.ASC);
+      return factory.field(FieldEnum.LAST_NAME.getValue() + "_sort").order(SortOrder.ASC);
     }
   }
 }

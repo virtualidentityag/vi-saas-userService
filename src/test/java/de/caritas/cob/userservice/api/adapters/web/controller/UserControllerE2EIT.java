@@ -177,10 +177,6 @@ class UserControllerE2EIT {
 
   @Autowired private UserAgencyRepository userAgencyRepository;
 
-  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-  @Autowired
-  private ConsultingTypeControllerApi consultingTypeControllerApi;
-
   @Autowired private VideoChatConfig videoChatConfig;
 
   @Autowired private IdentityConfig identityConfig;
@@ -188,6 +184,14 @@ class UserControllerE2EIT {
   @Autowired private SessionRepository sessionRepository;
 
   @Autowired private UserVerifier userVerifier;
+
+  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+  @MockBean
+  private ConsultingTypeControllerApi consultingTypeControllerApi;
+
+  @MockBean
+  private de.caritas.cob.userservice.consultingtypeservice.generated.ApiClient
+      consultingTypeApiClient;
 
   @MockBean private AuthenticatedUser authenticatedUser;
 
@@ -297,6 +301,7 @@ class UserControllerE2EIT {
     when(consultingTypeServiceApiControllerFactory.createControllerApi())
         .thenReturn(consultingTypeControllerApi);
     when(mailServiceApiControllerFactory.createControllerApi()).thenReturn(mailsControllerApi);
+    when(consultingTypeControllerApi.getApiClient()).thenReturn(consultingTypeApiClient);
   }
 
   @Test

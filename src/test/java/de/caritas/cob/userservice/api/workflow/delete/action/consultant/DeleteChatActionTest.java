@@ -10,13 +10,11 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.powermock.reflect.Whitebox.setInternalState;
 
 import de.caritas.cob.userservice.api.adapters.rocketchat.RocketChatService;
 import de.caritas.cob.userservice.api.exception.rocketchat.RocketChatDeleteGroupException;
@@ -35,7 +33,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 public class DeleteChatActionTest {
@@ -46,11 +44,9 @@ public class DeleteChatActionTest {
 
   @Mock private RocketChatService rocketChatService;
 
-  @Mock private Logger logger;
-
   @BeforeEach
   public void setup() {
-    setInternalState(DeleteChatAction.class, "log", logger);
+    ReflectionTestUtils.setField(deleteChatAction, "chatRepository", chatRepository);
   }
 
   @Test
@@ -62,7 +58,6 @@ public class DeleteChatActionTest {
     List<DeletionWorkflowError> workflowErrors = workflowDTO.getDeletionWorkflowErrors();
 
     assertThat(workflowErrors, hasSize(0));
-    verifyNoMoreInteractions(this.logger);
     verifyNoMoreInteractions(this.rocketChatService);
     verify(this.chatRepository, times(1)).findByChatOwner(any());
     verifyNoMoreInteractions(this.chatRepository);
@@ -80,7 +75,6 @@ public class DeleteChatActionTest {
     List<DeletionWorkflowError> workflowErrors = workflowDTO.getDeletionWorkflowErrors();
 
     assertThat(workflowErrors, hasSize(0));
-    verifyNoMoreInteractions(this.logger);
     verify(this.rocketChatService, times(5)).deleteGroupAsTechnicalUser(any());
     verify(this.chatRepository, times(1)).findByChatOwner(any());
     verify(this.chatRepository, times(1)).deleteAll(chats);
@@ -102,7 +96,6 @@ public class DeleteChatActionTest {
     List<DeletionWorkflowError> workflowErrors = workflowDTO.getDeletionWorkflowErrors();
 
     assertThat(workflowErrors, hasSize(6));
-    verify(logger, times(6)).error(anyString(), any(Exception.class));
   }
 
   @Test
@@ -132,6 +125,5 @@ public class DeleteChatActionTest {
     assertThat(workflowErrors.get(1).getIdentifier(), is(chat.getChatOwner().getId()));
     assertThat(workflowErrors.get(1).getReason(), is("Unable to delete chats in database"));
     assertThat(workflowErrors.get(1).getTimestamp(), notNullValue());
-    verify(logger).error(anyString(), any(RuntimeException.class));
   }
 }
