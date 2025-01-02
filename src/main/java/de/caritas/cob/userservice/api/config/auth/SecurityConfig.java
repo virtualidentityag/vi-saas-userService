@@ -10,7 +10,6 @@ import de.caritas.cob.userservice.api.service.security.JwtAuthConverter;
 import de.caritas.cob.userservice.api.service.security.JwtAuthConverterProperties;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.adapters.springsecurity.KeycloakConfiguration;
-import org.keycloak.adapters.springsecurity.client.KeycloakClientRequestFactory;
 import org.keycloak.adapters.springsecurity.filter.KeycloakAuthenticatedActionsFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +17,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
-import org.springframework.lang.Nullable;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -42,9 +40,6 @@ public class SecurityConfig implements WebMvcConfigurer {
       "\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b";
   public static final String APPOINTMENTS_APPOINTMENT_ID = "/appointments/{appointmentId:";
 
-  @SuppressWarnings({"unused", "FieldCanBeLocal"})
-  private final KeycloakClientRequestFactory keycloakClientRequestFactory;
-
   private final CsrfSecurityProperties csrfSecurityProperties;
 
   @Autowired AuthorisationService authorisationService;
@@ -62,20 +57,6 @@ public class SecurityConfig implements WebMvcConfigurer {
   private boolean multitenancy;
 
   private HttpTenantFilter tenantFilter;
-
-  /**
-   * Processes HTTP requests and checks for a valid spring security authentication for the
-   * (Keycloak) principal (authorization header).
-   */
-  public SecurityConfig(
-      @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-          KeycloakClientRequestFactory keycloakClientRequestFactory,
-      CsrfSecurityProperties csrfSecurityProperties,
-      @Nullable HttpTenantFilter tenantFilter) {
-    this.keycloakClientRequestFactory = keycloakClientRequestFactory;
-    this.csrfSecurityProperties = csrfSecurityProperties;
-    this.tenantFilter = tenantFilter;
-  }
 
   /**
    * Configure spring security filter chain: disable default Spring Boot CSRF token behavior and add

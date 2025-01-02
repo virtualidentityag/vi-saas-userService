@@ -86,7 +86,7 @@ class UserAdminControllerE2EIT {
   @Autowired private ObjectMapper objectMapper;
 
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-  @Autowired
+  @MockBean
   private ConsultingTypeControllerApi consultingTypeControllerApi;
 
   @Autowired private IdentityConfig identityConfig;

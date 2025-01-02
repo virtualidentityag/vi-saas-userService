@@ -220,7 +220,7 @@ public class UserController implements UsersApi {
   public ResponseEntity<NewRegistrationResponseDto> registerNewConsultingType(
       @RequestHeader String rcToken,
       @RequestHeader String rcUserId,
-      @Valid @RequestBody NewRegistrationDto newRegistrationDto) {
+      @RequestBody NewRegistrationDto newRegistrationDto) {
 
     var user = this.userAccountProvider.retrieveValidatedUser();
     var rocketChatCredentials =
