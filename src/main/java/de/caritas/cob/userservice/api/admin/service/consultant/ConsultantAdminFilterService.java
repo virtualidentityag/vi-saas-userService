@@ -44,14 +44,14 @@ public class ConsultantAdminFilterService {
       var session = entityManager.unwrap(Session.class);
 
       // Obtain a SearchSession from the Hibernate Session
-      SearchSession searchSession = Search.session(session);
-      searchSession.massIndexer(Consultant.class).startAndWait();
-
-      // Build the search query
-      var result = fetchConsultants(consultantFilter, searchSession, sort, page, perPage);
-
-      // Build the result
-      return convertToSearchResultDTO(result, page, perPage);
+      synchronized (this) {
+        var searchSession = Search.session(session);
+        searchSession.massIndexer(Consultant.class).startAndWait();
+        // Build the search query
+        var result = fetchConsultants(consultantFilter, searchSession, sort, page, perPage);
+        // Build the result
+        return convertToSearchResultDTO(result, page, perPage);
+      }
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }

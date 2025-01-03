@@ -1096,9 +1096,8 @@ class UserControllerE2EIT {
 
   @Test
   @WithMockUser(authorities = AuthorityValue.USER_DEFAULT)
-  void patchUserDataShouldRespondWithBadRequestOnEmptyPayload() throws Exception {
+  void patchUserDataShouldRespondWithBadRequestOnNullPayload() throws Exception {
     givenAValidUser();
-    var patchDto = givenAnEmptyPatchDto();
 
     mockMvc
         .perform(
@@ -1106,7 +1105,7 @@ class UserControllerE2EIT {
                 .cookie(CSRF_COOKIE)
                 .header(CSRF_HEADER, CSRF_VALUE)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(patchDto))
+                .content((String) null)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest());
   }

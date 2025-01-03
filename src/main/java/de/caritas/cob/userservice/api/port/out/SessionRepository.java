@@ -126,10 +126,9 @@ public interface SessionRepository extends CrudRepository<Session, Long> {
 
   @Query(
       value =
-          "SELECT * "
-              + "FROM session s "
-              + "WHERE s.rc_group_id IN :group_ids OR s.rc_feedback_group_id IN :group_ids",
-      nativeQuery = true)
+          "SELECT s "
+              + "FROM Session s "
+              + "WHERE s.groupId IN :group_ids OR s.feedbackGroupId IN :group_ids")
   List<Session> findByGroupOrFeedbackGroupIds(@Param(value = "group_ids") Set<String> groupIds);
 
   /**

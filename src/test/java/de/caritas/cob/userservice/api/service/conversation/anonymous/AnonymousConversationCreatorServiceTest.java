@@ -16,6 +16,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import de.caritas.cob.userservice.api.adapters.web.dto.UserDTO;
+import de.caritas.cob.userservice.api.container.CreateEnquiryExceptionInformation;
 import de.caritas.cob.userservice.api.conversation.model.AnonymousUserCredentials;
 import de.caritas.cob.userservice.api.conversation.service.AnonymousConversationCreatorService;
 import de.caritas.cob.userservice.api.exception.CreateEnquiryException;
@@ -118,7 +119,7 @@ class AnonymousConversationCreatorServiceTest {
                   any(RegistrationType.class),
                   any(SessionStatus.class)))
               .thenReturn(SESSION);
-          CreateEnquiryException exception = easyRandom.nextObject(CreateEnquiryException.class);
+          CreateEnquiryException exception = new CreateEnquiryException("msg", new RuntimeException(), CreateEnquiryExceptionInformation.builder().build());
           when(createEnquiryMessageFacade.createRocketChatRoomAndAddUsers(any(), any(), any()))
               .thenThrow(exception);
           AnonymousUserCredentials credentials =
