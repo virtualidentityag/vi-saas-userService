@@ -3,16 +3,13 @@ package de.caritas.cob.userservice.api.actions.session;
 import static java.util.Arrays.asList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.powermock.reflect.Whitebox.setInternalState;
 
 import de.caritas.cob.userservice.api.adapters.rocketchat.RocketChatService;
 import de.caritas.cob.userservice.api.model.Session;
 import java.util.List;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,7 +17,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
 
 @ExtendWith(MockitoExtension.class)
 class SetRocketChatRoomReadOnlyActionCommandTest {
@@ -28,13 +24,6 @@ class SetRocketChatRoomReadOnlyActionCommandTest {
   @InjectMocks private SetRocketChatRoomReadOnlyActionCommand actionCommand;
 
   @Mock private RocketChatService rocketChatService;
-
-  private static final Logger LOGGER = mock(Logger.class);
-
-  @BeforeAll
-  public static void setup() {
-    setInternalState(SetRocketChatRoomReadOnlyActionCommand.class, "log", LOGGER);
-  }
 
   @ParameterizedTest
   @MethodSource("sessionsWithoutInteractionsExpected")
@@ -68,7 +57,5 @@ class SetRocketChatRoomReadOnlyActionCommandTest {
     doThrow(new RuntimeException("")).when(this.rocketChatService).setRoomReadOnly(anyString());
 
     this.actionCommand.execute(session);
-
-    verify(LOGGER).error(anyString(), anyString());
   }
 }

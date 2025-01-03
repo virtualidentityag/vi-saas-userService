@@ -10,7 +10,6 @@ import de.caritas.cob.userservice.api.service.security.JwtAuthConverter;
 import de.caritas.cob.userservice.api.service.security.JwtAuthConverterProperties;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.adapters.springsecurity.KeycloakConfiguration;
-import org.keycloak.adapters.springsecurity.filter.KeycloakAuthenticatedActionsFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -249,8 +248,7 @@ public class SecurityConfig implements WebMvcConfigurer {
    */
   private HttpSecurity enableTenantFilterIfMultitenancyEnabled(HttpSecurity httpSecurity) {
     if (multitenancy) {
-      httpSecurity =
-          httpSecurity.addFilterAfter(this.tenantFilter, KeycloakAuthenticatedActionsFilter.class);
+      httpSecurity = httpSecurity.addFilterAfter(this.tenantFilter, StatelessCsrfFilter.class);
     }
     return httpSecurity;
   }

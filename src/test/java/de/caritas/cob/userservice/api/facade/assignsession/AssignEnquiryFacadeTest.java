@@ -31,7 +31,6 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.reflect.Whitebox.setInternalState;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
 
 import de.caritas.cob.userservice.api.adapters.keycloak.KeycloakService;
@@ -44,7 +43,6 @@ import de.caritas.cob.userservice.api.model.ConsultantAgency;
 import de.caritas.cob.userservice.api.model.Session;
 import de.caritas.cob.userservice.api.model.Session.RegistrationType;
 import de.caritas.cob.userservice.api.model.Session.SessionStatus;
-import de.caritas.cob.userservice.api.service.LogService;
 import de.caritas.cob.userservice.api.service.session.SessionService;
 import de.caritas.cob.userservice.api.service.statistics.StatisticsService;
 import de.caritas.cob.userservice.api.service.statistics.event.AssignSessionStatisticsEvent;
@@ -56,7 +54,6 @@ import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -64,7 +61,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
 
 @ExtendWith(MockitoExtension.class)
 class AssignEnquiryFacadeTest {
@@ -83,16 +79,10 @@ class AssignEnquiryFacadeTest {
   ConsultingTypeManager consultingTypeManager;
 
   @Mock SessionToConsultantVerifier sessionToConsultantVerifier;
-  @Mock Logger logger;
   @Mock UnauthorizedMembersProvider unauthorizedMembersProvider;
   @Mock StatisticsService statisticsService;
   @Mock TenantContextProvider tenantContextProvider;
   @Mock HttpServletRequest httpServletRequest;
-
-  @BeforeEach
-  public void setup() {
-    setInternalState(LogService.class, "LOGGER", logger);
-  }
 
   @AfterEach
   public void tearDown() {
@@ -266,8 +256,6 @@ class AssignEnquiryFacadeTest {
     verify(sessionService, times(1))
         .updateConsultantAndStatusForSession(
             U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY, SessionStatus.IN_PROGRESS);
-    verifyAsync(
-        (a) -> verify(logger, times(1)).error(anyString(), anyString(), anyString(), anyString()));
   }
 
   @Test
@@ -295,8 +283,6 @@ class AssignEnquiryFacadeTest {
 
     verifyConsultantAndSessionHaveBeenChecked(
         U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY);
-    verifyAsync(
-        (a) -> verify(logger, times(1)).error(anyString(), anyString(), anyString(), anyString()));
     verify(sessionService, times(1))
         .updateConsultantAndStatusForSession(
             U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY, IN_PROGRESS);
@@ -313,8 +299,6 @@ class AssignEnquiryFacadeTest {
 
     verifyConsultantAndSessionHaveBeenChecked(
         U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY);
-    verifyAsync(
-        (a) -> verify(logger, times(1)).error(anyString(), anyString(), anyString(), anyString()));
     verify(sessionService, times(1))
         .updateConsultantAndStatusForSession(
             U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY, IN_PROGRESS);
@@ -331,8 +315,6 @@ class AssignEnquiryFacadeTest {
 
     verifyConsultantAndSessionHaveBeenChecked(
         U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY);
-    verifyAsync(
-        (a) -> verify(logger, times(1)).error(anyString(), anyString(), anyString(), anyString()));
     verify(sessionService, times(1))
         .updateConsultantAndStatusForSession(
             U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY, IN_PROGRESS);

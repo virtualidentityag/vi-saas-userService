@@ -83,8 +83,8 @@ class AnonymousUserCreatorServiceTest {
           KeycloakCreateUserResponseDTO responseDTO =
               easyRandom.nextObject(KeycloakCreateUserResponseDTO.class);
           when(keycloakService.createKeycloakUser(any())).thenReturn(responseDTO);
-          RocketChatLoginException exception =
-              easyRandom.nextObject(RocketChatLoginException.class);
+          RocketChatLoginException exception = new RocketChatLoginException("error");
+          easyRandom.nextObject(RocketChatLoginException.class);
           when(rocketChatService.loginUserFirstTime(
                   USER_DTO_SUCHT.getUsername(), USER_DTO_SUCHT.getPassword()))
               .thenThrow(exception);
