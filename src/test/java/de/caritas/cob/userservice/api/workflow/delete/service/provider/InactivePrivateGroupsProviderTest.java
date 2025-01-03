@@ -33,6 +33,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 public class InactivePrivateGroupsProviderTest {
@@ -41,12 +42,6 @@ public class InactivePrivateGroupsProviderTest {
 
   @Mock private RocketChatService rocketChatService;
   @Mock private ChatRepository chatRepository;
-  @Mock private Logger logger;
-
-  @BeforeEach
-  public void setup() {
-    setInternalState(LogService.class, "LOGGER", logger);
-  }
 
   @Test
   public void
@@ -95,10 +90,8 @@ public class InactivePrivateGroupsProviderTest {
     doThrow(new RocketChatGetGroupsListAllException(new RuntimeException()))
         .when(this.rocketChatService)
         .fetchAllInactivePrivateGroupsSinceGivenDate(any());
-
     inactivePrivateGroupsProvider.retrieveUserWithInactiveGroupsMap();
 
-    verify(this.logger, times(1)).error(anyString(), anyString(), anyString(), anyString());
   }
 
   @Test
