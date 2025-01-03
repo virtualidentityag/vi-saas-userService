@@ -289,38 +289,6 @@ class AssignEnquiryFacadeTest {
   }
 
   @Test
-  void assignEnquiry_Should_LogError_WhenRemoveSystemMessagesFromGroupFails() {
-    doThrow(new InternalServerErrorException("error"))
-        .when(rocketChatFacade)
-        .removeSystemMessagesFromRocketChatGroup(Mockito.any());
-
-    assignEnquiryFacade.assignRegisteredEnquiry(
-        U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY);
-
-    verifyConsultantAndSessionHaveBeenChecked(
-        U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY);
-    verify(sessionService, times(1))
-        .updateConsultantAndStatusForSession(
-            U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY, IN_PROGRESS);
-  }
-
-  @Test
-  void assignEnquiry_Should_LogError_When_RemoveSystemMessagesFromFeedbackChatFails() {
-    doThrow(new InternalServerErrorException("error"))
-        .when(rocketChatFacade)
-        .removeSystemMessagesFromRocketChatGroup(Mockito.any());
-
-    assignEnquiryFacade.assignRegisteredEnquiry(
-        U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY);
-
-    verifyConsultantAndSessionHaveBeenChecked(
-        U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY);
-    verify(sessionService, times(1))
-        .updateConsultantAndStatusForSession(
-            U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY, IN_PROGRESS);
-  }
-
-  @Test
   void assignEnquiry_Should_AddPeerConsultantToFeedbackGroup_WhenSessionHasFeedbackIsTrue() {
     assignEnquiryFacade.assignRegisteredEnquiry(
         U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY);

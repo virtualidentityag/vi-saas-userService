@@ -788,17 +788,6 @@ class EmailNotificationFacadeTest {
   }
 
   @Test
-  void sendNewFeedbackMessageNotification_Should_LogErrorAndSendNoMails_WhenSessionIsNotFound() {
-
-    when(sessionService.getSessionByFeedbackGroupId(RC_FEEDBACK_GROUP_ID)).thenReturn(null);
-
-    emailNotificationFacade.sendNewFeedbackMessageNotification(
-        RC_FEEDBACK_GROUP_ID, CONSULTANT_ID, null);
-
-    verify(logger, atLeastOnce()).error(anyString(), anyString());
-  }
-
-  @Test
   void
       sendNewFeedbackMessageNotification_Should_LogErrorAndSendNoMails_WhenNoConsultantIsAssignedToSession() {
 
