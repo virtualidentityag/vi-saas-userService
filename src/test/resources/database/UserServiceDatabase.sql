@@ -718,7 +718,7 @@ VALUES (0, '473f7c4b-f011-4fc2-847c-ceb636a5b399', 1, '2020-10-08 08:53:55', '20
         '2020-10-08 08:57:45'),
        (63, '0b3b1cc6-be98-4787-aa56-212259d811b9', 1, '2020-10-08 08:57:44',
         '2020-10-08 08:57:44');
-INSERT INTO "session"(`id`, `user_id`, `consultant_id`, `consulting_type`, `message_date`,
+INSERT INTO SESSION(`id`, `user_id`, `consultant_id`, `consulting_type`, `message_date`,
                      `postcode`, `agency_id`, `rc_group_id`, `rc_feedback_group_id`, `status`,
                      `is_team_session`, `create_date`, `update_date`)
 VALUES (1, '1da238c6-cd46-4162-80f1-bff74eafe77f', '473f7c4b-f011-4fc2-847c-ceb636a5b399', 0,
@@ -1170,7 +1170,7 @@ VALUES (1, '1da238c6-cd46-4162-80f1-bff74eafe77f', '473f7c4b-f011-4fc2-847c-ceb6
         '2020-10-08 09:03:48', '12345', 0, 'DJrRTzFg8Ac2BqE8j', NULL, 4, 0,
         '2020-10-08 09:03:47', '2020-10-08 09:03:48');
 
-INSERT INTO "session"(`id`, `user_id`, `consultant_id`, `consulting_type`, `message_date`,
+INSERT INTO SESSION(`id`, `user_id`, `consultant_id`, `consulting_type`, `message_date`,
                      `postcode`, `agency_id`, `rc_group_id`, `rc_feedback_group_id`, `status`,
                      `is_team_session`, `create_date`, `update_date`,
                      `main_topic_id`, `user_age`, `user_gender`, `counselling_relation`)

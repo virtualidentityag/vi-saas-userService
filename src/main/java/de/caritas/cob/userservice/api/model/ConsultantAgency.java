@@ -79,7 +79,7 @@ public class ConsultantAgency implements TenantAware {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id);
+    return id == null ? 0 : Objects.hash(id);
   }
 
   public interface ConsultantAgencyBase {

@@ -41,7 +41,7 @@ import org.springframework.lang.Nullable;
 
 @Entity
 @Builder
-@Table(name = "`session`")
+@Table(name = "SESSION")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

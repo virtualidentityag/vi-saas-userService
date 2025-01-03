@@ -52,8 +52,7 @@ public class RetrieveAdminServiceTenantAwareIT {
     TenantContext.clear();
   }
 
-  @MockBean
-  SecurityConfig securityConfig;
+  @MockBean SecurityConfig securityConfig;
 
   @Test
   public void findAgencyAdmin_Should_returnCorrectAdmin_When_correctIdIsProvided() {

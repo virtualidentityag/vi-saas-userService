@@ -29,6 +29,7 @@ import de.caritas.cob.userservice.api.model.ConsultantAgency;
 import de.caritas.cob.userservice.api.model.Language;
 import de.caritas.cob.userservice.api.port.out.ConsultantAgencyRepository;
 import de.caritas.cob.userservice.api.port.out.ConsultantRepository;
+import de.caritas.cob.userservice.api.port.out.SessionRepository;
 import de.caritas.cob.userservice.api.service.agency.AgencyService;
 import de.caritas.cob.userservice.api.tenant.TenantContext;
 import java.util.List;
@@ -75,8 +76,8 @@ public class ConsultantAgencyAdminUserServiceTenantAwareIT {
 
   private Set<String> consultantsToRemove = Sets.newHashSet();
 
-  @MockBean
-  SecurityConfig securityConfig;
+  @MockBean SecurityConfig securityConfig;
+  @Autowired private SessionRepository sessionRepository;
 
   @BeforeEach
   public void beforeTests() {
@@ -198,6 +199,7 @@ public class ConsultantAgencyAdminUserServiceTenantAwareIT {
   public void
       markConsultantAgencyForDeletion_Should_setDeletedFlagIndatabase_When_consultantAgencyCanBeDeleted() {
     givenAValidConsultantPersisted(CONSULTANT1_ID, true);
+    var sessions = sessionRepository.findAll();
     ConsultantAgency validRelation = this.consultantAgencyRepository.findAll().iterator().next();
     String consultantId = validRelation.getConsultant().getId();
     Long agencyId = validRelation.getAgencyId();

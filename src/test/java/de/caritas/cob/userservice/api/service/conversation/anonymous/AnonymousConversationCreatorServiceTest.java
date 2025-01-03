@@ -119,7 +119,11 @@ class AnonymousConversationCreatorServiceTest {
                   any(RegistrationType.class),
                   any(SessionStatus.class)))
               .thenReturn(SESSION);
-          CreateEnquiryException exception = new CreateEnquiryException("msg", new RuntimeException(), CreateEnquiryExceptionInformation.builder().build());
+          CreateEnquiryException exception =
+              new CreateEnquiryException(
+                  "msg",
+                  new RuntimeException(),
+                  CreateEnquiryExceptionInformation.builder().build());
           when(createEnquiryMessageFacade.createRocketChatRoomAndAddUsers(any(), any(), any()))
               .thenThrow(exception);
           AnonymousUserCredentials credentials =
