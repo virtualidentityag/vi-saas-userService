@@ -45,7 +45,7 @@ public class ConsultantAdminFilterService {
 
       // Obtain a SearchSession from the Hibernate Session
       SearchSession searchSession = Search.session(session);
-      searchSession.massIndexer().startAndWait();
+      searchSession.massIndexer(Consultant.class).startAndWait();
 
       // Build the search query
       var result = fetchConsultants(consultantFilter, searchSession, sort, page, perPage);
