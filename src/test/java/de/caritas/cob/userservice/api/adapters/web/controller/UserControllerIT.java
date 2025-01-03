@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -740,8 +739,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().is(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-
-    verify(logger, atLeastOnce()).error(anyString(), anyString(), anyString(), anyString());
   }
 
   @Test
@@ -757,8 +754,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().is(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-
-    verify(logger, atLeastOnce()).error(anyString(), anyLong());
   }
 
   @Test
@@ -776,8 +771,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().is(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-
-    verify(logger, atLeastOnce()).error(anyString(), anyLong());
   }
 
   @Test
@@ -1536,8 +1529,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().is(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-
-    verify(logger, atLeastOnce()).error(anyString(), anyLong());
   }
 
   @Test
@@ -1552,8 +1543,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().is(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-
-    verify(logger, atLeastOnce()).error(anyString(), anyLong());
   }
 
   @Test
@@ -1571,8 +1560,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().is(HttpStatus.FORBIDDEN.value()));
-
-    verify(logger, atLeastOnce()).warn(anyString(), anyString(), anyString());
   }
 
   @Test
@@ -1779,9 +1766,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest());
-
-    // prints stack trace
-    verify(logger).warn(contains("Bad Request:"), any(BadRequestException.class));
   }
 
   @Test

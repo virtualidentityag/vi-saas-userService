@@ -15,6 +15,7 @@ import com.neovisionaries.i18n.LanguageCode;
 import de.caritas.cob.userservice.api.UserServiceApplication;
 import de.caritas.cob.userservice.api.adapters.web.dto.AgencyDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.CreateConsultantAgencyDTO;
+import de.caritas.cob.userservice.api.config.auth.SecurityConfig;
 import de.caritas.cob.userservice.api.facade.RocketChatFacade;
 import de.caritas.cob.userservice.api.manager.consultingtype.ConsultingTypeManager;
 import de.caritas.cob.userservice.api.model.Consultant;
@@ -80,6 +81,8 @@ public class ConsultantAgencyRelationCreatorServiceTenantAwareIT {
   @MockBean private RocketChatFacade rocketChatFacade;
 
   @MockBean private ConsultingTypeManager consultingTypeManager;
+
+  @MockBean private SecurityConfig securityConfig;
 
   @BeforeEach
   public void beforeTests() {

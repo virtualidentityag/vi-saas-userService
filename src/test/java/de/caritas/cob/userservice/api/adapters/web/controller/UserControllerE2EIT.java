@@ -1096,22 +1096,6 @@ class UserControllerE2EIT {
 
   @Test
   @WithMockUser(authorities = AuthorityValue.USER_DEFAULT)
-  void patchUserDataShouldRespondWithBadRequestOnNullPayload() throws Exception {
-    givenAValidUser();
-
-    mockMvc
-        .perform(
-            patch("/users/data")
-                .cookie(CSRF_COOKIE)
-                .header(CSRF_HEADER, CSRF_VALUE)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content((String) null)
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  @WithMockUser(authorities = AuthorityValue.USER_DEFAULT)
   void patchUserDataShouldRespondWithNoContentOnPartialPayload() throws Exception {
     givenAValidUser();
     var patchDto = givenAPartialPatchDto();

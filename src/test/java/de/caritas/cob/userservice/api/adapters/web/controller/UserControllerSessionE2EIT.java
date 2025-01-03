@@ -844,7 +844,7 @@ class UserControllerSessionE2EIT {
   @WithMockUser(authorities = AuthorityValue.ASSIGN_CONSULTANT_TO_SESSION)
   void removeFromSessionShouldReturnBadRequestIfSessionIdFormatIsInvalid() throws Exception {
     givenAValidConsultant(true);
-    var sessionId = RandomStringUtils.randomAlphabetic(8);
+    var sessionId = "abc";
 
     mockMvc
         .perform(
