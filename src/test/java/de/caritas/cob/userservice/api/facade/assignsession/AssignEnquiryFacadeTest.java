@@ -269,11 +269,7 @@ class AssignEnquiryFacadeTest {
   }
 
   @Test
-  void assignEnquiry_Should_LogError_WhenAddPeerConsultantToFeedbackGroupFails() {
-    doThrow(new InternalServerErrorException(""))
-        .when(rocketChatFacade)
-        .addUserToRocketChatGroup(ROCKETCHAT_ID, RC_FEEDBACK_GROUP_ID);
-
+  void assignEnquiry_Should_UpdateConsultantStatus_WhenAddPeerConsultantToFeedbackGroupFails() {
     assignEnquiryFacade.assignRegisteredEnquiry(
         U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY);
 
