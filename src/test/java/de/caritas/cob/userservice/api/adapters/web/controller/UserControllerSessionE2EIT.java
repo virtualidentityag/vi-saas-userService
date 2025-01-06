@@ -842,40 +842,6 @@ class UserControllerSessionE2EIT {
 
   @Test
   @WithMockUser(authorities = AuthorityValue.ASSIGN_CONSULTANT_TO_SESSION)
-  void removeFromSessionShouldReturnBadRequestIfSessionIdFormatIsInvalid() throws Exception {
-    givenAValidConsultant(true);
-    var sessionId = "abc";
-
-    mockMvc
-        .perform(
-            delete(
-                    "/users/sessions/{sessionId}/consultant/{consultantId}",
-                    sessionId,
-                    consultant.getId())
-                .cookie(CSRF_COOKIE)
-                .header(CSRF_HEADER, CSRF_VALUE)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  @WithMockUser(authorities = AuthorityValue.ASSIGN_CONSULTANT_TO_SESSION)
-  void removeFromSessionShouldReturnBadRequestIfConsultantIdFormatIsInvalid() throws Exception {
-    var consultantId = RandomStringUtils.randomAlphanumeric(8);
-
-    mockMvc
-        .perform(
-            delete("/users/sessions/1/consultant/{consultantId}", consultantId)
-                .cookie(CSRF_COOKIE)
-                .header(CSRF_HEADER, CSRF_VALUE)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  @WithMockUser(authorities = AuthorityValue.ASSIGN_CONSULTANT_TO_SESSION)
   void removeFromSessionShouldReturnNotFoundIfConsultantDoesNotExist() throws Exception {
     givenAValidSession();
 

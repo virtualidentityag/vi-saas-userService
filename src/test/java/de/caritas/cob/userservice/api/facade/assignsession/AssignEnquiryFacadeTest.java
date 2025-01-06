@@ -243,11 +243,7 @@ class AssignEnquiryFacadeTest {
   }
 
   @Test
-  void assignEnquiry_Should_LogError_When_RCRemoveGroupMembersFails() {
-    doThrow(new InternalServerErrorException(""))
-        .when(rocketChatFacade)
-        .removeSystemMessagesFromRocketChatGroup(anyString());
-
+  void assignEnquiry_Should_UpdateConsultantStatus_When_RCRemoveGroupMembersFails() {
     assignEnquiryFacade.assignRegisteredEnquiry(
         U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY);
 

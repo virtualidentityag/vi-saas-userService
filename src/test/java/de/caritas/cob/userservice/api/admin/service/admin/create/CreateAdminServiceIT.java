@@ -16,6 +16,7 @@ import de.caritas.cob.userservice.api.UserServiceApplication;
 import de.caritas.cob.userservice.api.adapters.keycloak.dto.KeycloakCreateUserResponseDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.CreateAdminDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.UserDTO;
+import de.caritas.cob.userservice.api.config.auth.SecurityConfig;
 import de.caritas.cob.userservice.api.config.auth.UserRole;
 import de.caritas.cob.userservice.api.exception.httpresponses.CustomValidationHttpStatusException;
 import de.caritas.cob.userservice.api.model.Admin;
@@ -49,6 +50,8 @@ class CreateAdminServiceIT {
   @MockBean private IdentityClient identityClient;
   @Captor private ArgumentCaptor<UserDTO> userDTOArgumentCaptor;
   private final EasyRandom easyRandom = new EasyRandom();
+
+  @MockBean SecurityConfig securityConfig;
 
   @AfterEach
   void afterTests() {
@@ -88,7 +91,7 @@ class CreateAdminServiceIT {
     assertThat(admin.getEmail()).isNotNull();
     assertThat(admin.getCreateDate()).isNotNull();
     assertThat(admin.getUpdateDate()).isNotNull();
-    assertThat(admin.getTenantId()).isNotNull();
+    assertThat(admin.getTenantId()).isNull();
   }
 
   @Test

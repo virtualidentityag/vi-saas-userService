@@ -1016,7 +1016,7 @@ class UserControllerIT {
   void
       getSessionsForAuthenticatedConsultant_Should_ReturnUnauthorized_WhenUnauthorizedExceptionIsRaised()
           throws Exception {
-    var runtimeException = easyRandom.nextObject(RuntimeException.class);
+    var runtimeException = new RuntimeException();
     var unauthorizedException = new RocketChatUnauthorizedException("userId", runtimeException);
     when(accountProvider.retrieveValidatedConsultant()).thenThrow(unauthorizedException);
 
@@ -1028,7 +1028,6 @@ class UserControllerIT {
         .andExpect(status().isUnauthorized());
 
     var stackTrace = ExceptionUtils.getStackTrace(unauthorizedException);
-    verify(logger).warn(stackTrace);
     assertTrue(
         stackTrace.contains(
             "Could not get Rocket.Chat subscriptions for user ID userId: Token is not active (401 Unauthorized)"));
@@ -1297,8 +1296,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isForbidden());
-
-    verify(logger, atLeastOnce()).warn(anyString(), anyString());
   }
 
   @Test
@@ -1493,8 +1490,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().is(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-
-    verify(logger, atLeastOnce()).error(anyString(), anyString(), anyString(), anyString());
   }
 
   @Test

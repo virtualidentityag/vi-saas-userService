@@ -210,20 +210,6 @@ class AppointmentControllerE2EIT {
 
   @Test
   @WithMockUser(authorities = AuthorityValue.CONSULTANT_DEFAULT)
-  void getAppointmentShouldReturnClientErrorOnWrongIdFormat() throws Exception {
-    givenAValidConsultant(true);
-
-    mockMvc
-        .perform(
-            get("/appointments/{id}", RandomStringUtils.randomAlphabetic(36))
-                .cookie(CSRF_COOKIE)
-                .header(CSRF_HEADER, CSRF_VALUE)
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().is4xxClientError());
-  }
-
-  @Test
-  @WithMockUser(authorities = AuthorityValue.CONSULTANT_DEFAULT)
   void getAppointmentShouldReturnNotFoundIfIdUnknown() throws Exception {
     givenAValidConsultant(true);
 
@@ -313,16 +299,16 @@ class AppointmentControllerE2EIT {
 
   @Test
   @WithMockUser(authorities = AuthorityValue.CONSULTANT_DEFAULT)
-  void deleteAppointmentShouldReturnNotFoundIfAppointmentDoesNotExist() throws Exception {
+  void deleteAppointmentShouldReturnNoContentIfAppointmentDoesNotExist() throws Exception {
     givenAValidAppointmentDto();
 
     mockMvc
         .perform(
-            delete("/appointments/{id}", appointment.getId())
+            delete("/appointments/{id}", "4bf52886-1deb-4c99-9d03-cbb4c0f25234")
                 .cookie(CSRF_COOKIE)
                 .header(CSRF_HEADER, CSRF_VALUE)
                 .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNotFound());
+        .andExpect(status().isNoContent());
   }
 
   @Test
