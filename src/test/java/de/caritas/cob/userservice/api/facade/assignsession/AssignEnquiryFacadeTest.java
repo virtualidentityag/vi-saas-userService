@@ -7,7 +7,6 @@ import static de.caritas.cob.userservice.api.testHelper.TestConstants.ANONYMOUS_
 import static de.caritas.cob.userservice.api.testHelper.TestConstants.CONSULTANT_WITH_AGENCY;
 import static de.caritas.cob.userservice.api.testHelper.TestConstants.FEEDBACKSESSION_WITHOUT_CONSULTANT;
 import static de.caritas.cob.userservice.api.testHelper.TestConstants.LIST_GROUP_MEMBER_DTO;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.RC_FEEDBACK_GROUP_ID;
 import static de.caritas.cob.userservice.api.testHelper.TestConstants.RC_GROUP_ID;
 import static de.caritas.cob.userservice.api.testHelper.TestConstants.ROCKETCHAT_ID;
 import static de.caritas.cob.userservice.api.testHelper.TestConstants.ROCKET_CHAT_SYSTEM_USER_ID;
