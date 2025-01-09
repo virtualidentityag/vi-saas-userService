@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotNull;
 import java.util.stream.Collectors;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
-import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.KeycloakConfigResolver;
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
@@ -42,12 +41,6 @@ public class KeycloakConfig {
   @Scope(scopeName = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
   KeycloakAuthenticationToken keycloakAuthenticationToken(HttpServletRequest request) {
     return (KeycloakAuthenticationToken) request.getUserPrincipal();
-  }
-
-  @Bean
-  @Scope(scopeName = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
-  KeycloakSecurityContext keycloakSecurityContext(KeycloakAuthenticationToken token) {
-    return token.getAccount().getKeycloakSecurityContext();
   }
 
   @Bean

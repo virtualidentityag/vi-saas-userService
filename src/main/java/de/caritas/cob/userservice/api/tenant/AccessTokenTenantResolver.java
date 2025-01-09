@@ -5,8 +5,9 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.keycloak.KeycloakSecurityContext;
-import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
@@ -18,30 +19,36 @@ public class AccessTokenTenantResolver implements TenantResolver {
 
   @Override
   public Optional<Long> resolve(HttpServletRequest request) {
-    return resolveTenantIdFromTokenClaims(request);
+    return resolveTenantIdFromTokenClaims();
   }
 
-  private Optional<Long> resolveTenantIdFromTokenClaims(HttpServletRequest request) {
-    Map<String, Object> claimMap = getClaimMap(request);
+  private Optional<Long> resolveTenantIdFromTokenClaims() {
+    Map<String, Object> claimMap = getClaimMap();
     log.debug("Found tenantId in claim : " + claimMap.toString());
     return getUserTenantIdAttribute(claimMap);
   }
 
   private Optional<Long> getUserTenantIdAttribute(Map<String, Object> claimMap) {
     if (claimMap.containsKey(TENANT_ID)) {
-      Integer tenantId = (Integer) claimMap.get(TENANT_ID);
-      return Optional.of(Long.valueOf(tenantId));
-    } else {
-      return Optional.empty();
+      Object tenantIdObject = claimMap.get(TENANT_ID);
+      if (tenantIdObject instanceof Long tenantId) {
+        return Optional.of(tenantId);
+      }
+      if (tenantIdObject instanceof Integer tenantId) {
+        return Optional.of(Long.valueOf(tenantId));
+      }
     }
+    return Optional.empty();
   }
 
-  private Map<String, Object> getClaimMap(HttpServletRequest request) {
-    KeycloakSecurityContext keycloakSecContext =
-        ((KeycloakAuthenticationToken) request.getUserPrincipal())
-            .getAccount()
-            .getKeycloakSecurityContext();
-    return keycloakSecContext.getToken().getOtherClaims();
+  private Map<String, Object> getClaimMap() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication != null) {
+      var jwt = (Jwt) authentication.getPrincipal();
+      return jwt.getClaims();
+    } else {
+      return Map.of();
+    }
   }
 
   @Override
