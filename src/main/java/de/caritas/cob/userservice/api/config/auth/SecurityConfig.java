@@ -248,7 +248,7 @@ public class SecurityConfig implements WebMvcConfigurer {
    */
   private HttpSecurity enableTenantFilterIfMultitenancyEnabled(HttpSecurity httpSecurity) {
     if (multitenancy) {
-      httpSecurity = httpSecurity.addFilterAfter(this.tenantFilter, StatelessCsrfFilter.class);
+      httpSecurity = httpSecurity.addFilter(this.tenantFilter);
     }
     return httpSecurity;
   }
