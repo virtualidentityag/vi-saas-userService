@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ConsultantUpdateServiceTenantAwareIT extends ConsultantUpdateServiceBase {
 
-  protected String VALID_CONSULTANT_ID = "0b3b1cc6-be98-4787-aa56-212259d811b8";
+  protected String validConsultantId = "0b3b1cc6-be98-4787-aa56-212259d811b8";
 
   private final EasyRandom easyRandom = new EasyRandom();
 
@@ -50,24 +50,24 @@ public class ConsultantUpdateServiceTenantAwareIT extends ConsultantUpdateServic
 
   @Test
   public void updateConsultant_Should_returnUpdatedPersistedConsultant_When_inputDataIsValid() {
-    givenAValidConsultantPersisted(VALID_CONSULTANT_ID);
+    givenAValidConsultantPersisted(validConsultantId);
     super.updateConsultant_Should_returnUpdatedPersistedConsultant_When_inputDataIsValid();
   }
 
   @Test
   public void updateConsultant_Should_throwCustomResponseException_When_absenceIsInvalid() {
-    givenAValidConsultantPersisted(VALID_CONSULTANT_ID);
+    givenAValidConsultantPersisted(validConsultantId);
     super.updateConsultant_Should_throwCustomResponseException_When_absenceIsInvalid();
   }
 
   @Test
   public void updateConsultant_Should_throwCustomResponseException_When_newEmailIsInvalid() {
-    givenAValidConsultantPersisted(VALID_CONSULTANT_ID);
+    givenAValidConsultantPersisted(validConsultantId);
     super.updateConsultant_Should_throwCustomResponseException_When_newEmailIsInvalid();
   }
 
   protected String getValidConsultantId() {
-    return VALID_CONSULTANT_ID;
+    return validConsultantId;
   }
 
   private Consultant givenAValidConsultantPersisted(String id, boolean isTeamConsultant) {

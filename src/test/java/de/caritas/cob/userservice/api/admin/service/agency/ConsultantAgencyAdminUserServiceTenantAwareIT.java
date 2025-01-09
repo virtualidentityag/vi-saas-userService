@@ -50,10 +50,10 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureTestDatabase(replace = Replace.ANY)
 @TestPropertySource(properties = "multitenancy.enabled=true")
 @Transactional
-public class ConsultantAgencyAdminUserServiceTenantAwareIT {
+class ConsultantAgencyAdminUserServiceTenantAwareIT {
 
-  public static final String CONSULTANT1_ID = "0b3b1cc6-be98-4787-aa56-212259d811b8";
-  public static final String CONSULTANT2_ID = "0b3b1cc6-be98-4787-aa56-212259d811b7";
+  static final String CONSULTANT1_ID = "0b3b1cc6-be98-4787-aa56-212259d811b8";
+  static final String CONSULTANT2_ID = "0b3b1cc6-be98-4787-aa56-212259d811b7";
 
   @Autowired private ConsultantAgencyAdminService consultantAgencyAdminService;
 
@@ -78,18 +78,18 @@ public class ConsultantAgencyAdminUserServiceTenantAwareIT {
   @Autowired private SessionRepository sessionRepository;
 
   @BeforeEach
-  public void beforeTests() {
+  void beforeTests() {
     TenantContext.setCurrentTenant(1L);
   }
 
   @AfterEach
-  public void afterTests() {
+  void afterTests() {
     consultantsToRemove.stream().forEach(id -> consultantRepository.deleteById(id));
     TenantContext.clear();
   }
 
   @Test
-  public void
+  void
       findConsultantAgencies_Should_returnAllConsultantAgenciesForGivenConsultantId_with_correctConsultantId() {
     givenAValidConsultantPersisted(CONSULTANT1_ID);
     var agencyAdminResponseDTO = new EasyRandom().nextObject(AgencyAdminResponseDTO.class);
@@ -110,7 +110,7 @@ public class ConsultantAgencyAdminUserServiceTenantAwareIT {
   }
 
   @Test
-  public void findConsultantAgencies_Should_returnFullMappedSessionAdminDTO() {
+  void findConsultantAgencies_Should_returnFullMappedSessionAdminDTO() {
     givenAValidConsultantPersisted(CONSULTANT2_ID);
     var agencyAdminResponseDTO = new EasyRandom().nextObject(AgencyAdminResponseDTO.class);
     agencyAdminResponseDTO.setId(1L);
@@ -128,7 +128,7 @@ public class ConsultantAgencyAdminUserServiceTenantAwareIT {
   }
 
   @Test
-  public void findConsultantAgencies_Should_returnEmptyResult_with_incorrectConsultantId() {
+  void findConsultantAgencies_Should_returnEmptyResult_with_incorrectConsultantId() {
     try {
       givenAValidConsultantPersisted(CONSULTANT1_ID);
       consultantAgencyAdminService.findConsultantAgencies("12345678-1234-1234-1234-1234567890ab");
@@ -142,8 +142,7 @@ public class ConsultantAgencyAdminUserServiceTenantAwareIT {
   }
 
   @Test
-  public void
-      markAllAssignedConsultantsAsTeamConsultant_Should_markAssignedConsultantsAsTeamConsultant() {
+  void markAllAssignedConsultantsAsTeamConsultant_Should_markAssignedConsultantsAsTeamConsultant() {
     givenAValidConsultantPersisted(CONSULTANT1_ID);
     long teamConsultantsBefore =
         this.consultantRepository
@@ -166,7 +165,7 @@ public class ConsultantAgencyAdminUserServiceTenantAwareIT {
   }
 
   @Test
-  public void
+  void
       removeConsultantsFromTeamSessionsByAgencyId_Should_removeTeamConsultantFlagAndCallServices() {
     givenAValidConsultantPersisted(CONSULTANT1_ID, true);
     when(this.agencyService.getAgency(any())).thenReturn(new AgencyDTO().teamAgency(false));
@@ -194,10 +193,9 @@ public class ConsultantAgencyAdminUserServiceTenantAwareIT {
   }
 
   @Test
-  public void
+  void
       markConsultantAgencyForDeletion_Should_setDeletedFlagIndatabase_When_consultantAgencyCanBeDeleted() {
     givenAValidConsultantPersisted(CONSULTANT1_ID, true);
-    var sessions = sessionRepository.findAll();
     ConsultantAgency validRelation = this.consultantAgencyRepository.findAll().iterator().next();
     String consultantId = validRelation.getConsultant().getId();
     Long agencyId = validRelation.getAgencyId();
@@ -212,8 +210,7 @@ public class ConsultantAgencyAdminUserServiceTenantAwareIT {
   }
 
   @Test
-  public void
-      findConsultantsForAgency_Should_returnExpectedConsultants_When_agencyHasConsultatns() {
+  void findConsultantsForAgency_Should_returnExpectedConsultants_When_agencyHasConsultatns() {
     givenAValidConsultantPersisted(CONSULTANT1_ID);
     givenAValidConsultantPersisted(CONSULTANT2_ID);
     var consultantsOfAgency = this.consultantAgencyAdminService.findConsultantsForAgency(1L);
