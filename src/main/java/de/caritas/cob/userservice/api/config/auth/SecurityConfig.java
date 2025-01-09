@@ -39,7 +39,7 @@ public class SecurityConfig implements WebMvcConfigurer {
       "\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b";
   public static final String APPOINTMENTS_APPOINTMENT_ID = "/appointments/{appointmentId:";
 
-  private final CsrfSecurityProperties csrfSecurityProperties;
+  @Autowired CsrfSecurityProperties csrfSecurityProperties;
 
   @Autowired AuthorisationService authorisationService;
   @Autowired JwtAuthConverterProperties jwtAuthConverterProperties;
@@ -55,6 +55,7 @@ public class SecurityConfig implements WebMvcConfigurer {
   @Value("${multitenancy.enabled}")
   private boolean multitenancy;
 
+  @Autowired(required = false)
   private HttpTenantFilter tenantFilter;
 
   /**
@@ -248,7 +249,7 @@ public class SecurityConfig implements WebMvcConfigurer {
    */
   private HttpSecurity enableTenantFilterIfMultitenancyEnabled(HttpSecurity httpSecurity) {
     if (multitenancy) {
-      httpSecurity = httpSecurity.addFilter(this.tenantFilter);
+      httpSecurity = httpSecurity.addFilterAfter(this.tenantFilter, CsrfFilter.class);
     }
     return httpSecurity;
   }

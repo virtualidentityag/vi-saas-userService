@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.hasSize;
 import de.caritas.cob.userservice.api.UserServiceApplication;
 import de.caritas.cob.userservice.api.adapters.web.dto.SessionAdminResultDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.SessionFilter;
-import de.caritas.cob.userservice.api.config.auth.SecurityConfig;
 import de.caritas.cob.userservice.api.port.out.SessionRepository;
 import de.caritas.cob.userservice.api.tenant.TenantContext;
 import org.junit.jupiter.api.AfterEach;
@@ -16,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
@@ -34,8 +32,6 @@ class SessionAdminServiceTenantAwareIT {
   @Autowired private SessionAdminService sessionAdminService;
 
   @Autowired private SessionRepository sessionRepository;
-
-  @MockBean SecurityConfig securityConfig;
 
   @BeforeEach
   void beforeTests() {

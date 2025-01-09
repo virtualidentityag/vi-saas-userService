@@ -22,7 +22,6 @@ import de.caritas.cob.userservice.api.Organizer;
 import de.caritas.cob.userservice.api.UserServiceApplication;
 import de.caritas.cob.userservice.api.adapters.web.dto.AgencyDTO;
 import de.caritas.cob.userservice.api.admin.service.consultant.create.agencyrelation.ConsultantAgencyRelationCreatorService;
-import de.caritas.cob.userservice.api.config.auth.SecurityConfig;
 import de.caritas.cob.userservice.api.exception.httpresponses.BadRequestException;
 import de.caritas.cob.userservice.api.model.Consultant;
 import de.caritas.cob.userservice.api.model.ConsultantAgency;
@@ -76,7 +75,6 @@ public class ConsultantAgencyAdminUserServiceTenantAwareIT {
 
   private Set<String> consultantsToRemove = Sets.newHashSet();
 
-  @MockBean SecurityConfig securityConfig;
   @Autowired private SessionRepository sessionRepository;
 
   @BeforeEach

@@ -3,7 +3,6 @@ package de.caritas.cob.userservice.api.admin.service.consultant.update;
 import com.google.api.client.util.Sets;
 import com.neovisionaries.i18n.LanguageCode;
 import de.caritas.cob.userservice.api.UserServiceApplication;
-import de.caritas.cob.userservice.api.config.auth.SecurityConfig;
 import de.caritas.cob.userservice.api.model.Consultant;
 import de.caritas.cob.userservice.api.model.ConsultantAgency;
 import de.caritas.cob.userservice.api.model.Language;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,8 +47,6 @@ public class ConsultantUpdateServiceTenantAwareIT extends ConsultantUpdateServic
     consultantsToRemove.stream().forEach(id -> consultantRepository.deleteById(id));
     TenantContext.clear();
   }
-
-  @MockBean SecurityConfig securityConfig;
 
   @Test
   public void updateConsultant_Should_returnUpdatedPersistedConsultant_When_inputDataIsValid() {
