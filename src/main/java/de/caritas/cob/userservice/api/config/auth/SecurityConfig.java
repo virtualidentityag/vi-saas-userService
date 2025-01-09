@@ -22,6 +22,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
@@ -251,7 +252,7 @@ public class SecurityConfig implements WebMvcConfigurer {
   private HttpSecurity enableTenantFilterIfMultitenancyEnabled(HttpSecurity httpSecurity) {
     if (multitenancy) {
       httpSecurity =
-          httpSecurity.addFilterAfter(this.tenantFilter, KeycloakAuthenticatedActionsFilter.class);
+          httpSecurity.addFilterAfter(this.tenantFilter, BearerTokenAuthenticationFilter.class);
     }
     return httpSecurity;
   }
