@@ -250,7 +250,8 @@ public class SecurityConfig implements WebMvcConfigurer {
    */
   private HttpSecurity enableTenantFilterIfMultitenancyEnabled(HttpSecurity httpSecurity) {
     if (multitenancy) {
-      httpSecurity = httpSecurity.addFilterAfter(this.tenantFilter, KeycloakAuthenticatedActionsFilter.class);
+      httpSecurity =
+          httpSecurity.addFilterAfter(this.tenantFilter, KeycloakAuthenticatedActionsFilter.class);
     }
     return httpSecurity;
   }
