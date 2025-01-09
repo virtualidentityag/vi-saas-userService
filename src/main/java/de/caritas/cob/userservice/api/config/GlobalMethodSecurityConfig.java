@@ -18,7 +18,7 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = false)
-@EnableGlobalMethodSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true)
 public class GlobalMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
   @Override
