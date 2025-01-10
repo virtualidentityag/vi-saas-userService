@@ -6,15 +6,13 @@ import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 @ExtendWith(MockitoExtension.class)
 class TenantResolverServiceTest {
@@ -29,7 +27,7 @@ class TenantResolverServiceTest {
 
   @Mock HttpServletRequest nonAuthenticatedRequest;
 
-  @Mock KeycloakAuthenticationToken token;
+  @Mock JwtAuthenticationToken token;
 
   @InjectMocks TenantResolverService tenantResolverService;
 
@@ -39,11 +37,6 @@ class TenantResolverServiceTest {
 
   @Mock
   private MultitenancyWithSingleDomainTenantResolver multitenancyWithSingleDomainTenantResolver;
-
-  @BeforeEach
-  public void setUp() {
-    token = Mockito.mock(KeycloakAuthenticationToken.class, Mockito.RETURNS_DEEP_STUBS);
-  }
 
   @Test
   void resolve_Should_ResolveFromAccessTokenForAuthenticatedUser_And_PassValidation() {
