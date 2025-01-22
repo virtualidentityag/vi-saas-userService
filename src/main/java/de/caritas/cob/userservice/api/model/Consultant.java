@@ -173,7 +173,11 @@ public class Consultant implements TenantAware, NotificationsAware {
   private Boolean walkThroughEnabled;
 
   @Enumerated(EnumType.STRING)
-  @Column(length = 2, nullable = false, columnDefinition = "varchar(2) default 'de'")
+  @Column(
+      length = 2,
+      nullable = false,
+      name = "language_code",
+      columnDefinition = "varchar(2) default 'de'")
   private LanguageCode languageCode;
 
   @Column(name = "terms_and_conditions_confirmation", columnDefinition = "datetime")
