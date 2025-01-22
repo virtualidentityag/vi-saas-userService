@@ -135,7 +135,11 @@ public class Session implements TenantAware {
   private Long agencyId;
 
   @Enumerated(EnumType.STRING)
-  @Column(name="language_code", columnDefinition = "varchar(2) not null default 'de'", length = 2, nullable = false)
+  @Column(
+      name = "language_code",
+      columnDefinition = "varchar(2) not null default 'de'",
+      length = 2,
+      nullable = false)
   private LanguageCode languageCode;
 
   @NonNull
@@ -162,7 +166,10 @@ public class Session implements TenantAware {
   @Column(name = "is_peer_chat", columnDefinition = "tinyint default '0'")
   private boolean isPeerChat;
 
-  @Column(name="is_consultant_directly_set", nullable = false, columnDefinition = "bit default false")
+  @Column(
+      name = "is_consultant_directly_set",
+      nullable = false,
+      columnDefinition = "bit default false")
   private Boolean isConsultantDirectlySet;
 
   public boolean hasFeedbackChat() {

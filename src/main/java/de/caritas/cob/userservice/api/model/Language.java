@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Table(name="language")
+@Table(name = "language")
 @Getter
 @Setter
 @ToString
@@ -40,6 +40,6 @@ public class Language {
 
   @Id
   @Enumerated(EnumType.STRING)
-  @Column(length = 2)
+  @Column(length = 2, name = "language_code")
   private LanguageCode languageCode;
 }
