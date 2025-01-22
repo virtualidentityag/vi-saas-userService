@@ -33,7 +33,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /** Represents a user */
 @Entity
-@Table(name = "`user`")
+@Table(name = "_USER")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
