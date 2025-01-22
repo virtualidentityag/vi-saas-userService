@@ -21,7 +21,7 @@ import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.GenericGenerator;
 
-@Table
+@Table(name = "appointment")
 @Entity
 @Getter
 @Setter
