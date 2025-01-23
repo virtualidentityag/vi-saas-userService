@@ -5,6 +5,7 @@ import static de.caritas.cob.userservice.mailservice.generated.web.model.Dialect
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.neovisionaries.i18n.LanguageCode;
+import de.caritas.cob.userservice.mailservice.generated.web.model.Dialect;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -157,7 +158,7 @@ public class User implements TenantAware, NotificationsAware {
 
   @JsonIgnore
   @Transient
-  public de.caritas.cob.userservice.mailservice.generated.web.model.Dialect getDialect() {
+  public Dialect getDialect() {
     return isLanguageFormal() ? FORMAL : INFORMAL;
   }
 }

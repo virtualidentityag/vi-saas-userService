@@ -43,13 +43,10 @@ public class ConsultantAdminFilterService {
     try (var entityManager = entityManagerFactory.createEntityManager()) {
       var session = entityManager.unwrap(Session.class);
 
-      // Obtain a SearchSession from the Hibernate Session
       synchronized (this) {
         var searchSession = Search.session(session);
         searchSession.massIndexer(Consultant.class).startAndWait();
-        // Build the search query
         var result = fetchConsultants(consultantFilter, searchSession, sort, page, perPage);
-        // Build the result
         return convertToSearchResultDTO(result, page, perPage);
       }
     } catch (InterruptedException e) {
@@ -90,49 +87,41 @@ public class ConsultantAdminFilterService {
                 f ->
                     f.bool(
                         bool -> {
-                          // If no filters are applied, match all records
                           if (consultantFilter.getUsername() == null
                               && consultantFilter.getLastname() == null
                               && consultantFilter.getEmail() == null
                               && consultantFilter.getAgencyId() == null) {
                             bool.must(f.matchAll()); // Match all documents if no filter is set
                           }
-                          // Apply username filter if present
                           if (consultantFilter.getUsername() != null) {
                             bool.must(
                                 f.match()
                                     .field("username")
                                     .matching(consultantFilter.getUsername()));
                           }
-                          // Apply lastname filter if present
                           if (consultantFilter.getLastname() != null) {
                             bool.must(
                                 f.match()
                                     .field("lastName")
                                     .matching(consultantFilter.getLastname()));
                           }
-                          // Apply email filter if present
                           if (consultantFilter.getEmail() != null) {
                             bool.must(
                                 f.match().field("email").matching(consultantFilter.getEmail()));
                           }
-                          // Apply agencyId filter if present
                           if (consultantFilter.getAgencyId() != null) {
                             bool.must(
                                 f.nested()
                                     .objectField(
                                         "consultantAgencies") // Navigate to the consultantAgencies
-                                    // field
                                     .nest(
                                         f.match()
                                             .field("consultantAgencies.agencyId") // Match agencyId
-                                            // within
-                                            // consultantAgencies
                                             .matching(consultantFilter.getAgencyId())));
                           }
                         }))
-            .sort(f -> buildSort(f, sortDefinition)) // Apply sorting here
-            .fetch(offset, Math.max(perPage, 1)); // Apply pagination
+            .sort(f -> buildSort(f, sortDefinition))
+            .fetch(offset, Math.max(perPage, 1));
 
     return new SearchPaginatedResult<Consultant>(
         fetchedResult.hits(), fetchedResult.total().hitCount());

@@ -35,16 +35,9 @@ public class AdminFilterService {
     try (var entityManager = entityManagerFactory.createEntityManager()) {
       var session = entityManager.unwrap(Session.class);
 
-      // Obtain a SearchSession from the Hibernate Session
       SearchSession searchSession = Search.session(session);
-
-      // Ensure the sort is valid
       sort = getValidSorter(sort);
-
-      // Build the search query
       var admins = fetchAdmins(adminFilter, searchSession, sort, page, perPage);
-
-      // Build the result
       return convertToSearchResultDTO(admins);
     }
   }
@@ -73,25 +66,21 @@ public class AdminFilterService {
             f ->
                 f.bool(
                     bool -> {
-                      // Apply username filter if present
                       if (adminFilter.getUsername() != null) {
                         bool.must(f.match().field("username").matching(adminFilter.getUsername()));
                       }
-                      // Apply lastname filter if present
                       if (adminFilter.getLastname() != null) {
                         bool.must(f.match().field("lastname").matching(adminFilter.getLastname()));
                       }
-                      // Apply email filter if present
                       if (adminFilter.getEmail() != null) {
                         bool.must(f.match().field("email").matching(adminFilter.getEmail()));
                       }
-                      // Apply agencyId filter if present
                       if (adminFilter.getAgencyId() != null) {
                         bool.must(f.match().field("agencyId").matching(adminFilter.getAgencyId()));
                       }
                     }))
-        .sort(f -> buildSort(f, sortDefinition)) // Apply sorting here
-        .fetchHits(offset, Math.max(perPage, 1)); // Apply pagination
+        .sort(f -> buildSort(f, sortDefinition))
+        .fetchHits(offset, Math.max(perPage, 1));
   }
 
   private SortFinalStep buildSort(SearchSortFactory factory, Sort sort) {
