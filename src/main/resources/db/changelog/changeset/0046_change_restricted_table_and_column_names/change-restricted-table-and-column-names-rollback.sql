@@ -1,0 +1,3 @@
+RENAME TABLE IF EXISTS `SESSION` TO `session`;
+RENAME TABLE IF EXISTS `_USER` TO `user`;
+ALTER TABLE `session_data` CHANGE COLUMN `value_` `value` VARCHAR(255);
