@@ -63,7 +63,7 @@ public class SessionData {
   @NonNull
   private String key;
 
-  @Column(name = "value")
+  @Column(name = "value_")
   @Size(max = 255)
   private String value;
 
