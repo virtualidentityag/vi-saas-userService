@@ -671,7 +671,6 @@ public class RocketChatService implements MessageClient {
     if (response != null && !response.isSuccess()) {
       var error = "Could not remove user %s from Rocket.Chat group with id %s";
       throw new RocketChatRemoveUserFromGroupException(error.formatted(rcUserId, rcGroupId));
-         String.format(COULD_NOT_REMOVE_USER_FROM_ROCKET_CHAT_GROUP, rcUserId, rcGroupId));
     }
   }
 
@@ -1352,8 +1351,7 @@ public class RocketChatService implements MessageClient {
             rcGroupId,
             ex);
         throw new RocketChatRemoveUserFromGroupException(
-            String.format(                                     
-              COULD_NOT_REMOVE_USER_FROM_ROCKET_CHAT_GROUP , rcUserId, rcGroupId));
+            String.format(COULD_NOT_REMOVE_USER_FROM_ROCKET_CHAT_GROUP, rcUserId, rcGroupId));
       }
 
       if (response != null && !response.isSuccess()) {
