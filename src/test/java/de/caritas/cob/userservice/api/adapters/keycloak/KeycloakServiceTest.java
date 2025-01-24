@@ -40,9 +40,9 @@ import de.caritas.cob.userservice.api.helper.UserHelper;
 import de.caritas.cob.userservice.api.helper.UsernameTranscoder;
 import de.caritas.cob.userservice.api.port.out.IdentityClientConfig;
 import de.caritas.cob.userservice.api.tenant.TenantContext;
-import jakarta.ws.rs.BadRequestException;
 import java.util.HashMap;
 import java.util.List;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jeasy.random.EasyRandom;
@@ -150,7 +150,8 @@ public class KeycloakServiceTest {
 
   @Test
   public void loginUser_Should_ReturnBadRequest_When_KeycloakLoginFails() {
-    var exception = Mockito.mock(RestClientResponseException.class);
+    var exception =
+        new RestClientResponseException("Not Found", 404, "Not Found", null, null, null);
     when(restTemplate.postForEntity(
             ArgumentMatchers.anyString(),
             any(),

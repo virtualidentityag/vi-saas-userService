@@ -12,6 +12,7 @@ import de.caritas.cob.userservice.api.model.User;
 import de.caritas.cob.userservice.api.model.UserMobileToken;
 import de.caritas.cob.userservice.api.port.out.UserMobileTokenRepository;
 import de.caritas.cob.userservice.api.port.out.UserRepository;
+import de.caritas.cob.userservice.api.tenant.TenantContext;
 import java.util.List;
 import java.util.Optional;
 import lombok.NonNull;
@@ -76,6 +77,9 @@ public class UserService {
     auditingHandler.markCreated(user);
     if (nonNull(preferredLanguage)) {
       user.setLanguageCode(LanguageCode.valueOf(preferredLanguage));
+    }
+    if (user.getTenantId() == null && !TenantContext.isTechnicalOrSuperAdminContext()) {
+      user.setTenantId(TenantContext.getCurrentTenant());
     }
 
     return userRepository.save(user);
