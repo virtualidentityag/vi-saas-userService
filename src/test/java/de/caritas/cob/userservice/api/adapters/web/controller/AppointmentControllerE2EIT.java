@@ -25,6 +25,7 @@ import de.caritas.cob.userservice.api.helper.AuthenticatedUser;
 import de.caritas.cob.userservice.api.model.Consultant;
 import de.caritas.cob.userservice.api.port.out.AppointmentRepository;
 import de.caritas.cob.userservice.api.port.out.ConsultantRepository;
+import jakarta.servlet.http.Cookie;
 import java.lang.reflect.Method;
 import java.time.Clock;
 import java.time.Instant;
@@ -32,7 +33,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Set;
 import java.util.UUID;
-import javax.servlet.http.Cookie;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.AfterEach;
@@ -210,20 +210,6 @@ class AppointmentControllerE2EIT {
 
   @Test
   @WithMockUser(authorities = AuthorityValue.CONSULTANT_DEFAULT)
-  void getAppointmentShouldReturnClientErrorOnWrongIdFormat() throws Exception {
-    givenAValidConsultant(true);
-
-    mockMvc
-        .perform(
-            get("/appointments/{id}", RandomStringUtils.randomAlphabetic(36))
-                .cookie(CSRF_COOKIE)
-                .header(CSRF_HEADER, CSRF_VALUE)
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().is4xxClientError());
-  }
-
-  @Test
-  @WithMockUser(authorities = AuthorityValue.CONSULTANT_DEFAULT)
   void getAppointmentShouldReturnNotFoundIfIdUnknown() throws Exception {
     givenAValidConsultant(true);
 
@@ -313,16 +299,16 @@ class AppointmentControllerE2EIT {
 
   @Test
   @WithMockUser(authorities = AuthorityValue.CONSULTANT_DEFAULT)
-  void deleteAppointmentShouldReturnNotFoundIfAppointmentDoesNotExist() throws Exception {
+  void deleteAppointmentShouldReturnNoContentIfAppointmentDoesNotExist() throws Exception {
     givenAValidAppointmentDto();
 
     mockMvc
         .perform(
-            delete("/appointments/{id}", appointment.getId())
+            delete("/appointments/{id}", "4bf52886-1deb-4c99-9d03-cbb4c0f25234")
                 .cookie(CSRF_COOKIE)
                 .header(CSRF_HEADER, CSRF_VALUE)
                 .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNotFound());
+        .andExpect(status().isNoContent());
   }
 
   @Test

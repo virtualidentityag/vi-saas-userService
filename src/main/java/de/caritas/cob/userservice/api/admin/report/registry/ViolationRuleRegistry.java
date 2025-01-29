@@ -48,8 +48,8 @@ public class ViolationRuleRegistry {
             : new ArrayList<>(this.violationReportRules);
     reportingRules.forEach(
         reportRule -> {
-          if (reportRule instanceof AgencyDependedViolationReportRule) {
-            ((AgencyDependedViolationReportRule) reportRule).setAllAgencies(allAgencies);
+          if (reportRule instanceof AgencyDependedViolationReportRule rule) {
+            rule.setAllAgencies(allAgencies);
           }
         });
     return reportingRules;

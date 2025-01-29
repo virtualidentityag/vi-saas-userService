@@ -29,13 +29,13 @@ import de.caritas.cob.userservice.api.port.out.ConsultantRepository;
 import de.caritas.cob.userservice.api.testConfig.TestAgencyControllerApi;
 import de.caritas.cob.userservice.consultingtypeservice.generated.web.model.ExtendedConsultingTypeResponseDTO;
 import de.caritas.cob.userservice.consultingtypeservice.generated.web.model.RolesDTO;
+import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
 import org.jeasy.random.EasyRandom;
 import org.jeasy.random.EasyRandomParameters;
 import org.jeasy.random.FieldPredicates;
@@ -78,7 +78,7 @@ class ConsultantAdminFacadeIT {
             1,
             100,
             new ConsultantFilter(),
-            new Sort().field(FieldEnum.FIRSTNAME).order(OrderEnum.ASC));
+            new Sort().field(FieldEnum.FIRST_NAME).order(OrderEnum.ASC));
     var resultConsultant =
         searchResult.getEmbedded().stream()
             .filter(
@@ -102,7 +102,7 @@ class ConsultantAdminFacadeIT {
             1,
             100,
             new ConsultantFilter(),
-            new Sort().field(FieldEnum.FIRSTNAME).order(OrderEnum.ASC));
+            new Sort().field(FieldEnum.FIRST_NAME).order(OrderEnum.ASC));
     var resultConsultant =
         searchResult.getEmbedded().stream()
             .filter(
@@ -201,7 +201,7 @@ class ConsultantAdminFacadeIT {
 
     var searchResult =
         this.consultantAdminFacade.findFilteredConsultants(
-            1, 100, consultantFilter, new Sort().field(FieldEnum.FIRSTNAME).order(OrderEnum.ASC));
+            1, 100, consultantFilter, new Sort().field(FieldEnum.FIRST_NAME).order(OrderEnum.ASC));
 
     assertThat(searchResult.getEmbedded(), hasSize(0));
 
@@ -209,7 +209,7 @@ class ConsultantAdminFacadeIT {
 
     searchResult =
         this.consultantAdminFacade.findFilteredConsultants(
-            1, 100, consultantFilter, new Sort().field(FieldEnum.FIRSTNAME).order(OrderEnum.ASC));
+            1, 100, consultantFilter, new Sort().field(FieldEnum.FIRST_NAME).order(OrderEnum.ASC));
     assertThat(searchResult.getEmbedded(), hasSize(greaterThanOrEqualTo(1)));
   }
 

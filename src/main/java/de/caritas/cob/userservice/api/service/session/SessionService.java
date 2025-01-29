@@ -625,8 +625,7 @@ public class SessionService {
   }
 
   private Supplier<BadRequestException> newBadRequestException(String userId) {
-    return () ->
-        new BadRequestException(String.format("Consultant with id %s does not exist", userId));
+    return () -> new BadRequestException("Consultant with id %s does not exist".formatted(userId));
   }
 
   private ConsultantSessionDTO toConsultantSessionDTO(Session session) {
@@ -750,13 +749,12 @@ public class SessionService {
   public String findGroupIdByConsultantAndUser(String consultantId, String askerId) {
 
     Optional<Consultant> consultant = consultantService.getConsultant(consultantId);
-    if (!consultant.isPresent()) {
-      throw new BadRequestException(
-          String.format("Consultant for given id %s not found", consultantId));
+    if (consultant.isEmpty()) {
+      throw new BadRequestException("Consultant for given id %s not found".formatted(consultantId));
     }
     Optional<User> user = userService.getUser(askerId);
-    if (!user.isPresent()) {
-      throw new BadRequestException(String.format("Asker for given id %s not found", askerId));
+    if (user.isEmpty()) {
+      throw new BadRequestException("Asker for given id %s not found".formatted(askerId));
     }
 
     List<Session> sessions =

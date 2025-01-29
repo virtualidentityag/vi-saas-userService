@@ -621,7 +621,7 @@ class SessionServiceTest {
 
     verifyNoInteractions(sessionTopicEnrichmentService);
     assertNull(result.getMainTopic());
-    assertNull(result.getTopics());
+    assertThat(result.getTopics()).isEmpty();
   }
 
   @Test

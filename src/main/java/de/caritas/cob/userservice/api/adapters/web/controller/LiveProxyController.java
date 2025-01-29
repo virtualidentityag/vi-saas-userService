@@ -2,7 +2,7 @@ package de.caritas.cob.userservice.api.adapters.web.controller;
 
 import de.caritas.cob.userservice.api.service.liveevents.LiveEventNotificationService;
 import de.caritas.cob.userservice.generated.api.adapters.web.controller.LiveproxyApi;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** Controller to consume live events and send them to the live service. */
 @RestController
+@Tag(name = "live-controller")
 @RequiredArgsConstructor
-@Api(tags = "live-controller")
 public class LiveProxyController implements LiveproxyApi {
 
   private final @NonNull LiveEventNotificationService liveEventNotificationService;

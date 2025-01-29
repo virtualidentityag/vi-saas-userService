@@ -1,8 +1,7 @@
 package de.caritas.cob.userservice.api.adapters.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -19,61 +18,60 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-@ApiModel(value = "UserChat")
+@Schema(name = "UserChat")
 public class UserChatDTO {
 
-  @ApiModelProperty(example = "153918", position = 0)
+  @Schema(example = "153918")
   private Long id;
 
-  @ApiModelProperty(example = "Drugs", position = 1)
+  @Schema(example = "Drugs")
   private String topic;
 
-  @ApiModelProperty(required = true, example = "2019-10-23", position = 2)
+  @Schema(required = true, example = "2019-10-23")
   private LocalDate startDate;
 
-  @ApiModelProperty(required = true, example = "12:05", position = 3)
+  @Schema(required = true, example = "12:05")
   private LocalTime startTime;
 
-  @ApiModelProperty(required = true, example = "120", position = 4)
+  @Schema(required = true, example = "120")
   private int duration;
 
-  @ApiModelProperty(required = true, example = "true", position = 5)
+  @Schema(required = true, example = "true")
   private boolean repetitive;
 
-  @ApiModelProperty(required = true, example = "false", position = 6)
+  @Schema(required = true, example = "false")
   private boolean active;
 
-  @ApiModelProperty(required = true, example = "0", position = 7)
+  @Schema(required = true, example = "0")
   private Integer consultingType;
 
-  @ApiModelProperty(example = "Thanks for the answer", position = 8)
+  @Schema(example = "Thanks for the answer")
   private String lastMessage;
 
-  @ApiModelProperty(example = "1539184948", position = 9)
+  @Schema(example = "1539184948")
   private Long messageDate;
 
-  @ApiModelProperty(example = "false", position = 10)
+  @Schema(example = "false")
   private boolean messagesRead;
 
-  @ApiModelProperty(example = "xGklslk2JJKK", position = 11)
+  @Schema(example = "xGklslk2JJKK")
   private String groupId;
 
-  @ApiModelProperty(position = 12)
-  private SessionAttachmentDTO attachment;
+  @Schema private SessionAttachmentDTO attachment;
 
-  @ApiModelProperty(example = "false", position = 13)
+  @Schema(example = "false")
   private boolean subscribed;
 
-  @ApiModelProperty(example = "ajsasdkjsdfkj3, 23njds9f8jhi", position = 14)
+  @Schema(example = "ajsasdkjsdfkj3, 23njds9f8jhi")
   private String[] moderators;
 
   @JsonIgnore private LocalDateTime startDateWithTime;
 
-  @ApiModelProperty private LastMessageDTO e2eLastMessage;
+  @Schema private LastMessageDTO e2eLastMessage;
 
-  @ApiModelProperty private String createdAt;
+  @Schema private String createdAt;
 
-  @ApiModelProperty private List<AgencyDTO> assignedAgencies;
+  @Schema private List<AgencyDTO> assignedAgencies;
 
-  @ApiModelProperty private String hintMessage;
+  @Schema private String hintMessage;
 }

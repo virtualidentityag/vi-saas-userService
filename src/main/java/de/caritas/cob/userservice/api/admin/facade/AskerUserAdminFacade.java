@@ -36,7 +36,7 @@ public class AskerUserAdminFacade {
 
     if (nonNull(user.getDeleteDate())) {
       throw new ConflictException(
-          String.format("Asker with id %s is already marked for deletion", userId));
+          "Asker with id %s is already marked for deletion".formatted(userId));
     }
 
     this.identityClient.deactivateUser(userId);

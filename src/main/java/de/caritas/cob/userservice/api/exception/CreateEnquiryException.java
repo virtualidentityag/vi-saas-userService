@@ -1,6 +1,7 @@
 package de.caritas.cob.userservice.api.exception;
 
 import de.caritas.cob.userservice.api.container.CreateEnquiryExceptionInformation;
+import java.io.Serial;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class CreateEnquiryException extends Exception {
 
-  private static final long serialVersionUID = -4322443849222920981L;
+  @Serial private static final long serialVersionUID = -4322443849222920981L;
   private CreateEnquiryExceptionInformation exceptionInformation;
 
   /**

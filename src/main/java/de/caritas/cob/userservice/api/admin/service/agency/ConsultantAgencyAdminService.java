@@ -54,8 +54,7 @@ public class ConsultantAgencyAdminService {
   public ConsultantAgencyResponseDTO findConsultantAgencies(String consultantId) {
     var consultant = consultantRepository.findByIdAndDeleteDateIsNull(consultantId);
     if (consultant.isEmpty()) {
-      throw new BadRequestException(
-          String.format("Consultant with id %s does not exist", consultantId));
+      throw new BadRequestException("Consultant with id %s does not exist".formatted(consultantId));
     }
 
     var consultantAgencyIds =

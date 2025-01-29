@@ -272,9 +272,8 @@ public class CreateEnquiryMessageFacade {
     return groupResponseDTO.orElseThrow(
         () ->
             new InternalServerErrorException(
-                String.format(
-                    "Could not create Rocket.Chat room for session %s and Rocket.Chat user %s",
-                    sessionId, rocketChatUserId)));
+                "Could not create Rocket.Chat room for session %s and Rocket.Chat user %s"
+                    .formatted(sessionId, rocketChatUserId)));
   }
 
   private void addSystemUserToGroup(String rcGroupId) throws RocketChatAddSystemUserException {
@@ -283,9 +282,8 @@ public class CreateEnquiryMessageFacade {
       rocketChatService.addUserToGroup(rocketChatSystemUserId, rcGroupId);
     } catch (RocketChatAddUserToGroupException rocketChatAddUserToGroupException) {
       throw new RocketChatAddSystemUserException(
-          String.format(
-              "Add system user error: Could not add user with ID %s to Rocket.Chat group %s",
-              rocketChatSystemUserId, rcGroupId),
+          "Add system user error: Could not add user with ID %s to Rocket.Chat group %s"
+              .formatted(rocketChatSystemUserId, rcGroupId),
           rocketChatAddUserToGroupException,
           CreateEnquiryExceptionInformation.builder().rcGroupId(rcGroupId).build());
     }

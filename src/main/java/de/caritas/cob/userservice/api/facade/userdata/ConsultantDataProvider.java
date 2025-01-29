@@ -45,7 +45,8 @@ public class ConsultantDataProvider {
    * @param consultant a {@link Consultant} instance
    * @return the user data
    */
-  public UserDataResponseDTO retrieveData(Consultant consultant) {
+  public de.caritas.cob.userservice.api.adapters.web.dto.UserDataResponseDTO retrieveData(
+      Consultant consultant) {
     if (isEmpty(consultant.getConsultantAgencies())) {
       throw new InternalServerErrorException(
           String.format("No agency available for consultant %s", consultant.getId()));
@@ -58,7 +59,8 @@ public class ConsultantDataProvider {
     return agencies.stream().map(ConsultantAgency::getAgencyId).collect(Collectors.toList());
   }
 
-  private UserDataResponseDTO userDataResponseDtoOf(Consultant consultant) {
+  private de.caritas.cob.userservice.api.adapters.web.dto.UserDataResponseDTO userDataResponseDtoOf(
+      Consultant consultant) {
 
     return UserDataResponseDTO.builder()
         .userId(consultant.getId())

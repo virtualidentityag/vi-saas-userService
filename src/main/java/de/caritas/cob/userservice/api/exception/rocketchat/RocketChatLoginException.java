@@ -1,8 +1,10 @@
 package de.caritas.cob.userservice.api.exception.rocketchat;
 
+import java.io.Serial;
+
 public class RocketChatLoginException extends Exception {
 
-  private static final long serialVersionUID = 5198347832036308397L;
+  @Serial private static final long serialVersionUID = 5198347832036308397L;
 
   /**
    * Exception when login for technical user in Rocket.Chat fails

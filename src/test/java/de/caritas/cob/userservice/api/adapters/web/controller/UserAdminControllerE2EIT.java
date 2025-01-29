@@ -43,8 +43,8 @@ import de.caritas.cob.userservice.consultingtypeservice.generated.web.Consulting
 import de.caritas.cob.userservice.mailservice.generated.web.MailsControllerApi;
 import de.caritas.cob.userservice.tenantservice.generated.web.model.RestrictedTenantDTO;
 import de.caritas.cob.userservice.topicservice.generated.web.TopicControllerApi;
+import jakarta.servlet.http.Cookie;
 import java.util.LinkedHashMap;
-import javax.servlet.http.Cookie;
 import net.minidev.json.JSONArray;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.AfterEach;
@@ -86,7 +86,7 @@ class UserAdminControllerE2EIT {
   @Autowired private ObjectMapper objectMapper;
 
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-  @Autowired
+  @MockBean
   private ConsultingTypeControllerApi consultingTypeControllerApi;
 
   @Autowired private IdentityConfig identityConfig;

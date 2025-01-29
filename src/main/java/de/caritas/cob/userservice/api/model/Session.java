@@ -6,26 +6,26 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.neovisionaries.i18n.LanguageCode;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,21 +37,16 @@ import lombok.ToString.Exclude;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.ParamDef;
 import org.springframework.lang.Nullable;
 
 @Entity
 @Builder
-@Table(name = "session")
+@Table(name = "SESSION")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString
-@FilterDef(
-    name = "tenantFilter",
-    parameters = {@ParamDef(name = "tenantId", type = "long")})
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class Session implements TenantAware {
 
@@ -103,7 +98,7 @@ public class Session implements TenantAware {
   @Id
   @SequenceGenerator(name = "id_seq", allocationSize = 1, sequenceName = "sequence_session")
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_seq")
-  @Column(name = "Id", updatable = false, nullable = false)
+  @Column(name = "id", updatable = false, nullable = false)
   private Long id;
 
   @ManyToOne
@@ -140,7 +135,11 @@ public class Session implements TenantAware {
   private Long agencyId;
 
   @Enumerated(EnumType.STRING)
-  @Column(columnDefinition = "varchar(2) not null default 'de'", length = 2, nullable = false)
+  @Column(
+      name = "language_code",
+      columnDefinition = "varchar(2) not null default 'de'",
+      length = 2,
+      nullable = false)
   private LanguageCode languageCode;
 
   @NonNull
@@ -161,13 +160,16 @@ public class Session implements TenantAware {
   @Exclude
   private List<SessionData> sessionData;
 
-  @Column(name = "is_team_session", columnDefinition = "tinyint(4) default '0'")
+  @Column(name = "is_team_session", columnDefinition = "tinyint default '0'")
   private boolean teamSession;
 
-  @Column(name = "is_peer_chat", columnDefinition = "tinyint(4) unsigned default '0'")
+  @Column(name = "is_peer_chat", columnDefinition = "tinyint default '0'")
   private boolean isPeerChat;
 
-  @Column(nullable = false, columnDefinition = "bit default false")
+  @Column(
+      name = "is_consultant_directly_set",
+      nullable = false,
+      columnDefinition = "bit default false")
   private Boolean isConsultantDirectlySet;
 
   public boolean hasFeedbackChat() {

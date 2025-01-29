@@ -1,11 +1,12 @@
 package de.caritas.cob.userservice.api.exception.httpresponses;
 
 import de.caritas.cob.userservice.api.service.LogService;
+import java.io.Serial;
 import java.util.function.Consumer;
 
 public class NotFoundException extends CustomHttpStatusException {
 
-  private static final long serialVersionUID = -4160810917274267037L;
+  @Serial private static final long serialVersionUID = -4160810917274267037L;
 
   /**
    * Not found exception.
@@ -17,19 +18,19 @@ public class NotFoundException extends CustomHttpStatusException {
   }
 
   public NotFoundException(String message, String arg) {
-    super(String.format(message, arg), LogService::logWarn);
+    super(message.formatted(arg), LogService::logWarn);
   }
 
   public NotFoundException(String message, Long arg) {
-    super(String.format(message, arg), LogService::logWarn);
+    super(message.formatted(arg), LogService::logWarn);
   }
 
   public NotFoundException(String message, String arg1, Long arg2) {
-    super(String.format(message, arg1, arg2), LogService::logWarn);
+    super(message.formatted(arg1, arg2), LogService::logWarn);
   }
 
   public NotFoundException(String message, Long arg1, String arg2) {
-    super(String.format(message, arg1, arg2), LogService::logWarn);
+    super(message.formatted(arg1, arg2), LogService::logWarn);
   }
 
   /**

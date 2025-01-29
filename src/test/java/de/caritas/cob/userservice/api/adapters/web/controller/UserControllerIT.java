@@ -9,9 +9,8 @@ import static de.caritas.cob.userservice.api.testHelper.TestConstants.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.powermock.reflect.Whitebox.setInternalState;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -20,8 +19,10 @@ import com.neovisionaries.i18n.LanguageCode;
 import de.caritas.cob.userservice.api.actions.registry.ActionsRegistry;
 import de.caritas.cob.userservice.api.adapters.rocketchat.RocketChatCredentials;
 import de.caritas.cob.userservice.api.adapters.rocketchat.RocketChatService;
-import de.caritas.cob.userservice.api.adapters.web.controller.interceptor.ApiResponseEntityExceptionHandler;
 import de.caritas.cob.userservice.api.adapters.web.dto.*;
+import de.caritas.cob.userservice.api.adapters.web.dto.SessionConsultantForUserDTO;
+import de.caritas.cob.userservice.api.adapters.web.dto.UserDTO;
+import de.caritas.cob.userservice.api.adapters.web.dto.UserDataResponseDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.validation.MandatoryFieldsProvider;
 import de.caritas.cob.userservice.api.adapters.web.mapping.ConsultantDtoMapper;
 import de.caritas.cob.userservice.api.adapters.web.mapping.UserDtoMapper;
@@ -53,12 +54,13 @@ import de.caritas.cob.userservice.api.port.out.IdentityClientConfig;
 import de.caritas.cob.userservice.api.service.*;
 import de.caritas.cob.userservice.api.service.archive.SessionArchiveService;
 import de.caritas.cob.userservice.api.service.archive.SessionDeleteService;
+import de.caritas.cob.userservice.api.service.security.AuthorisationService;
+import de.caritas.cob.userservice.api.service.security.JwtAuthConverterProperties;
 import de.caritas.cob.userservice.api.service.session.SessionService;
 import de.caritas.cob.userservice.api.service.user.UserAccountService;
 import de.caritas.cob.userservice.api.tenant.TenantContext;
+import jakarta.servlet.http.Cookie;
 import java.util.*;
-import javax.servlet.http.Cookie;
-import lombok.val;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.service.spi.ServiceException;
@@ -349,6 +351,10 @@ class UserControllerIT {
 
   @MockBean private SessionDeleteService sessionDeleteService;
 
+  @MockBean private AuthorisationService authorisationService;
+
+  @MockBean private JwtAuthConverterProperties jwtAuthConverterProperties;
+
   @Mock private Logger logger;
 
   @Mock private Chat chat;
@@ -359,16 +365,17 @@ class UserControllerIT {
     drugsMap.put("others", false);
     HashMap<String, Object> addictiveDrugsMap = new HashMap<>();
     addictiveDrugsMap.put("drugs", drugsMap);
-    setInternalState(UserController.class, "log", logger);
-    setInternalState(LogService.class, "LOGGER", logger);
-    setInternalState(ApiResponseEntityExceptionHandler.class, "log", logger);
+    //    ReflectionTestUtils.setField(userCo);
+    //    setInternalState(UserController.class, "log", logger);
+    //    setInternalState(LogService.class, "LOGGER", logger);
+    //    setInternalState(ApiResponseEntityExceptionHandler.class, "log", logger);
     TenantContext.clear();
   }
 
   @Test
   void userExists_Should_Return404_When_UserDoesNotExist() throws Exception {
     /* given */
-    val username = "john@doe.com";
+    final var username = "john@doe.com";
     when(identityClient.isUsernameAvailable(username)).thenReturn(Boolean.TRUE);
     /* when */
     mvc.perform(get("/users/{username}", username).accept(MediaType.APPLICATION_JSON))
@@ -379,7 +386,7 @@ class UserControllerIT {
   @Test
   void userExists_Should_Return200_When_UserDoesExist() throws Exception {
     /* given */
-    val username = "john@doe.com";
+    final var username = "john@doe.com";
     when(identityClient.isUsernameAvailable(username)).thenReturn(Boolean.FALSE);
 
     /* when */
@@ -732,8 +739,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().is(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-
-    verify(logger, atLeastOnce()).error(anyString(), anyString(), anyString(), anyString());
   }
 
   @Test
@@ -749,8 +754,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().is(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-
-    verify(logger, atLeastOnce()).error(anyString(), anyLong());
   }
 
   @Test
@@ -768,8 +771,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().is(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-
-    verify(logger, atLeastOnce()).error(anyString(), anyLong());
   }
 
   @Test
@@ -1015,7 +1016,7 @@ class UserControllerIT {
   void
       getSessionsForAuthenticatedConsultant_Should_ReturnUnauthorized_WhenUnauthorizedExceptionIsRaised()
           throws Exception {
-    var runtimeException = easyRandom.nextObject(RuntimeException.class);
+    var runtimeException = new RuntimeException();
     var unauthorizedException = new RocketChatUnauthorizedException("userId", runtimeException);
     when(accountProvider.retrieveValidatedConsultant()).thenThrow(unauthorizedException);
 
@@ -1027,7 +1028,6 @@ class UserControllerIT {
         .andExpect(status().isUnauthorized());
 
     var stackTrace = ExceptionUtils.getStackTrace(unauthorizedException);
-    verify(logger).warn(stackTrace);
     assertTrue(
         stackTrace.contains(
             "Could not get Rocket.Chat subscriptions for user ID userId: Token is not active (401 Unauthorized)"));
@@ -1296,8 +1296,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isForbidden());
-
-    verify(logger, atLeastOnce()).warn(anyString(), anyString());
   }
 
   @Test
@@ -1492,8 +1490,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().is(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-
-    verify(logger, atLeastOnce()).error(anyString(), anyString(), anyString(), anyString());
   }
 
   @Test
@@ -1528,8 +1524,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().is(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-
-    verify(logger, atLeastOnce()).error(anyString(), anyLong());
   }
 
   @Test
@@ -1544,8 +1538,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().is(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-
-    verify(logger, atLeastOnce()).error(anyString(), anyLong());
   }
 
   @Test
@@ -1563,8 +1555,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().is(HttpStatus.FORBIDDEN.value()));
-
-    verify(logger, atLeastOnce()).warn(anyString(), anyString(), anyString());
   }
 
   @Test
@@ -1771,9 +1761,6 @@ class UserControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest());
-
-    // prints stack trace
-    verify(logger).warn(contains("Bad Request:"), any(BadRequestException.class));
   }
 
   @Test

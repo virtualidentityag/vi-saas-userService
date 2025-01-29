@@ -21,6 +21,8 @@ import de.caritas.cob.userservice.api.conversation.facade.FinishAnonymousConvers
 import de.caritas.cob.userservice.api.conversation.service.ConversationListResolver;
 import de.caritas.cob.userservice.api.helper.AuthenticatedUser;
 import de.caritas.cob.userservice.api.port.in.Messaging;
+import de.caritas.cob.userservice.api.service.security.AuthorisationService;
+import de.caritas.cob.userservice.api.service.security.JwtAuthConverterProperties;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.Test;
 import org.keycloak.adapters.KeycloakConfigResolver;
@@ -72,6 +74,10 @@ class ConversationControllerIT {
   private AuthenticatedUser authenticatedUser;
 
   @MockBean private KeycloakConfigResolver keycloakConfigResolver;
+
+  @MockBean private AuthorisationService authorisationService;
+
+  @MockBean private JwtAuthConverterProperties jwtAuthConverterProperties;
 
   @Test
   void getAnonymousEnquiries_Should_returnOk_When_requestParamsAreValid() throws Exception {

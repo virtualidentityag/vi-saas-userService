@@ -2607,7 +2607,7 @@ components:
           description: indicates should the walkt hrough be enabled
         emailToggles:
           type: array
-          minItems: 1
+          minItems: 0
           uniqueItems: true
           items:
             $ref: '#/components/schemas/EmailToggle'

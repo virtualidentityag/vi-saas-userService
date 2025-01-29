@@ -31,7 +31,7 @@ public class RocketChatTestConfig {
   @MockBean MongoClient mongoClient;
 
   @Bean
-  public RocketChatService rocketChatService(
+  RocketChatService rocketChatService(
       RestTemplate restTemplate,
       RocketChatCredentialsProvider rocketChatCredentialsProvider,
       RocketChatConfig rocketChatConfig,

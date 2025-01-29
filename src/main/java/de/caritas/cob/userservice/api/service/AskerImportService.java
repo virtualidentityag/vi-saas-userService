@@ -41,7 +41,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Date;
 import java.util.List;
@@ -120,9 +120,9 @@ public class AskerImportService {
 
     } catch (Exception exception) {
       writeToImportLog(
-          String.format(
-              "Error while reading import file: %s",
-              org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace(exception)),
+          "Error while reading import file: %s"
+              .formatted(
+                  org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace(exception)),
           protocolFile);
       return;
     }
@@ -292,9 +292,9 @@ public class AskerImportService {
       return;
     } catch (Exception exception) {
       writeToImportLog(
-          String.format(
-              "Error while reading import file or logging in Rocket.Chat system message user: %s",
-              org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace(exception)),
+          "Error while reading import file or logging in Rocket.Chat system message user: %s"
+              .formatted(
+                  org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace(exception)),
           protocolFile);
       return;
     }
@@ -325,7 +325,7 @@ public class AskerImportService {
 
         // Check if consultant exists and is in agency
         Optional<Consultant> consultant = consultantService.getConsultant(record.getConsultantId());
-        if (!consultant.isPresent()) {
+        if (consultant.isEmpty()) {
           writeToImportLog(
               String.format(
                   "Consultant with id %s does not exist. Skipping import of user %s",
@@ -581,7 +581,7 @@ public class AskerImportService {
   private void writeToImportLog(String message, String protocolFile) {
     try {
       Files.write(
-          Paths.get(protocolFile),
+          Path.of(protocolFile),
           (message + NEWLINE_CHAR).getBytes(IMPORT_LOG_CHARSET),
           StandardOpenOption.CREATE,
           StandardOpenOption.APPEND);

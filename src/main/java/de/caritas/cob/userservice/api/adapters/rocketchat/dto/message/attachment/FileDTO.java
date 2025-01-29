@@ -1,7 +1,7 @@
 package de.caritas.cob.userservice.api.adapters.rocketchat.dto.message.attachment;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,13 +14,12 @@ import lombok.Setter;
 @NoArgsConstructor
 public class FileDTO {
 
-  @ApiModelProperty(required = true, example = "filename.png", position = 0)
+  @Schema(required = true, example = "filename.png")
   private String name;
 
-  @ApiModelProperty(
+  @Schema(
       required = true,
-      example = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      position = 1)
+      example = "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
   @JsonProperty("type")
   private String type;
 }

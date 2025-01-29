@@ -1,9 +1,9 @@
 package de.caritas.cob.userservice.api.service.liveevents;
 
-import static de.caritas.cob.userservice.liveservice.generated.web.model.EventType.ANONYMOUSCONVERSATIONFINISHED;
-import static de.caritas.cob.userservice.liveservice.generated.web.model.EventType.ANONYMOUSENQUIRYACCEPTED;
-import static de.caritas.cob.userservice.liveservice.generated.web.model.EventType.DIRECTMESSAGE;
-import static de.caritas.cob.userservice.liveservice.generated.web.model.EventType.NEWANONYMOUSENQUIRY;
+import static de.caritas.cob.userservice.liveservice.generated.web.model.EventType.ANONYMOUS_CONVERSATION_FINISHED;
+import static de.caritas.cob.userservice.liveservice.generated.web.model.EventType.ANONYMOUS_ENQUIRY_ACCEPTED;
+import static de.caritas.cob.userservice.liveservice.generated.web.model.EventType.DIRECT_MESSAGE;
+import static de.caritas.cob.userservice.liveservice.generated.web.model.EventType.NEW_ANONYMOUS_ENQUIRY;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -45,7 +45,9 @@ public class LiveEventNotificationService {
   public void sendAcceptAnonymousEnquiryEventToUser(String userId) {
     if (isNotBlank(userId)) {
       var liveEventMessage =
-          new LiveEventMessage().eventType(ANONYMOUSENQUIRYACCEPTED).userIds(singletonList(userId));
+          new LiveEventMessage()
+              .eventType(ANONYMOUS_ENQUIRY_ACCEPTED)
+              .userIds(singletonList(userId));
       sendLiveEventMessage(liveEventMessage);
     }
   }
@@ -53,7 +55,7 @@ public class LiveEventNotificationService {
   private void sendLiveEventMessage(LiveEventMessage liveEventMessage) {
     sendLiveEventMessage(
         liveEventMessage,
-        () -> String.format("Unable to trigger live event message %s", liveEventMessage));
+        () -> "Unable to trigger live event message %s".formatted(liveEventMessage));
   }
 
   private void sendLiveEventMessage(
@@ -92,12 +94,12 @@ public class LiveEventNotificationService {
 
   private void triggerDirectMessageLiveEvent(List<String> userIds, String rcGroupId) {
     if (isNotEmpty(userIds)) {
-      var liveEventMessage = new LiveEventMessage().eventType(DIRECTMESSAGE).userIds(userIds);
+      var liveEventMessage = new LiveEventMessage().eventType(DIRECT_MESSAGE).userIds(userIds);
 
       sendLiveEventMessage(
           liveEventMessage,
           () -> {
-            var rcMessage = String.format(RC_GROUP_ID_MESSAGE_TEMPLATE, rcGroupId);
+            var rcMessage = RC_GROUP_ID_MESSAGE_TEMPLATE.formatted(rcGroupId);
             return makeUserIdsEventTypeMessage(liveEventMessage, rcMessage);
           });
     }
@@ -105,9 +107,8 @@ public class LiveEventNotificationService {
 
   private String makeUserIdsEventTypeMessage(
       LiveEventMessage triggeredLiveEventMessage, String withMessage) {
-    return String.format(
-        "Unable to trigger %s live event message %s",
-        triggeredLiveEventMessage.getEventType(), withMessage);
+    return "Unable to trigger %s live event message %s"
+        .formatted(triggeredLiveEventMessage.getEventType(), withMessage);
   }
 
   /**
@@ -118,13 +119,14 @@ public class LiveEventNotificationService {
    */
   public void sendLiveNewAnonymousEnquiryEventToUsers(List<String> userIds, Long sessionId) {
     if (isNotEmpty(userIds)) {
-      var liveEventMessage = new LiveEventMessage().eventType(NEWANONYMOUSENQUIRY).userIds(userIds);
+      var liveEventMessage =
+          new LiveEventMessage().eventType(NEW_ANONYMOUS_ENQUIRY).userIds(userIds);
 
       sendLiveEventMessage(
           liveEventMessage,
           () -> {
             var anonymousEnquiryMessage =
-                String.format(NEW_ANONYMOUS_ENQUIRY_MESSAGE_TEMPLATE, sessionId);
+                NEW_ANONYMOUS_ENQUIRY_MESSAGE_TEMPLATE.formatted(sessionId);
             return makeUserIdsEventTypeMessage(liveEventMessage, anonymousEnquiryMessage);
           });
     }
@@ -140,7 +142,7 @@ public class LiveEventNotificationService {
     if (isNotEmpty(userIds)) {
       var liveEventMessage =
           new LiveEventMessage()
-              .eventType(ANONYMOUSCONVERSATIONFINISHED)
+              .eventType(ANONYMOUS_CONVERSATION_FINISHED)
               .eventContent(new StatusSource().finishConversationPhase(finishConversationPhase))
               .userIds(userIds);
 

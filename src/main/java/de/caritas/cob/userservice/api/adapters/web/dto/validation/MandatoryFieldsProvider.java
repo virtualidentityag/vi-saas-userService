@@ -40,9 +40,8 @@ public class MandatoryFieldsProvider {
     if (isNull(extendedConsultingTypeResponseDTO.getRegistration())
         || isNull(extendedConsultingTypeResponseDTO.getRegistration().getMandatoryFields())) {
       throw new InternalServerErrorException(
-          String.format(
-              "Could not get mandatory fields for consulting type %s. Please check configuration",
-              consultingTypeId),
+          "Could not get mandatory fields for consulting type %s. Please check configuration"
+              .formatted(consultingTypeId),
           LogService::logInternalServerError);
     }
   }

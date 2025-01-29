@@ -26,7 +26,7 @@ import org.springframework.web.client.RestTemplate;
 public class KeycloakTestConfig {
 
   @Bean
-  public KeycloakService keycloakService(
+  KeycloakService keycloakService(
       RestTemplate restTemplate,
       AuthenticatedUser authenticatedUser,
       UserAccountInputValidator userAccountInputValidator,

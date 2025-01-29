@@ -40,7 +40,7 @@ public class ConversationListResolver {
     }
 
     var exceptionMessage =
-        String.format("No sessions found for parameters offset=%s, count=%s", offset, count);
+        "No sessions found for parameters offset=%s, count=%s".formatted(offset, count);
     throw new NoContentException(exceptionMessage);
   }
 }

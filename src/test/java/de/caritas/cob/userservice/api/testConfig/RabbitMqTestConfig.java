@@ -24,7 +24,7 @@ public class RabbitMqTestConfig {
   }
 
   @Bean
-  public Declarables topicBindings() {
+  Declarables topicBindings() {
     Queue assignSessionStatisticEventQueue = new Queue(QUEUE_NAME_ASSIGN_SESSION, true);
 
     TopicExchange topicExchange = new TopicExchange(STATISTICS_EXCHANGE_NAME, true, false);

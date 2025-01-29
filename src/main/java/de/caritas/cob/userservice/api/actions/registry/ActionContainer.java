@@ -32,9 +32,8 @@ public class ActionContainer<T> {
             .orElseThrow(
                 () ->
                     new NoSuchElementException(
-                        String.format(
-                            "ActionCommand class %s does not exist or is not implemented yet",
-                            actionToAdd.getSimpleName()))));
+                        "ActionCommand class %s does not exist or is not implemented yet"
+                            .formatted(actionToAdd.getSimpleName()))));
     return this;
   }
 

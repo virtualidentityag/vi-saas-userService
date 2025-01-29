@@ -1,11 +1,12 @@
 package de.caritas.cob.userservice.api.exception.httpresponses;
 
 import de.caritas.cob.userservice.api.service.LogService;
+import java.io.Serial;
 import java.util.function.Consumer;
 
 public class ConflictException extends CustomHttpStatusException {
 
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   /**
    * Conflict exception.

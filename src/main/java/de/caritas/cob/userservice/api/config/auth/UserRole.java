@@ -2,10 +2,8 @@ package de.caritas.cob.userservice.api.config.auth;
 
 import java.util.Arrays;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor
 @Getter
 public enum UserRole {
   ANONYMOUS("anonymous"),
@@ -25,6 +23,10 @@ public enum UserRole {
   RESTRICTED_CONSULTANT_ADMIN("restricted-consultant-admin");
 
   private final String value;
+
+  UserRole(String value) {
+    this.value = value;
+  }
 
   public static Optional<UserRole> getRoleByValue(String value) {
     return Arrays.stream(values()).filter(userRole -> userRole.value.equals(value)).findFirst();

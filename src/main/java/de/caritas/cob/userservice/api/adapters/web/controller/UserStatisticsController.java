@@ -3,7 +3,7 @@ package de.caritas.cob.userservice.api.adapters.web.controller;
 import de.caritas.cob.userservice.api.service.statistics.SessionStatisticsService;
 import de.caritas.cob.userservice.api.statistics.model.SessionStatisticsResultDTO;
 import de.caritas.cob.userservice.generated.api.statistics.controller.UserstatisticsApi;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** Controller to handle all statistics requests. */
 @RestController
+@Tag(name = "user-statistics-controller")
 @RequiredArgsConstructor
-@Api(tags = "user-statistics-controller")
 public class UserStatisticsController implements UserstatisticsApi {
 
   private final @NonNull SessionStatisticsService sessionStatisticsService;

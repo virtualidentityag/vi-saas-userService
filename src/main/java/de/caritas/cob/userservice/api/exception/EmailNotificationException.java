@@ -1,8 +1,10 @@
 package de.caritas.cob.userservice.api.exception;
 
+import java.io.Serial;
+
 public class EmailNotificationException extends RuntimeException {
 
-  private static final long serialVersionUID = -2260264511268139498L;
+  @Serial private static final long serialVersionUID = -2260264511268139498L;
 
   /**
    * E-mail notification exception

@@ -32,26 +32,26 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureTestDatabase(replace = Replace.ANY)
 @TestPropertySource(properties = "multitenancy.enabled=true")
 @Transactional
-public class RetrieveAdminServiceTenantAwareIT {
+class RetrieveAdminServiceTenantAwareIT {
 
-  private final String VALID_AGENCY_ADMIN_ID = "164be67d-4d1b-4d80-bb6b-0ee057a1c59e";
+  private static final String VALID_AGENCY_ADMIN_ID = "164be67d-4d1b-4d80-bb6b-0ee057a1c59e";
 
-  private final String VALID_TENANT_ADMIN_ID = "6584f4a9-a7f0-42f0-b929-ab5c99c0802d";
+  private static final String VALID_TENANT_ADMIN_ID = "6584f4a9-a7f0-42f0-b929-ab5c99c0802d";
 
   @Autowired private RetrieveAdminService retrieveAdminService;
 
   @BeforeEach
-  public void beforeTest() {
+  void beforeTest() {
     TenantContext.setCurrentTenant(1L);
   }
 
   @AfterEach
-  public void afterTests() {
+  void afterTests() {
     TenantContext.clear();
   }
 
   @Test
-  public void findAgencyAdmin_Should_returnCorrectAdmin_When_correctIdIsProvided() {
+  void findAgencyAdmin_Should_returnCorrectAdmin_When_correctIdIsProvided() {
     // given
     TenantContext.setCurrentTenant(2L);
     // when
@@ -63,7 +63,7 @@ public class RetrieveAdminServiceTenantAwareIT {
   }
 
   @Test
-  public void
+  void
       findAgencyAdmin_Should_throwNoContentException_When_validAgencyAdminIsProvidedButTypeDoesNotMatch() {
     // given
     // when
@@ -74,7 +74,7 @@ public class RetrieveAdminServiceTenantAwareIT {
   }
 
   @Test
-  public void findAdmin_Should_returnCorrectTenantAdmin_When_correctIdIsProvided() {
+  void findAdmin_Should_returnCorrectTenantAdmin_When_correctIdIsProvided() {
     // given
     TenantContext.setCurrentTenant(0L);
     // when
@@ -86,7 +86,7 @@ public class RetrieveAdminServiceTenantAwareIT {
   }
 
   @Test
-  public void findTenantAdminsByTenantId_Should_returnCorrectTenantAdmin_When_tenantIdIsProvided() {
+  void findTenantAdminsByTenantId_Should_returnCorrectTenantAdmin_When_tenantIdIsProvided() {
     // given
     TenantContext.setCurrentTenant(0L);
     // when
@@ -98,7 +98,7 @@ public class RetrieveAdminServiceTenantAwareIT {
   }
 
   @Test
-  public void
+  void
       findAdmin_Should_throwNoContentException_When_validTenantAdminIsProvidedButTypeDoesNotMatch() {
     // given
     TenantContext.setCurrentTenant(0L);
@@ -109,7 +109,7 @@ public class RetrieveAdminServiceTenantAwareIT {
   }
 
   @Test
-  public void findAgencyAdmin_Should_throwNoContentException_When_incorrectIdIsProvided() {
+  void findAgencyAdmin_Should_throwNoContentException_When_incorrectIdIsProvided() {
     // given
     // when
     assertThrows(
@@ -118,7 +118,7 @@ public class RetrieveAdminServiceTenantAwareIT {
   }
 
   @Test
-  public void findAgencyIdsOfAdmin_Should_returnCorrectAdmin_When_correctIdIsProvided() {
+  void findAgencyIdsOfAdmin_Should_returnCorrectAdmin_When_correctIdIsProvided() {
     // given
     long expectedAgencyId = 90L;
 
@@ -132,7 +132,7 @@ public class RetrieveAdminServiceTenantAwareIT {
   }
 
   @Test
-  public void findAllByInfix_Should_returnCorrectAdmin_When_correctIdInfix() {
+  void findAllByInfix_Should_returnCorrectAdmin_When_correctIdInfix() {
     // given
     PageRequest pageable = PageRequest.of(0, 10);
 
@@ -146,7 +146,7 @@ public class RetrieveAdminServiceTenantAwareIT {
   }
 
   @Test
-  public void findAllByInfix_Should_returnCorrectAdminsOfTenant_When_correctIdInfix() {
+  void findAllByInfix_Should_returnCorrectAdminsOfTenant_When_correctIdInfix() {
     // given
     PageRequest pageable = PageRequest.of(0, 10);
     TenantContext.setCurrentTenant(2L);
@@ -160,7 +160,7 @@ public class RetrieveAdminServiceTenantAwareIT {
   }
 
   @Test
-  public void findAllById_Should_returnCorrectAdmin_When_correctIdsAreProvided() {
+  void findAllById_Should_returnCorrectAdmin_When_correctIdsAreProvided() {
     // given
     Set<String> adminIds = new HashSet<>();
     adminIds.add("d42c2e5e-143c-4db1-a90f-7cccf82fbb15");

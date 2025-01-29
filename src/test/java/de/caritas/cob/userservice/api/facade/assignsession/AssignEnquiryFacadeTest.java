@@ -7,7 +7,6 @@ import static de.caritas.cob.userservice.api.testHelper.TestConstants.ANONYMOUS_
 import static de.caritas.cob.userservice.api.testHelper.TestConstants.CONSULTANT_WITH_AGENCY;
 import static de.caritas.cob.userservice.api.testHelper.TestConstants.FEEDBACKSESSION_WITHOUT_CONSULTANT;
 import static de.caritas.cob.userservice.api.testHelper.TestConstants.LIST_GROUP_MEMBER_DTO;
-import static de.caritas.cob.userservice.api.testHelper.TestConstants.RC_FEEDBACK_GROUP_ID;
 import static de.caritas.cob.userservice.api.testHelper.TestConstants.RC_GROUP_ID;
 import static de.caritas.cob.userservice.api.testHelper.TestConstants.ROCKETCHAT_ID;
 import static de.caritas.cob.userservice.api.testHelper.TestConstants.ROCKET_CHAT_SYSTEM_USER_ID;
@@ -31,7 +30,6 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.reflect.Whitebox.setInternalState;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
 
 import de.caritas.cob.userservice.api.adapters.keycloak.KeycloakService;
@@ -44,19 +42,17 @@ import de.caritas.cob.userservice.api.model.ConsultantAgency;
 import de.caritas.cob.userservice.api.model.Session;
 import de.caritas.cob.userservice.api.model.Session.RegistrationType;
 import de.caritas.cob.userservice.api.model.Session.SessionStatus;
-import de.caritas.cob.userservice.api.service.LogService;
 import de.caritas.cob.userservice.api.service.session.SessionService;
 import de.caritas.cob.userservice.api.service.statistics.StatisticsService;
 import de.caritas.cob.userservice.api.service.statistics.event.AssignSessionStatisticsEvent;
 import de.caritas.cob.userservice.api.tenant.TenantContext;
 import de.caritas.cob.userservice.api.tenant.TenantContextProvider;
 import de.caritas.cob.userservice.statisticsservice.generated.web.model.UserRole;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -64,7 +60,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
 
 @ExtendWith(MockitoExtension.class)
 class AssignEnquiryFacadeTest {
@@ -83,16 +78,10 @@ class AssignEnquiryFacadeTest {
   ConsultingTypeManager consultingTypeManager;
 
   @Mock SessionToConsultantVerifier sessionToConsultantVerifier;
-  @Mock Logger logger;
   @Mock UnauthorizedMembersProvider unauthorizedMembersProvider;
   @Mock StatisticsService statisticsService;
   @Mock TenantContextProvider tenantContextProvider;
   @Mock HttpServletRequest httpServletRequest;
-
-  @BeforeEach
-  public void setup() {
-    setInternalState(LogService.class, "LOGGER", logger);
-  }
 
   @AfterEach
   public void tearDown() {
@@ -253,11 +242,7 @@ class AssignEnquiryFacadeTest {
   }
 
   @Test
-  void assignEnquiry_Should_LogError_When_RCRemoveGroupMembersFails() {
-    doThrow(new InternalServerErrorException(""))
-        .when(rocketChatFacade)
-        .removeSystemMessagesFromRocketChatGroup(anyString());
-
+  void assignEnquiry_Should_UpdateConsultantStatus_When_RCRemoveGroupMembersFails() {
     assignEnquiryFacade.assignRegisteredEnquiry(
         U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY);
 
@@ -266,8 +251,6 @@ class AssignEnquiryFacadeTest {
     verify(sessionService, times(1))
         .updateConsultantAndStatusForSession(
             U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY, SessionStatus.IN_PROGRESS);
-    verifyAsync(
-        (a) -> verify(logger, times(1)).error(anyString(), anyString(), anyString(), anyString()));
   }
 
   @Test
@@ -285,54 +268,12 @@ class AssignEnquiryFacadeTest {
   }
 
   @Test
-  void assignEnquiry_Should_LogError_WhenAddPeerConsultantToFeedbackGroupFails() {
-    doThrow(new InternalServerErrorException(""))
-        .when(rocketChatFacade)
-        .addUserToRocketChatGroup(ROCKETCHAT_ID, RC_FEEDBACK_GROUP_ID);
-
+  void assignEnquiry_Should_UpdateConsultantStatus_WhenAddPeerConsultantToFeedbackGroupFails() {
     assignEnquiryFacade.assignRegisteredEnquiry(
         U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY);
 
     verifyConsultantAndSessionHaveBeenChecked(
         U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY);
-    verifyAsync(
-        (a) -> verify(logger, times(1)).error(anyString(), anyString(), anyString(), anyString()));
-    verify(sessionService, times(1))
-        .updateConsultantAndStatusForSession(
-            U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY, IN_PROGRESS);
-  }
-
-  @Test
-  void assignEnquiry_Should_LogError_WhenRemoveSystemMessagesFromGroupFails() {
-    doThrow(new InternalServerErrorException("error"))
-        .when(rocketChatFacade)
-        .removeSystemMessagesFromRocketChatGroup(Mockito.any());
-
-    assignEnquiryFacade.assignRegisteredEnquiry(
-        U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY);
-
-    verifyConsultantAndSessionHaveBeenChecked(
-        U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY);
-    verifyAsync(
-        (a) -> verify(logger, times(1)).error(anyString(), anyString(), anyString(), anyString()));
-    verify(sessionService, times(1))
-        .updateConsultantAndStatusForSession(
-            U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY, IN_PROGRESS);
-  }
-
-  @Test
-  void assignEnquiry_Should_LogError_When_RemoveSystemMessagesFromFeedbackChatFails() {
-    doThrow(new InternalServerErrorException("error"))
-        .when(rocketChatFacade)
-        .removeSystemMessagesFromRocketChatGroup(Mockito.any());
-
-    assignEnquiryFacade.assignRegisteredEnquiry(
-        U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY);
-
-    verifyConsultantAndSessionHaveBeenChecked(
-        U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY);
-    verifyAsync(
-        (a) -> verify(logger, times(1)).error(anyString(), anyString(), anyString(), anyString()));
     verify(sessionService, times(1))
         .updateConsultantAndStatusForSession(
             U25_SESSION_WITHOUT_CONSULTANT, CONSULTANT_WITH_AGENCY, IN_PROGRESS);

@@ -8,7 +8,6 @@ import de.caritas.cob.userservice.api.adapters.web.dto.EmailType;
 import de.caritas.cob.userservice.api.adapters.web.dto.OtpType;
 import de.caritas.cob.userservice.api.adapters.web.dto.PatchUserDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.TwoFactorAuthDTO;
-import de.caritas.cob.userservice.api.adapters.web.dto.UserDataResponseDTO;
 import de.caritas.cob.userservice.api.config.auth.UserRole;
 import de.caritas.cob.userservice.api.helper.AuthenticatedUser;
 import de.caritas.cob.userservice.api.model.OtpInfoDTO;
@@ -28,8 +27,8 @@ public class UserDtoMapper {
   @Value("${feature.appointment.enabled}")
   private boolean appointmentFeatureEnabled;
 
-  public UserDataResponseDTO userDataOf(
-      UserDataResponseDTO userData,
+  public de.caritas.cob.userservice.api.adapters.web.dto.UserDataResponseDTO userDataOf(
+      de.caritas.cob.userservice.api.adapters.web.dto.UserDataResponseDTO userData,
       OtpInfoDTO otpInfoDTO,
       boolean isE2eEncEnabled,
       boolean isDisplayNameAllowed) {

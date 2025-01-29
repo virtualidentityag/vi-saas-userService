@@ -195,8 +195,7 @@ public class AccountManager implements AccountManaging {
 
   private Runnable throwPersistenceConflict(String dbUserId, String chatUserId) {
     var message =
-        String.format(
-            "User (%s) found in database but not in Rocket.Chat (%s)", dbUserId, chatUserId);
+        "User (%s) found in database but not in Rocket.Chat (%s)".formatted(dbUserId, chatUserId);
 
     return () -> {
       throw new InternalServerErrorException(message);

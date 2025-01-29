@@ -150,7 +150,7 @@ public class CreateUserFacade {
   private void checkIfUserIdNotNull(String userId, UserDTO userDTO) {
     if (isNull(userId)) {
       throw new InternalServerErrorException(
-          String.format("Could not create Keycloak account for: %s", userDTO.toString()));
+          "Could not create Keycloak account for: %s".formatted(userDTO.toString()));
     }
   }
 
@@ -169,6 +169,6 @@ public class CreateUserFacade {
             .rollBackUserAccount(Boolean.parseBoolean(userDTO.getTermsAccepted()))
             .build());
     throw new InternalServerErrorException(
-        String.format("Could not update account data on registration for: %s", userDTO));
+        "Could not update account data on registration for: %s".formatted(userDTO));
   }
 }

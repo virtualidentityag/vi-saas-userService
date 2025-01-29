@@ -1,11 +1,12 @@
 package de.caritas.cob.userservice.api.exception.httpresponses;
 
 import de.caritas.cob.userservice.api.service.LogService;
+import java.io.Serial;
 import java.util.function.Consumer;
 
 public class ForbiddenException extends CustomHttpStatusException {
 
-  private static final long serialVersionUID = 7560597708504748234L;
+  @Serial private static final long serialVersionUID = 7560597708504748234L;
 
   /**
    * Forbidden exception.
@@ -17,7 +18,7 @@ public class ForbiddenException extends CustomHttpStatusException {
   }
 
   public ForbiddenException(String message, Long arg) {
-    this(String.format(message, arg));
+    this(message.formatted(arg));
   }
 
   /**

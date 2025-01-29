@@ -1,21 +1,20 @@
 package de.caritas.cob.userservice.api.admin.service.consultant;
 
-import static java.util.Objects.nonNull;
-
 import de.caritas.cob.userservice.api.adapters.web.dto.ConsultantFilter;
 import de.caritas.cob.userservice.api.adapters.web.dto.ConsultantSearchResultDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.Sort;
-import de.caritas.cob.userservice.api.adapters.web.dto.Sort.OrderEnum;
-import de.caritas.cob.userservice.api.admin.service.consultant.querybuilder.ConsultantFilterQueryBuilder;
+import de.caritas.cob.userservice.api.adapters.web.dto.Sort.FieldEnum;
 import de.caritas.cob.userservice.api.model.Consultant;
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.lucene.search.SortField;
-import org.hibernate.search.jpa.FullTextEntityManager;
-import org.hibernate.search.jpa.FullTextQuery;
-import org.hibernate.search.jpa.Search;
+import org.hibernate.Session;
+import org.hibernate.search.engine.search.sort.dsl.SearchSortFactory;
+import org.hibernate.search.engine.search.sort.dsl.SortFinalStep;
+import org.hibernate.search.engine.search.sort.dsl.SortOrder;
+import org.hibernate.search.mapper.orm.Search;
+import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.springframework.stereotype.Service;
 
 /** Service class to provide filtered search for all {@link Consultant} entities. */
@@ -40,62 +39,102 @@ public class ConsultantAdminFilterService {
       final Integer perPage,
       final ConsultantFilter consultantFilter,
       final Sort sort) {
-    var fullTextEntityManager =
-        Search.getFullTextEntityManager(entityManagerFactory.createEntityManager());
-    triggerLuceneToBuildIndex(fullTextEntityManager);
-    var fullTextQuery = buildFilteredQuery(consultantFilter, fullTextEntityManager);
-    fullTextQuery.setMaxResults(Math.max(perPage, 1));
-    fullTextQuery.setFirstResult(Math.max((page - 1) * perPage, 0));
-    fullTextQuery.setSort(buildSort(sort));
 
-    var searchResultDTO =
-        ConsultantSearchResultBuilder.getInstance(fullTextQuery)
-            .withFilter(consultantFilter)
-            .withSort(sort)
-            .withPage(page)
-            .withPerPage(perPage)
-            .buildSearchResult();
+    try (var entityManager = entityManagerFactory.createEntityManager()) {
+      var session = entityManager.unwrap(Session.class);
 
-    fullTextEntityManager.close();
-    return searchResultDTO;
-  }
-
-  private static void triggerLuceneToBuildIndex(FullTextEntityManager fullTextEntityManager) {
-    try {
-      fullTextEntityManager.createIndexer(Consultant.class).startAndWait();
+      synchronized (this) {
+        var searchSession = Search.session(session);
+        searchSession.massIndexer(Consultant.class).startAndWait();
+        var result = fetchConsultants(consultantFilter, searchSession, sort, page, perPage);
+        return convertToSearchResultDTO(result, page, perPage);
+      }
     } catch (InterruptedException e) {
-      log.info("Lucene index building was interrupted.");
-      Thread.currentThread().interrupt();
+      throw new RuntimeException(e);
     }
   }
 
-  protected FullTextQuery buildFilteredQuery(
-      ConsultantFilter consultantFilter, FullTextEntityManager fullTextEntityManager) {
-
-    var queryBuilder =
-        fullTextEntityManager
-            .getSearchFactory()
-            .buildQueryBuilder()
-            .forEntity(Consultant.class)
-            .get();
-
-    var query =
-        ConsultantFilterQueryBuilder.getInstance(queryBuilder)
-            .onConsultantFilter(consultantFilter)
-            .buildQuery();
-
-    return fullTextEntityManager.createFullTextQuery(query, Consultant.class);
+  private ConsultantSearchResultDTO convertToSearchResultDTO(
+      SearchPaginatedResult<Consultant> searchPaginatedResult, Integer page, Integer perPage) {
+    ConsultantSearchResultBuilder consultantSearchResultBuilder =
+        new ConsultantSearchResultBuilder(searchPaginatedResult, page, perPage);
+    return consultantSearchResultBuilder.buildSearchResult();
   }
 
-  private org.apache.lucene.search.Sort buildSort(Sort sort) {
-    var luceneSort = new org.apache.lucene.search.Sort();
-    if (nonNull(sort) && nonNull(sort.getField())) {
-      var reverse = OrderEnum.DESC.equals(sort.getOrder());
-      luceneSort.setSort(
-          SortField.FIELD_SCORE,
-          new SortField(sort.getField().getValue(), SortField.Type.STRING, reverse));
-    }
+  protected SearchPaginatedResult<Consultant> fetchConsultants(
+      ConsultantFilter consultantFilter,
+      SearchSession searchSession,
+      Sort sortDefinition,
+      Integer page,
+      Integer perPage) {
+    int offset = Math.max((page - 1) * perPage, 0);
 
-    return luceneSort;
+    if (consultantFilter == null) {
+      var fetchedResult =
+          searchSession
+              .search(Consultant.class)
+              .where(f -> f.matchAll())
+              .sort(f -> buildSort(f, sortDefinition))
+              .fetch(offset, Math.max(perPage, 1));
+
+      return new SearchPaginatedResult<Consultant>(
+          fetchedResult.hits(), fetchedResult.total().hitCount());
+    }
+    var fetchedResult =
+        searchSession
+            .search(Consultant.class)
+            .where(
+                f ->
+                    f.bool(
+                        bool -> {
+                          if (consultantFilter.getUsername() == null
+                              && consultantFilter.getLastname() == null
+                              && consultantFilter.getEmail() == null
+                              && consultantFilter.getAgencyId() == null) {
+                            bool.must(f.matchAll()); // Match all documents if no filter is set
+                          }
+                          if (consultantFilter.getUsername() != null) {
+                            bool.must(
+                                f.match()
+                                    .field("username")
+                                    .matching(consultantFilter.getUsername()));
+                          }
+                          if (consultantFilter.getLastname() != null) {
+                            bool.must(
+                                f.match()
+                                    .field("lastName")
+                                    .matching(consultantFilter.getLastname()));
+                          }
+                          if (consultantFilter.getEmail() != null) {
+                            bool.must(
+                                f.match().field("email").matching(consultantFilter.getEmail()));
+                          }
+                          if (consultantFilter.getAgencyId() != null) {
+                            bool.must(
+                                f.nested()
+                                    .objectField(
+                                        "consultantAgencies") // Navigate to the consultantAgencies
+                                    .nest(
+                                        f.match()
+                                            .field("consultantAgencies.agencyId") // Match agencyId
+                                            .matching(consultantFilter.getAgencyId())));
+                          }
+                        }))
+            .sort(f -> buildSort(f, sortDefinition))
+            .fetch(offset, Math.max(perPage, 1));
+
+    return new SearchPaginatedResult<Consultant>(
+        fetchedResult.hits(), fetchedResult.total().hitCount());
+  }
+
+  private SortFinalStep buildSort(SearchSortFactory factory, Sort sort) {
+    if (sort != null && sort.getField() != null) {
+      boolean reverse = Sort.OrderEnum.DESC.equals(sort.getOrder());
+      return factory
+          .field(sort.getField().getValue() + "_sort")
+          .order(reverse ? SortOrder.DESC : SortOrder.ASC);
+    } else {
+      return factory.field(FieldEnum.LAST_NAME.getValue() + "_sort").order(SortOrder.ASC);
+    }
   }
 }

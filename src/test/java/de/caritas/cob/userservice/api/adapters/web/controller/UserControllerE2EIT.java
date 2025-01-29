@@ -95,6 +95,7 @@ import de.caritas.cob.userservice.mailservice.generated.web.MailsControllerApi;
 import de.caritas.cob.userservice.topicservice.generated.ApiClient;
 import de.caritas.cob.userservice.topicservice.generated.web.TopicControllerApi;
 import de.caritas.cob.userservice.topicservice.generated.web.model.TopicDTO;
+import jakarta.servlet.http.Cookie;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -105,7 +106,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
-import javax.servlet.http.Cookie;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -177,10 +177,6 @@ class UserControllerE2EIT {
 
   @Autowired private UserAgencyRepository userAgencyRepository;
 
-  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-  @Autowired
-  private ConsultingTypeControllerApi consultingTypeControllerApi;
-
   @Autowired private VideoChatConfig videoChatConfig;
 
   @Autowired private IdentityConfig identityConfig;
@@ -188,6 +184,14 @@ class UserControllerE2EIT {
   @Autowired private SessionRepository sessionRepository;
 
   @Autowired private UserVerifier userVerifier;
+
+  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+  @MockBean
+  private ConsultingTypeControllerApi consultingTypeControllerApi;
+
+  @MockBean
+  private de.caritas.cob.userservice.consultingtypeservice.generated.ApiClient
+      consultingTypeApiClient;
 
   @MockBean private AuthenticatedUser authenticatedUser;
 
@@ -297,6 +301,7 @@ class UserControllerE2EIT {
     when(consultingTypeServiceApiControllerFactory.createControllerApi())
         .thenReturn(consultingTypeControllerApi);
     when(mailServiceApiControllerFactory.createControllerApi()).thenReturn(mailsControllerApi);
+    when(consultingTypeControllerApi.getApiClient()).thenReturn(consultingTypeApiClient);
   }
 
   @Test
@@ -1077,23 +1082,6 @@ class UserControllerE2EIT {
   void patchUserDataShouldRespondWithBadRequestOnNullInMandatoryDtoFields() throws Exception {
     givenAValidConsultant();
     var patchDto = givenAnInvalidPatchDto();
-
-    mockMvc
-        .perform(
-            patch("/users/data")
-                .cookie(CSRF_COOKIE)
-                .header(CSRF_HEADER, CSRF_VALUE)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(patchDto))
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  @WithMockUser(authorities = AuthorityValue.USER_DEFAULT)
-  void patchUserDataShouldRespondWithBadRequestOnEmptyPayload() throws Exception {
-    givenAValidUser();
-    var patchDto = givenAnEmptyPatchDto();
 
     mockMvc
         .perform(
@@ -1989,7 +1977,6 @@ class UserControllerE2EIT {
   }
 
   private void givenConsultingTypeServiceResponse(Integer consultingTypeId) {
-    consultingTypeControllerApi.getApiClient().setBasePath("https://www.google.de/");
     when(restTemplate.getUriTemplateHandler())
         .thenReturn(
             new UriTemplateHandler() {

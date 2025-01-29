@@ -12,7 +12,7 @@ import org.springframework.plugin.core.SimplePluginRegistry;
 public class SwaggerConfig {
 
   @Bean
-  public LinkDiscoverers discoverers() {
+  LinkDiscoverers discoverers() {
     List<LinkDiscoverer> plugins = new ArrayList<>();
     plugins.add(new org.springframework.hateoas.mediatype.hal.HalLinkDiscoverer());
     return new LinkDiscoverers(SimplePluginRegistry.create(plugins));

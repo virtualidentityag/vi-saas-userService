@@ -1,8 +1,10 @@
 package de.caritas.cob.userservice.api.exception.httpresponses;
 
+import java.io.Serial;
+
 public class RocketChatUnauthorizedException extends RuntimeException {
 
-  private static final long serialVersionUID = -3553609955386498237L;
+  @Serial private static final long serialVersionUID = -3553609955386498237L;
 
   public RocketChatUnauthorizedException(final String userId, final Throwable exception) {
     super(

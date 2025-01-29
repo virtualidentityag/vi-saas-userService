@@ -1,22 +1,25 @@
 package de.caritas.cob.userservice.api.model;
 
+import static de.caritas.cob.userservice.mailservice.generated.web.model.Dialect.FORMAL;
+import static de.caritas.cob.userservice.mailservice.generated.web.model.Dialect.INFORMAL;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.neovisionaries.i18n.LanguageCode;
 import de.caritas.cob.userservice.mailservice.generated.web.model.Dialect;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,24 +28,19 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.ParamDef;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /** Represents a user */
 @Entity
-@Table(name = "user")
+@Table(name = "_USER")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString
 @EntityListeners(AuditingEntityListener.class)
-@FilterDef(
-    name = "tenantFilter",
-    parameters = {@ParamDef(name = "tenantId", type = "long")})
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class User implements TenantAware, NotificationsAware {
 
@@ -105,7 +103,11 @@ public class User implements TenantAware, NotificationsAware {
   private Boolean encourage2fa;
 
   @Enumerated(EnumType.STRING)
-  @Column(length = 2, nullable = false, columnDefinition = "varchar(2) default 'de'")
+  @Column(
+      name = "language_code",
+      length = 2,
+      nullable = false,
+      columnDefinition = "varchar(2) default 'de'")
   private LanguageCode languageCode;
 
   @Column(name = "terms_and_conditions_confirmation", columnDefinition = "datetime")
@@ -157,6 +159,6 @@ public class User implements TenantAware, NotificationsAware {
   @JsonIgnore
   @Transient
   public Dialect getDialect() {
-    return isLanguageFormal() ? Dialect.FORMAL : Dialect.INFORMAL;
+    return isLanguageFormal() ? FORMAL : INFORMAL;
   }
 }

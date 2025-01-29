@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Bean;
 public class ConsultingTypeManagerTestConfig {
 
   @Bean
-  public ConsultingTypeManager consultingTypeManager(
+  ConsultingTypeManager consultingTypeManager(
       ConsultingTypeService consultingTypeService,
       @Qualifier("initializeFeedbackChat") Optional<Boolean> initializeFeedbackChat) {
     return new ConsultingTypeManager(consultingTypeService) {

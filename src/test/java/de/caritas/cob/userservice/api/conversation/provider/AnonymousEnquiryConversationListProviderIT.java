@@ -31,6 +31,7 @@ import de.caritas.cob.userservice.api.port.out.UserRepository;
 import de.caritas.cob.userservice.api.service.agency.AgencyService;
 import de.caritas.cob.userservice.api.service.user.UserAccountService;
 import de.caritas.cob.userservice.api.testConfig.ConsultingTypeManagerTestConfig;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.iterators.PeekingIterator;
@@ -120,7 +121,9 @@ class AnonymousEnquiryConversationListProviderIT {
       ConsultantSessionResponseDTO current = peeker.next();
       ConsultantSessionResponseDTO next = peeker.peek();
       if (nonNull(next)) {
-        assertThat(next.getLatestMessage(), greaterThanOrEqualTo(current.getLatestMessage()));
+        assertThat(
+            (Date) next.getLatestMessage(),
+            greaterThanOrEqualTo((Date) current.getLatestMessage()));
       }
     }
   }
