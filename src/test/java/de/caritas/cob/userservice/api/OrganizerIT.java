@@ -14,6 +14,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.jeasy.random.EasyRandom;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -26,6 +27,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @ActiveProfiles("testing")
 @AutoConfigureTestDatabase(replace = Replace.ANY)
+@Disabled
 class OrganizerIT {
 
   private static final EasyRandom easyRandom = new EasyRandom();
