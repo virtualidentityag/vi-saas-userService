@@ -34,6 +34,7 @@ import de.caritas.cob.userservice.api.service.ConsultantService;
 import de.caritas.cob.userservice.api.service.LogService;
 import de.caritas.cob.userservice.api.service.agency.AgencyService;
 import de.caritas.cob.userservice.api.service.user.UserService;
+import de.caritas.cob.userservice.api.tenant.TenantContext;
 import de.caritas.cob.userservice.consultingtypeservice.generated.web.model.ExtendedConsultingTypeResponseDTO;
 import jakarta.ws.rs.BadRequestException;
 import java.time.LocalDateTime;
@@ -222,7 +223,7 @@ public class SessionService {
             .referer(userDto.getReferer())
             .isConsultantDirectlySet(false)
             .build();
-
+    session.setTenantId(TenantContext.getCurrentTenant());
     session.setSessionTopics(createSessionTopics(userDto.getTopicIds(), session));
     return saveSession(session);
   }
