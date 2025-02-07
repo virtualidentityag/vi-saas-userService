@@ -150,7 +150,8 @@ public class KeycloakServiceTest {
 
   @Test
   public void loginUser_Should_ReturnBadRequest_When_KeycloakLoginFails() {
-    var exception = Mockito.mock(RestClientResponseException.class);
+    var exception =
+        new RestClientResponseException("Not Found", 404, "Not Found", null, null, null);
     when(restTemplate.postForEntity(
             ArgumentMatchers.anyString(),
             any(),

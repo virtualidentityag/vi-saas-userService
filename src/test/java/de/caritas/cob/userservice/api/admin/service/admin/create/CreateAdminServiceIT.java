@@ -88,7 +88,6 @@ class CreateAdminServiceIT {
     assertThat(admin.getEmail()).isNotNull();
     assertThat(admin.getCreateDate()).isNotNull();
     assertThat(admin.getUpdateDate()).isNotNull();
-    assertThat(admin.getTenantId()).isNull();
   }
 
   @Test

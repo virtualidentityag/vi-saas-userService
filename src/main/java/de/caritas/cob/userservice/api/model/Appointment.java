@@ -41,7 +41,7 @@ public class Appointment {
   @Column(columnDefinition = "char(36)")
   private UUID id;
 
-  @Column(length = 300)
+  @Column(length = 300, name = "booking_id")
   private Integer bookingId;
 
   @ManyToOne(fetch = FetchType.LAZY)
