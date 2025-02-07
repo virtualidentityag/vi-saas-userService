@@ -16,7 +16,6 @@ import de.caritas.cob.userservice.api.model.User;
 import de.caritas.cob.userservice.api.service.httpheader.SecurityHeaderSupplier;
 import de.caritas.cob.userservice.api.service.httpheader.TenantHeaderSupplier;
 import de.caritas.cob.userservice.consultingtypeservice.generated.web.model.ExtendedConsultingTypeResponseDTO;
-import de.caritas.cob.userservice.messageservice.generated.ApiClient;
 import de.caritas.cob.userservice.messageservice.generated.web.MessageControllerApi;
 import de.caritas.cob.userservice.messageservice.generated.web.model.AliasMessageDTO;
 import de.caritas.cob.userservice.messageservice.generated.web.model.AliasOnlyMessageDTO;
@@ -112,7 +111,7 @@ public class MessageServiceProvider {
     } catch (RestClientException | RocketChatUserNotInitializedException exception) {
       log.error("Exception calling RocketChat API: {}", exception.getMessage());
       throw new RocketChatPostWelcomeMessageException(
-          String.format("Could not post welcome message in Rocket.Chat group %s", rcGroupId),
+          "Could not post welcome message in Rocket.Chat group %s".formatted(rcGroupId),
           exception,
           exceptionInformation);
     }
@@ -154,8 +153,8 @@ public class MessageServiceProvider {
 
     } catch (RestClientException exception) {
       throw new RocketChatPostFurtherStepsMessageException(
-          String.format(
-              "Could not post further steps message in Rocket.Chat group with id %s", rcGroupId),
+          "Could not post further steps message in Rocket.Chat group with id %s"
+              .formatted(rcGroupId),
           exception,
           exceptionInformation);
     }
@@ -174,14 +173,15 @@ public class MessageServiceProvider {
 
     } catch (RestClientException exception) {
       throw new RocketChatPostFurtherStepsMessageException(
-          String.format(
-              "Could not post further steps message in Rocket.Chat group with id %s", rcGroupId),
+          "Could not post further steps message in Rocket.Chat group with id %s"
+              .formatted(rcGroupId),
           exception,
           exceptionInformation);
     }
   }
 
-  private void addDefaultHeaders(ApiClient apiClient) {
+  private void addDefaultHeaders(
+      de.caritas.cob.userservice.messageservice.generated.ApiClient apiClient) {
     var headers = this.securityHeaderSupplier.getKeycloakAndCsrfHttpHeaders();
     tenantHeaderSupplier.addTenantHeader(headers);
     headers.forEach((key, value) -> apiClient.addDefaultHeader(key, value.iterator().next()));

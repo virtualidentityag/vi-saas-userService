@@ -11,8 +11,8 @@ public class BeanAwareSpringLiquibase extends SpringLiquibase {
   private static ResourceLoader applicationContext;
 
   public static <T> T getBean(Class<T> beanClass) throws InstantiationException {
-    if (applicationContext instanceof ApplicationContext) {
-      return ((ApplicationContext) applicationContext).getBean(beanClass);
+    if (applicationContext instanceof ApplicationContext context) {
+      return context.getBean(beanClass);
     } else {
       throw new InstantiationException("Resource loader is not an instance of ApplicationContext");
     }

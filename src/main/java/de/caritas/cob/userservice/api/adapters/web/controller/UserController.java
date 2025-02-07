@@ -100,7 +100,10 @@ import de.caritas.cob.userservice.api.service.session.SessionService;
 import de.caritas.cob.userservice.api.service.user.UserAccountService;
 import de.caritas.cob.userservice.api.tenant.TenantContext;
 import de.caritas.cob.userservice.generated.api.adapters.web.controller.UsersApi;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.InternalServerErrorException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -109,15 +112,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.InternalServerErrorException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -127,9 +127,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** Controller for user api requests */
 @Slf4j
+@Tag(name = "user-controller")
 @RestController
 @RequiredArgsConstructor
-@Api(tags = "user-controller")
 public class UserController implements UsersApi {
 
   private final @NotNull UserAccountService userAccountProvider;
@@ -179,8 +179,8 @@ public class UserController implements UsersApi {
 
   @Override
   public ResponseEntity<Void> userExists(String username) {
-    val usernameAvailable = identityClient.isUsernameAvailable(username);
-    val userExists = !usernameAvailable;
+    final var usernameAvailable = identityClient.isUsernameAvailable(username);
+    final var userExists = !usernameAvailable;
     if (userExists) {
       return ResponseEntity.ok().build();
     }
@@ -220,7 +220,7 @@ public class UserController implements UsersApi {
   public ResponseEntity<NewRegistrationResponseDto> registerNewConsultingType(
       @RequestHeader String rcToken,
       @RequestHeader String rcUserId,
-      @Valid @RequestBody NewRegistrationDto newRegistrationDto) {
+      @RequestBody NewRegistrationDto newRegistrationDto) {
 
     var user = this.userAccountProvider.retrieveValidatedUser();
     var rocketChatCredentials =
@@ -230,7 +230,8 @@ public class UserController implements UsersApi {
         createNewConsultingTypeFacade.initializeNewConsultingType(
             newRegistrationDto, user, rocketChatCredentials);
 
-    return new ResponseEntity<>(registrationResponse, registrationResponse.getStatus());
+    return new ResponseEntity<>(
+        registrationResponse, (HttpStatusCode) registrationResponse.getStatus());
   }
 
   /**
@@ -470,9 +471,9 @@ public class UserController implements UsersApi {
    *
    * @return {@link ResponseEntity} containing {@link UserDataResponseDTO}
    */
-  @Override
-  public ResponseEntity<UserDataResponseDTO> getUserData() {
-    UserDataResponseDTO partialUserData;
+  public ResponseEntity<de.caritas.cob.userservice.api.adapters.web.dto.UserDataResponseDTO>
+      getUserData() {
+    de.caritas.cob.userservice.api.adapters.web.dto.UserDataResponseDTO partialUserData;
     if (authenticatedUser.isConsultant()) {
       var consultant = userAccountProvider.retrieveValidatedConsultant();
       partialUserData = consultantDataProvider.retrieveData(consultant);
@@ -878,8 +879,7 @@ public class UserController implements UsersApi {
     var chatUserId = userDtoMapper.chatUserIdOf(consultantMap);
     if (!messenger.removeUserFromSession(chatUserId, chatId)) {
       var message =
-          String.format(
-              "Could not remove consultant (%s) from session (%s)", consultantId, sessionId);
+          "Could not remove consultant (%s) from session (%s)".formatted(consultantId, sessionId);
       throw new InternalServerErrorException(message);
     }
 
@@ -1009,7 +1009,7 @@ public class UserController implements UsersApi {
             .orElseThrow(
                 () ->
                     new BadRequestException(
-                        String.format("Chat with id %s not found for starting chat.", chatId)));
+                        "Chat with id %s not found for starting chat.".formatted(chatId)));
 
     var callingConsultant = this.userAccountProvider.retrieveValidatedConsultant();
     startChatFacade.startChat(chat, callingConsultant);
@@ -1085,8 +1085,8 @@ public class UserController implements UsersApi {
             .orElseThrow(
                 () ->
                     new BadRequestException(
-                        String.format(
-                            "Chat with id %s not found while trying to stop the chat.", chatId)));
+                        "Chat with id %s not found while trying to stop the chat."
+                            .formatted(chatId)));
 
     var callingConsultant = this.userAccountProvider.retrieveValidatedConsultant();
     messenger.unbanUsersInChat(chatId, callingConsultant.getId());

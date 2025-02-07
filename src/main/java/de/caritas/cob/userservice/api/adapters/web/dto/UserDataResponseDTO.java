@@ -3,8 +3,7 @@ package de.caritas.cob.userservice.api.adapters.web.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import de.caritas.cob.userservice.api.adapters.web.dto.serialization.DecodeUsernameJsonSerializer;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,48 +19,44 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-@ApiModel(value = "UserData")
+@Schema(name = "UserData")
 public class UserDataResponseDTO {
 
-  @ApiModelProperty(example = "ajsd89-sdf9-sadk-as8j-asdf8jo")
+  @Schema(example = "ajsd89-sdf9-sadk-as8j-asdf8jo")
   private String userId;
 
-  @ApiModelProperty(example = "max.muster", position = 1)
+  @Schema(example = "max.muster")
   @JsonSerialize(using = DecodeUsernameJsonSerializer.class)
   private String userName;
 
-  @ApiModelProperty(example = "Max", position = 2)
+  @Schema(example = "Max")
   private String firstName;
 
-  @ApiModelProperty(example = "Mustermann", position = 3)
+  @Schema(example = "Mustermann")
   private String lastName;
 
-  @ApiModelProperty(example = "maxmuster@mann.com", position = 4)
+  @Schema(example = "maxmuster@mann.com")
   private String email;
 
-  @ApiModelProperty(example = "true", position = 5)
+  @Schema(example = "true")
   private boolean isAbsent;
 
-  @ApiModelProperty(example = "true", position = 6)
+  @Schema(example = "true")
   private boolean isFormalLanguage;
 
-  @ApiModelProperty(position = 7)
-  private Set<String> languages;
+  @Schema private Set<String> languages;
 
-  @ApiModelProperty(example = "Bin mal weg...", position = 8)
+  @Schema(example = "Bin mal weg...")
   private String absenceMessage;
 
-  @ApiModelProperty(example = "true", position = 9)
+  @Schema(example = "true")
   private boolean isInTeamAgency;
 
-  @ApiModelProperty(position = 10)
-  private List<AgencyDTO> agencies;
+  @Schema private List<AgencyDTO> agencies;
 
-  @ApiModelProperty(position = 11)
-  private Set<String> userRoles;
+  @Schema private Set<String> userRoles;
 
-  @ApiModelProperty(position = 12)
-  private Set<String> grantedAuthorities;
+  @Schema private Set<String> grantedAuthorities;
 
   private LinkedHashMap<String, Object> consultingTypes;
   private boolean hasAnonymousConversations;

@@ -10,10 +10,10 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import de.caritas.cob.userservice.api.adapters.rocketchat.RocketChatCredentials;
 import de.caritas.cob.userservice.api.exception.httpresponses.BadRequestException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotBlank;
 import java.util.Arrays;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.NotBlank;
 import lombok.Data;
 import org.apache.logging.log4j.core.util.CronExpression;
 import org.hibernate.validator.constraints.URL;
@@ -49,7 +49,7 @@ public class RocketChatConfig {
   @NotBlank private String mongoUrl;
 
   @Bean("rocketChatRestTemplate")
-  public RestTemplate rocketChatRestTemplate(RestTemplateBuilder restTemplateBuilder) {
+  RestTemplate rocketChatRestTemplate(RestTemplateBuilder restTemplateBuilder) {
     return restTemplateBuilder
         .defaultHeader(CONTENT_TYPE, MediaType.APPLICATION_JSON.toString())
         .build();
@@ -57,7 +57,7 @@ public class RocketChatConfig {
 
   @Bean
   @Scope(scopeName = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
-  public RocketChatCredentials rocketChatCredentials() {
+  RocketChatCredentials rocketChatCredentials() {
     var rcUserId = httpServletRequest.getHeader("RCUserId");
 
     return RocketChatCredentials.builder()
@@ -67,7 +67,7 @@ public class RocketChatConfig {
   }
 
   @Bean
-  public MongoClient mongoClient() {
+  MongoClient mongoClient() {
     var connectionString = new ConnectionString(mongoUrl);
     var settings = MongoClientSettings.builder().applyConnectionString(connectionString).build();
 

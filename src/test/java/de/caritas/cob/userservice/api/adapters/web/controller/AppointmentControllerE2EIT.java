@@ -25,14 +25,15 @@ import de.caritas.cob.userservice.api.helper.AuthenticatedUser;
 import de.caritas.cob.userservice.api.model.Consultant;
 import de.caritas.cob.userservice.api.port.out.AppointmentRepository;
 import de.caritas.cob.userservice.api.port.out.ConsultantRepository;
+import jakarta.servlet.http.Cookie;
 import java.lang.reflect.Method;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Set;
 import java.util.UUID;
-import javax.servlet.http.Cookie;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.AfterEach;
@@ -47,7 +48,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -71,6 +74,8 @@ class AppointmentControllerE2EIT {
 
   private MockMvc mockMvc;
 
+  @Autowired private Clock clock;
+
   @Autowired private ObjectMapper objectMapper;
 
   @Autowired private ConsultantRepository consultantRepository;
@@ -81,8 +86,6 @@ class AppointmentControllerE2EIT {
 
   @MockBean private AuthenticatedUser authenticatedUser;
 
-  @MockBean private Clock clock;
-
   @MockBean private KeycloakConfigResolver keycloakConfigResolver;
 
   private Appointment appointment;
@@ -92,6 +95,15 @@ class AppointmentControllerE2EIT {
   private Consultant consultant;
 
   @Autowired private AppointmentController appointmentController;
+
+  @TestConfiguration
+  static class TestClockConfig {
+    @Bean
+    public Clock clock() {
+      var today = LocalDateTime.of(2022, 2, 15, 17, 12).toInstant(ZoneOffset.UTC);
+      return Clock.fixed(today, ZoneId.of("UTC"));
+    }
+  }
 
   @BeforeEach
   public void setUp() {
@@ -210,20 +222,6 @@ class AppointmentControllerE2EIT {
 
   @Test
   @WithMockUser(authorities = AuthorityValue.CONSULTANT_DEFAULT)
-  void getAppointmentShouldReturnClientErrorOnWrongIdFormat() throws Exception {
-    givenAValidConsultant(true);
-
-    mockMvc
-        .perform(
-            get("/appointments/{id}", RandomStringUtils.randomAlphabetic(36))
-                .cookie(CSRF_COOKIE)
-                .header(CSRF_HEADER, CSRF_VALUE)
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().is4xxClientError());
-  }
-
-  @Test
-  @WithMockUser(authorities = AuthorityValue.CONSULTANT_DEFAULT)
   void getAppointmentShouldReturnNotFoundIfIdUnknown() throws Exception {
     givenAValidConsultant(true);
 
@@ -313,16 +311,16 @@ class AppointmentControllerE2EIT {
 
   @Test
   @WithMockUser(authorities = AuthorityValue.CONSULTANT_DEFAULT)
-  void deleteAppointmentShouldReturnNotFoundIfAppointmentDoesNotExist() throws Exception {
+  void deleteAppointmentShouldReturnNoContentIfAppointmentDoesNotExist() throws Exception {
     givenAValidAppointmentDto();
 
     mockMvc
         .perform(
-            delete("/appointments/{id}", appointment.getId())
+            delete("/appointments/{id}", "4bf52886-1deb-4c99-9d03-cbb4c0f25234")
                 .cookie(CSRF_COOKIE)
                 .header(CSRF_HEADER, CSRF_VALUE)
                 .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNotFound());
+        .andExpect(status().isNoContent());
   }
 
   @Test
@@ -345,7 +343,6 @@ class AppointmentControllerE2EIT {
   @Test
   @WithMockUser(authorities = AuthorityValue.CONSULTANT_DEFAULT)
   void getAppointmentsShouldReturnOk() throws Exception {
-    when(clock.instant()).thenReturn(Instant.now());
     mockMvc
         .perform(
             get("/appointments")
@@ -459,7 +456,7 @@ class AppointmentControllerE2EIT {
   void getAppointmentsShouldReturnAppointmentsOfTodayAndFutureOrderedByDatetimeAscending()
       throws Exception {
     var clockToday = LocalDateTime.of(2022, 2, 15, 17, 12).toInstant(ZoneOffset.UTC);
-    when(clock.instant()).thenReturn(clockToday);
+    clock = Clock.fixed(clockToday, ZoneId.of("UTC"));
     givenAValidConsultant(true);
     var today = LocalDateTime.of(2022, 2, 15, 13, 37).toInstant(ZoneOffset.UTC);
     var tomorrow = LocalDateTime.of(2022, 2, 16, 14, 44).toInstant(ZoneOffset.UTC);

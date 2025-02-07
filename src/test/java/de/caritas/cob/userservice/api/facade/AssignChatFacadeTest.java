@@ -43,7 +43,7 @@ class AssignChatFacadeTest {
 
     verify(chatService).getChatByGroupId(RC_GROUP_ID);
     assertThat(exception.getMessage())
-        .isEqualTo(String.format("Chat with group id %s not found", RC_GROUP_ID));
+        .isEqualTo("Chat with group id %s not found".formatted(RC_GROUP_ID));
   }
 
   @Test
@@ -58,8 +58,7 @@ class AssignChatFacadeTest {
             () -> assignChatFacade.assignChat(RC_GROUP_ID, authenticatedUser));
 
     verify(userService).getUserViaAuthenticatedUser(authenticatedUser);
-    assertThat(exception.getMessage())
-        .isEqualTo(String.format("User with id %s not found", USER_ID));
+    assertThat(exception.getMessage()).isEqualTo("User with id %s not found".formatted(USER_ID));
   }
 
   @Test

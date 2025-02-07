@@ -21,6 +21,7 @@ import de.caritas.cob.userservice.api.adapters.rocketchat.RocketChatService;
 import de.caritas.cob.userservice.api.adapters.web.dto.ConsultantAdminResponseDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.CreateConsultantDTO;
 import de.caritas.cob.userservice.api.admin.service.tenant.TenantAdminService;
+import de.caritas.cob.userservice.api.config.auth.SecurityConfig;
 import de.caritas.cob.userservice.api.exception.httpresponses.CustomValidationHttpStatusException;
 import de.caritas.cob.userservice.api.exception.rocketchat.RocketChatLoginException;
 import de.caritas.cob.userservice.api.model.Consultant;
@@ -63,6 +64,8 @@ public class CreateConsultantSagaTenantAwareIT {
   @MockBean private RocketChatService rocketChatService;
 
   @MockBean private KeycloakService keycloakService;
+
+  @MockBean private SecurityConfig securityConfig;
 
   private final EasyRandom easyRandom = new EasyRandom();
 

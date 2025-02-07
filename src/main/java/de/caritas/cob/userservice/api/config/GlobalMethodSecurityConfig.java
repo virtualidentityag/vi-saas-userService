@@ -11,12 +11,12 @@ import org.springframework.security.access.expression.method.ExpressionBasedPreI
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 
 @Configuration
-@EnableGlobalMethodSecurity(securedEnabled = true)
+@EnableMethodSecurity(securedEnabled = true, prePostEnabled = false)
 public class GlobalMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
   @Override
@@ -32,7 +32,7 @@ public class GlobalMethodSecurityConfig extends GlobalMethodSecurityConfiguratio
   }
 
   @Bean
-  public GrantedAuthorityDefaults grantedAuthorityDefaults() {
+  GrantedAuthorityDefaults grantedAuthorityDefaults() {
     return new GrantedAuthorityDefaults(AuthorityValue.PREFIX);
   }
 }

@@ -19,8 +19,8 @@ import de.caritas.cob.userservice.api.exception.httpresponses.NotFoundException;
 import de.caritas.cob.userservice.api.helper.AuthenticatedUser;
 import de.caritas.cob.userservice.api.port.in.Messaging;
 import de.caritas.cob.userservice.generated.api.conversation.controller.ConversationsApi;
-import io.swagger.annotations.Api;
-import javax.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** Controller for conversation API requests. */
 @RestController
+@Tag(name = "conversation-controller")
 @RequiredArgsConstructor
-@Api(tags = "conversation-controller")
 public class ConversationController implements ConversationsApi {
 
   private final @NonNull ConversationListResolver conversationListResolver;

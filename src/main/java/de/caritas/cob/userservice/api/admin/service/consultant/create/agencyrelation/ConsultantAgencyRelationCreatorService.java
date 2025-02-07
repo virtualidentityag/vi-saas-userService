@@ -126,7 +126,7 @@ public class ConsultantAgencyRelationCreatorService {
         .orElseThrow(
             () ->
                 new BadRequestException(
-                    String.format("Consultant with id %s does not exist", consultantId)));
+                    "Consultant with id %s does not exist".formatted(consultantId)));
   }
 
   private void checkConsultantHasRoleSet(Set<String> roles, String consultantId) {
@@ -136,18 +136,15 @@ public class ConsultantAgencyRelationCreatorService {
         .orElseThrow(
             () ->
                 new BadRequestException(
-                    String.format(
-                        "Consultant with id %s does not have the role set %s",
-                        consultantId, roles)));
+                    "Consultant with id %s does not have the role set %s"
+                        .formatted(consultantId, roles)));
   }
 
   private AgencyDTO retrieveAgency(Long agencyId) {
     var agencyDto = this.agencyService.getAgencyWithoutCaching(agencyId);
     return Optional.ofNullable(agencyDto)
         .orElseThrow(
-            () ->
-                new BadRequestException(
-                    String.format("AgencyId %s is not a valid agency", agencyId)));
+            () -> new BadRequestException("AgencyId %s is not a valid agency".formatted(agencyId)));
   }
 
   private void verifyAllAssignedAgenciesHaveSameConsultingType(

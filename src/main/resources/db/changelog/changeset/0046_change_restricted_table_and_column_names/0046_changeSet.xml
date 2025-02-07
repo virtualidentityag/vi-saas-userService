@@ -1,0 +1,13 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+  <changeSet author="tkuzynow" id="changeRestrictedTableAndColumnNames">
+    <rollback>
+      <sqlFile path="db/changelog/changeset/0046_change_restricted_table_and_column_names/change-restricted-table-and-column-names-rollback.sql"
+        stripComments="true"/>
+    </rollback>
+    <sqlFile path="db/changelog/changeset/0046_change_restricted_table_and_column_names/change-restricted-table-and-column-names.sql"
+      stripComments="true"/>
+  </changeSet>
+</databaseChangeLog>

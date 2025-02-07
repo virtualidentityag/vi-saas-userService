@@ -15,6 +15,7 @@ import com.neovisionaries.i18n.LanguageCode;
 import de.caritas.cob.userservice.api.UserServiceApplication;
 import de.caritas.cob.userservice.api.adapters.web.dto.AgencyDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.CreateConsultantAgencyDTO;
+import de.caritas.cob.userservice.api.config.auth.SecurityConfig;
 import de.caritas.cob.userservice.api.facade.RocketChatFacade;
 import de.caritas.cob.userservice.api.manager.consultingtype.ConsultingTypeManager;
 import de.caritas.cob.userservice.api.model.Consultant;
@@ -57,8 +58,9 @@ import org.springframework.transaction.annotation.Transactional;
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 @TestPropertySource(properties = "multitenancy.enabled=true")
 @Transactional(propagation = Propagation.NEVER)
-public class ConsultantAgencyRelationCreatorServiceTenantAwareIT {
+class ConsultantAgencyRelationCreatorServiceTenantAwareIT {
 
+  private static final long TENANT_ID = 1L;
   private final EasyRandom easyRandom = new EasyRandom();
 
   @Autowired private ConsultantAgencyRelationCreatorService consultantAgencyRelationCreatorService;
@@ -81,9 +83,11 @@ public class ConsultantAgencyRelationCreatorServiceTenantAwareIT {
 
   @MockBean private ConsultingTypeManager consultingTypeManager;
 
+  @MockBean private SecurityConfig securityConfig;
+
   @BeforeEach
   public void beforeTests() {
-    TenantContext.setCurrentTenant(1L);
+    TenantContext.setCurrentTenant(TENANT_ID);
   }
 
   @AfterEach
@@ -92,7 +96,7 @@ public class ConsultantAgencyRelationCreatorServiceTenantAwareIT {
   }
 
   @Test
-  public void
+  void
       createNewConsultantAgency_Should_addConsultantToEnquiriesRocketChatGroups_When_ParamsAreValidAndMultitenancyEnabled() {
 
     Consultant consultant = createConsultantWithoutAgencyAndSession();
@@ -132,22 +136,23 @@ public class ConsultantAgencyRelationCreatorServiceTenantAwareIT {
 
     assertThat(result, notNullValue());
     assertThat(result, hasSize(1));
-    assertEquals(1, enquirySessionWithoutConsultant.getTenantId());
+    assertEquals(TENANT_ID, enquirySessionWithoutConsultant.getTenantId());
 
     List<ConsultantAgency> agenciesForConsultant =
         this.consultantAgencyRepository.findByConsultantId(consultant.getId());
-    assertEquals(1, agenciesForConsultant.get(0).getTenantId());
+    assertEquals(TENANT_ID, agenciesForConsultant.get(0).getTenantId());
   }
 
   private Consultant createConsultantWithoutAgencyAndSession() {
     Consultant consultant = easyRandom.nextObject(Consultant.class);
     consultant.setAppointments(null);
-    consultant.setTenantId(1L);
+
     consultant.setConsultantAgencies(null);
     consultant.setSessions(null);
     consultant.setConsultantMobileTokens(null);
     consultant.setRocketChatId("RocketChatId");
     consultant.setDeleteDate(null);
+    consultant.setTenantId(TENANT_ID);
     Set<Language> language = new HashSet<>();
     Language lang = new Language();
     lang.setLanguageCode(LanguageCode.de);
@@ -162,6 +167,7 @@ public class ConsultantAgencyRelationCreatorServiceTenantAwareIT {
     user.setSessions(null);
     user.setUserMobileTokens(null);
     user.setUserAgencies(null);
+    user.setTenantId(TENANT_ID);
     this.userRepository.save(user);
 
     UserAgency userAgency = new UserAgency();
@@ -180,6 +186,7 @@ public class ConsultantAgencyRelationCreatorServiceTenantAwareIT {
     session.setSessionTopics(Lists.newArrayList());
     session.setLanguageCode(LanguageCode.de);
     session.setIsConsultantDirectlySet(false);
+    session.setTenantId(TENANT_ID);
 
     return this.sessionRepository.save(session);
   }

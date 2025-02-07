@@ -151,7 +151,7 @@ public class KeycloakServiceTest {
   @Test
   public void loginUser_Should_ReturnBadRequest_When_KeycloakLoginFails() {
     var exception =
-        new RestClientResponseException("some exception", 500, "text", null, null, null);
+        new RestClientResponseException("Not Found", 404, "Not Found", null, null, null);
     when(restTemplate.postForEntity(
             ArgumentMatchers.anyString(),
             any(),

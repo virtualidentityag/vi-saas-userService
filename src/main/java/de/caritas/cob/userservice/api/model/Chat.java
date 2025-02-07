@@ -2,22 +2,22 @@ package de.caritas.cob.userservice.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.caritas.cob.userservice.api.exception.httpresponses.InternalServerErrorException;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -54,7 +54,7 @@ public class Chat {
   @NonNull
   private String topic;
 
-  @Column(name = "consulting_type", updatable = false, columnDefinition = "tinyint(4) unsigned")
+  @Column(name = "consulting_type", updatable = false, columnDefinition = "tinyint")
   private Integer consultingTypeId;
 
   @Column(name = "initial_start_date", nullable = false)
@@ -78,7 +78,7 @@ public class Chat {
   @Column(name = "is_active", nullable = false)
   private boolean active;
 
-  @Column(name = "max_participants", columnDefinition = "tinyint(4) unsigned NULL")
+  @Column(name = "max_participants", columnDefinition = "tinyint NULL")
   private Integer maxParticipants;
 
   @Column(name = "rc_group_id")
@@ -131,7 +131,7 @@ public class Chat {
 
     if (!ChatInterval.WEEKLY.equals(chatInterval)) {
       var message = "Repetitive chat with id %s does not have a valid interval.";
-      throw new InternalServerErrorException(String.format(message, id));
+      throw new InternalServerErrorException(message.formatted(id));
     }
 
     return startDate.plusWeeks(1);

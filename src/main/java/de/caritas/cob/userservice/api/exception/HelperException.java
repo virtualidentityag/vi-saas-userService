@@ -1,8 +1,10 @@
 package de.caritas.cob.userservice.api.exception;
 
+import java.io.Serial;
+
 public class HelperException extends RuntimeException {
 
-  private static final long serialVersionUID = -1321906171569622899L;
+  @Serial private static final long serialVersionUID = -1321906171569622899L;
 
   /** Exception for helper errors */
   public HelperException(String message, Exception exception) {

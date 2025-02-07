@@ -34,7 +34,9 @@ import de.caritas.cob.userservice.api.service.ConsultantService;
 import de.caritas.cob.userservice.api.service.LogService;
 import de.caritas.cob.userservice.api.service.agency.AgencyService;
 import de.caritas.cob.userservice.api.service.user.UserService;
+import de.caritas.cob.userservice.api.tenant.TenantContext;
 import de.caritas.cob.userservice.consultingtypeservice.generated.web.model.ExtendedConsultingTypeResponseDTO;
+import jakarta.ws.rs.BadRequestException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,7 +48,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import javax.ws.rs.BadRequestException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -222,7 +223,7 @@ public class SessionService {
             .referer(userDto.getReferer())
             .isConsultantDirectlySet(false)
             .build();
-
+    session.setTenantId(TenantContext.getCurrentTenant());
     session.setSessionTopics(createSessionTopics(userDto.getTopicIds(), session));
     return saveSession(session);
   }
@@ -625,8 +626,7 @@ public class SessionService {
   }
 
   private Supplier<BadRequestException> newBadRequestException(String userId) {
-    return () ->
-        new BadRequestException(String.format("Consultant with id %s does not exist", userId));
+    return () -> new BadRequestException("Consultant with id %s does not exist".formatted(userId));
   }
 
   private ConsultantSessionDTO toConsultantSessionDTO(Session session) {
@@ -750,13 +750,12 @@ public class SessionService {
   public String findGroupIdByConsultantAndUser(String consultantId, String askerId) {
 
     Optional<Consultant> consultant = consultantService.getConsultant(consultantId);
-    if (!consultant.isPresent()) {
-      throw new BadRequestException(
-          String.format("Consultant for given id %s not found", consultantId));
+    if (consultant.isEmpty()) {
+      throw new BadRequestException("Consultant for given id %s not found".formatted(consultantId));
     }
     Optional<User> user = userService.getUser(askerId);
-    if (!user.isPresent()) {
-      throw new BadRequestException(String.format("Asker for given id %s not found", askerId));
+    if (user.isEmpty()) {
+      throw new BadRequestException("Asker for given id %s not found".formatted(askerId));
     }
 
     List<Session> sessions =

@@ -31,9 +31,8 @@ public class AgencyVerifier {
     var agencyDTO = agencyService.getAgencyWithoutCaching(agencyId);
     if (nonNull(agencyDTO) && !agencyDTO.getConsultingType().equals(consultingTypeId)) {
       throw new BadRequestException(
-          String.format(
-              "The provided agency with id %s is not assigned to the provided consulting type %s",
-              agencyId, consultingTypeId));
+          "The provided agency with id %s is not assigned to the provided consulting type %s"
+              .formatted(agencyId, consultingTypeId));
     }
 
     return agencyDTO;

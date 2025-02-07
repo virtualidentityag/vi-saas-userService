@@ -12,6 +12,7 @@ import de.caritas.cob.userservice.api.adapters.web.dto.GroupSessionListResponseD
 import de.caritas.cob.userservice.api.adapters.web.dto.UserSessionListResponseDTO;
 import de.caritas.cob.userservice.api.adapters.web.dto.UserSessionResponseDTO;
 import de.caritas.cob.userservice.api.container.SessionListQueryParameter;
+import de.caritas.cob.userservice.api.helper.LatestMessageParseUtil;
 import de.caritas.cob.userservice.api.model.Consultant;
 import de.caritas.cob.userservice.api.model.Session.SessionStatus;
 import de.caritas.cob.userservice.api.service.session.SessionFilter;
@@ -67,7 +68,7 @@ public class SessionListFacade {
 
     List<UserSessionResponseDTO> userSessions =
         userSessionListService.retrieveSessionsForAuthenticatedUser(userId, rocketChatCredentials);
-    userSessions.sort(comparing(UserSessionResponseDTO::getLatestMessage).reversed());
+    userSessions.sort(comparing(LatestMessageParseUtil::parseLatestMessage).reversed());
 
     return new UserSessionListResponseDTO().sessions(userSessions);
   }
@@ -90,7 +91,7 @@ public class SessionListFacade {
     List<UserSessionResponseDTO> userSessions =
         userSessionListService.retrieveSessionsForAuthenticatedUserAndGroupIds(
             userId, rcGroupIds, rocketChatCredentials, roles);
-    userSessions.sort(comparing(UserSessionResponseDTO::getLatestMessage).reversed());
+    userSessions.sort(comparing(LatestMessageParseUtil::parseLatestMessage).reversed());
 
     SessionMapper sessionMapper = new SessionMapper();
     var sessions =
@@ -119,7 +120,7 @@ public class SessionListFacade {
     List<UserSessionResponseDTO> userSessions =
         userSessionListService.retrieveSessionsForAuthenticatedUserAndSessionIds(
             userId, sessionIds, rocketChatCredentials, roles);
-    userSessions.sort(comparing(UserSessionResponseDTO::getLatestMessage).reversed());
+    userSessions.sort(comparing(LatestMessageParseUtil::parseLatestMessage).reversed());
 
     SessionMapper sessionMapper = new SessionMapper();
     var sessions =
@@ -134,7 +135,7 @@ public class SessionListFacade {
       List<Long> chatIds, RocketChatCredentials rocketChatCredentials) {
     var userChatSessions =
         userSessionListService.retrieveChatsForUserAndChatIds(chatIds, rocketChatCredentials);
-    userChatSessions.sort(comparing(UserSessionResponseDTO::getLatestMessage).reversed());
+    userChatSessions.sort(comparing(LatestMessageParseUtil::parseLatestMessage).reversed());
 
     SessionMapper sessionMapper = new SessionMapper();
     var sessions =
@@ -156,7 +157,8 @@ public class SessionListFacade {
     List<ConsultantSessionResponseDTO> consultantSessions =
         consultantSessionListService.retrieveSessionsForConsultantAndGroupIds(
             consultant, rcGroupIds, roles);
-    consultantSessions.sort(comparing(ConsultantSessionResponseDTO::getLatestMessage).reversed());
+    consultantSessions.sort(
+        comparing(LatestMessageParseUtil::parseLatestMessageForConsultantSession).reversed());
 
     SessionMapper sessionMapper = new SessionMapper();
     var sessions =
@@ -178,7 +180,8 @@ public class SessionListFacade {
     List<ConsultantSessionResponseDTO> consultantSessions =
         consultantSessionListService.retrieveSessionsForConsultantAndSessionIds(
             consultant, sessionIds, roles);
-    consultantSessions.sort(comparing(ConsultantSessionResponseDTO::getLatestMessage).reversed());
+    consultantSessions.sort(
+        comparing(LatestMessageParseUtil::parseLatestMessageForConsultantSession).reversed());
 
     SessionMapper sessionMapper = new SessionMapper();
     var sessions =
@@ -195,7 +198,7 @@ public class SessionListFacade {
         consultantSessionListService.retrieveChatsForConsultantAndChatIds(
             consultant, chatIds, rocketChatCredentials.getRocketChatToken());
     consultantChatSessions.sort(
-        comparing(ConsultantSessionResponseDTO::getLatestMessage).reversed());
+        comparing(LatestMessageParseUtil::parseLatestMessageForConsultantSession).reversed());
 
     SessionMapper sessionMapper = new SessionMapper();
     var sessions =
@@ -326,7 +329,8 @@ public class SessionListFacade {
   }
 
   private void sortSessionsByLastMessageDateDesc(List<ConsultantSessionResponseDTO> sessions) {
-    sessions.sort(comparing(ConsultantSessionResponseDTO::getLatestMessage).reversed());
+    sessions.sort(
+        comparing(LatestMessageParseUtil::parseLatestMessageForConsultantSession).reversed());
   }
 
   private void removeAllChatsAndSessionsWithoutUnreadFeedback(

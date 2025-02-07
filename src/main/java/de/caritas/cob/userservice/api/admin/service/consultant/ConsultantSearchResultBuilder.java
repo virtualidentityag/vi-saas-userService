@@ -12,7 +12,6 @@ import de.caritas.cob.userservice.api.model.Consultant;
 import de.caritas.cob.userservice.generated.api.adapters.web.controller.UseradminApi;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.hibernate.search.jpa.FullTextQuery;
 
 /**
  * Builder class to generate a {@link ConsultantSearchResultDTO} containing available hal links and
@@ -21,18 +20,14 @@ import org.hibernate.search.jpa.FullTextQuery;
 public class ConsultantSearchResultBuilder
     extends SearchResultBuilder<ConsultantFilter, ConsultantSearchResultDTO> {
 
-  private ConsultantSearchResultBuilder(FullTextQuery fullTextQuery) {
-    super(fullTextQuery);
-  }
+  private final Stream<Consultant> consultantStream;
 
-  /**
-   * Creates the {@link ConsultantSearchResultBuilder} instance.
-   *
-   * @param fullTextQuery mandatory filtered search query for result extraction
-   * @return a instance of {@link ConsultantSearchResultBuilder}
-   */
-  public static ConsultantSearchResultBuilder getInstance(FullTextQuery fullTextQuery) {
-    return new ConsultantSearchResultBuilder(fullTextQuery);
+  public ConsultantSearchResultBuilder(
+      SearchPaginatedResult<Consultant> searchPaginatedResult, Integer page, Integer perPage) {
+    this.consultantStream = searchPaginatedResult.results.stream();
+    this.total = searchPaginatedResult.total;
+    this.page = page;
+    this.perPage = perPage;
   }
 
   /**
@@ -42,9 +37,8 @@ public class ConsultantSearchResultBuilder
    * @return the generated {@link ConsultantSearchResultDTO}
    */
   public ConsultantSearchResultDTO buildSearchResult() {
-    Stream<Consultant> resultStream = fullTextQuery.getResultStream();
     var resultList =
-        resultStream
+        consultantStream
             .map(ConsultantResponseDTOBuilder::getInstance)
             .map(ConsultantResponseDTOBuilder::buildResponseDTO)
             .collect(Collectors.toList());
@@ -55,10 +49,7 @@ public class ConsultantSearchResultBuilder
             .next(buildNextLink())
             .previous(buildPreviousLink());
 
-    return new ConsultantSearchResultDTO()
-        .embedded(resultList)
-        .links(paginationLinks)
-        .total(fullTextQuery.getResultSize());
+    return new ConsultantSearchResultDTO().embedded(resultList).links(paginationLinks);
   }
 
   private HalLink buildSelfLink() {

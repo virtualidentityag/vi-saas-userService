@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
@@ -120,7 +119,7 @@ public class ConsultantDtoMapper implements DtoMapperUtils {
       consultant.setTenantId(tenantId.intValue());
     }
     consultant.setTenantName((String) consultantMap.get("tenantName"));
-    val isGroupChatConsultant =
+    final var isGroupChatConsultant =
         identityClient.userHasRole(consultant.getId(), UserRole.GROUP_CHAT_CONSULTANT.getValue());
     consultant.setIsGroupchatConsultant(isGroupChatConsultant);
 

@@ -1,48 +1,42 @@
 package de.caritas.cob.userservice.api.model;
 
-import static de.caritas.cob.userservice.api.model.Consultant.EMAIL_ANALYZER;
 import static java.util.Objects.isNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.neovisionaries.i18n.LanguageCode;
 import de.caritas.cob.userservice.mailservice.generated.web.model.Dialect;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Lob;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
-import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
-import org.apache.lucene.analysis.standard.ClassicTokenizerFactory;
 import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.ParamDef;
 import org.hibernate.annotations.Where;
-import org.hibernate.search.annotations.Analyzer;
-import org.hibernate.search.annotations.AnalyzerDef;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.IndexedEmbedded;
-import org.hibernate.search.annotations.SortableField;
-import org.hibernate.search.annotations.TokenFilterDef;
-import org.hibernate.search.annotations.TokenizerDef;
+import org.hibernate.search.engine.backend.types.ObjectStructure;
+import org.hibernate.search.engine.backend.types.Sortable;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexedEmbedded;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.KeywordField;
 import org.springframework.lang.Nullable;
 
 /** Represents a consultant */
@@ -61,15 +55,6 @@ import org.springframework.lang.Nullable;
 @Setter
 @Builder
 @Indexed
-@AnalyzerDef(
-    name = EMAIL_ANALYZER,
-    tokenizer = @TokenizerDef(factory = ClassicTokenizerFactory.class),
-    filters = {
-      @TokenFilterDef(factory = LowerCaseFilterFactory.class),
-    })
-@FilterDef(
-    name = "tenantFilter",
-    parameters = {@ParamDef(name = "tenantId", type = "long")})
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class Consultant implements TenantAware, NotificationsAware {
 
@@ -89,34 +74,31 @@ public class Consultant implements TenantAware, NotificationsAware {
   @Column(name = "username", updatable = false, nullable = false)
   @Size(max = 255)
   @NonNull
-  @Field
-  @SortableField
+  @GenericField
   private String username;
 
   @Column(name = "first_name", nullable = false)
   @Size(max = 255)
   @NonNull
-  @Field
-  @SortableField
+  @FullTextField
+  @KeywordField(name = "firstName_sort", sortable = Sortable.YES) // For sorting
   private String firstName;
 
   @Column(name = "last_name", nullable = false)
   @Size(max = 255)
   @NonNull
-  @Field
-  @SortableField
+  @FullTextField
+  @KeywordField(name = "lastName_sort", sortable = Sortable.YES) // For sorting
   private String lastName;
 
   @Column(name = "email", nullable = false)
   @Size(max = 255)
   @NonNull
-  @Field
-  @Analyzer(definition = EMAIL_ANALYZER)
-  @SortableField
+  @GenericField
+  @KeywordField(name = "email_sort", sortable = Sortable.YES) // For sorting
   private String email;
 
   @Column(name = "is_absent", nullable = false, columnDefinition = "tinyint")
-  @Field
   private boolean absent;
 
   @Column(name = "is_team_consultant", nullable = false, columnDefinition = "tinyint")
@@ -140,7 +122,7 @@ public class Consultant implements TenantAware, NotificationsAware {
   private Set<Session> sessions;
 
   @OneToMany(mappedBy = "consultant")
-  @IndexedEmbedded
+  @IndexedEmbedded(structure = ObjectStructure.NESTED)
   @Where(clause = "delete_date IS NULL")
   private Set<ConsultantAgency> consultantAgencies;
 
@@ -178,7 +160,6 @@ public class Consultant implements TenantAware, NotificationsAware {
   private Boolean notifyNewFeedbackMessageFromAdviceSeeker;
 
   @Column(name = "tenant_id")
-  @Field
   private Long tenantId;
 
   @OneToMany(mappedBy = "consultant", cascade = CascadeType.ALL)
@@ -186,14 +167,17 @@ public class Consultant implements TenantAware, NotificationsAware {
 
   @Column(name = "status", length = 11)
   @Enumerated(EnumType.STRING)
-  @Field
   private ConsultantStatus status = ConsultantStatus.IN_PROGRESS;
 
   @Column(name = "walk_through_enabled", columnDefinition = "tinyint", nullable = false)
   private Boolean walkThroughEnabled;
 
   @Enumerated(EnumType.STRING)
-  @Column(length = 2, nullable = false, columnDefinition = "varchar(2) default 'de'")
+  @Column(
+      length = 2,
+      nullable = false,
+      name = "language_code",
+      columnDefinition = "varchar(2) default 'de'")
   private LanguageCode languageCode;
 
   @Column(name = "terms_and_conditions_confirmation", columnDefinition = "datetime")

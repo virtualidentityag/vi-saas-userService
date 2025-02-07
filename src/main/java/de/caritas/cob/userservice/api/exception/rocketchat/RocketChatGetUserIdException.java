@@ -1,8 +1,10 @@
 package de.caritas.cob.userservice.api.exception.rocketchat;
 
+import java.io.Serial;
+
 public class RocketChatGetUserIdException extends Exception {
 
-  private static final long serialVersionUID = -6467348860210122736L;
+  @Serial private static final long serialVersionUID = -6467348860210122736L;
 
   /**
    * Exception, when a Rocket.Chat API call to get all groups fails.

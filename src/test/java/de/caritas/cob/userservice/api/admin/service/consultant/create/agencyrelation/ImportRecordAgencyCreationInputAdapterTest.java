@@ -3,7 +3,7 @@ package de.caritas.cob.userservice.api.admin.service.consultant.create.agencyrel
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hibernate.search.util.impl.CollectionHelper.asSet;
+import static org.hibernate.validator.internal.util.CollectionHelper.asSet;
 
 import org.junit.jupiter.api.Test;
 

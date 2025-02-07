@@ -1,6 +1,6 @@
 package de.caritas.cob.userservice.api.admin.service.consultant.create.agencyrelation;
 
-import static org.hibernate.search.util.impl.CollectionHelper.asSet;
+import static org.hibernate.validator.internal.util.CollectionHelper.asSet;
 
 import de.caritas.cob.userservice.api.adapters.web.dto.CreateConsultantAgencyDTO;
 import java.util.Set;

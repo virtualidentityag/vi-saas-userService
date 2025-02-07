@@ -126,10 +126,9 @@ public interface SessionRepository extends CrudRepository<Session, Long> {
 
   @Query(
       value =
-          "SELECT * "
-              + "FROM session s "
-              + "WHERE s.rc_group_id IN :group_ids OR s.rc_feedback_group_id IN :group_ids",
-      nativeQuery = true)
+          "SELECT s "
+              + "FROM Session s "
+              + "WHERE s.groupId IN :group_ids OR s.feedbackGroupId IN :group_ids")
   List<Session> findByGroupOrFeedbackGroupIds(@Param(value = "group_ids") Set<String> groupIds);
 
   /**
@@ -202,18 +201,12 @@ public interface SessionRepository extends CrudRepository<Session, Long> {
   List<Session> findByStatusInAndRegistrationType(
       Set<SessionStatus> status, RegistrationType registrationType);
 
-  /**
-   * Count session by consultant, status and registration type.
-   *
-   * @param consultant the {@link Consultant} to search for
-   * @param sessionStatusList a {@link List} of {@link SessionStatus} to search for
-   * @param registrationType the {@link RegistrationType} to search for
-   * @return the count
-   */
-  Long countByConsultantAndStatusInAndRegistrationType(
-      Consultant consultant,
-      List<SessionStatus> sessionStatusList,
-      RegistrationType registrationType);
+  @Query(
+      "SELECT COUNT(s) FROM Session s WHERE s.consultant = :consultant AND s.status IN :statuses AND s.registrationType = :registrationType")
+  long countByConsultantAndStatusInAndRegistrationType(
+      @Param("consultant") Consultant consultant,
+      @Param("statuses") List<SessionStatus> statuses,
+      @Param("registrationType") RegistrationType registrationType);
 
   /**
    * Find one session by assigned consultant and user.

@@ -206,7 +206,7 @@ public class RocketChatCredentialsProvider {
       return restTemplate.postForEntity(url, request, LoginResponseDTO.class);
     } catch (Exception ex) {
       throw new RocketChatLoginException(
-          String.format("Could not login user (%s) in Rocket.Chat", username));
+          "Could not login user (%s) in Rocket.Chat".formatted(username));
     }
   }
 

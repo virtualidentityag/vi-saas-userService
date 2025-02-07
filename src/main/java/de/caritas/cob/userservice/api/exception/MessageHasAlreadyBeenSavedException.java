@@ -1,8 +1,10 @@
 package de.caritas.cob.userservice.api.exception;
 
+import java.io.Serial;
+
 public class MessageHasAlreadyBeenSavedException extends Exception {
 
-  private static final long serialVersionUID = 3067609195162892096L;
+  @Serial private static final long serialVersionUID = 3067609195162892096L;
 
   /**
    * Enquiry message conflict exception.

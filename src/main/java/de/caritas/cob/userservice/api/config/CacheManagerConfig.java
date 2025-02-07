@@ -2,9 +2,7 @@ package de.caritas.cob.userservice.api.config;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -94,13 +92,8 @@ public class CacheManagerConfig {
   @Value("${cache.rocketchat.configuration.timeToLiveSeconds}")
   private long rocketchatCacheTimeToLiveSeconds;
 
-  @Bean
-  public CacheManager cacheManager() {
-    return new EhCacheCacheManager(ehCacheManager());
-  }
-
   @Bean(destroyMethod = "shutdown")
-  public net.sf.ehcache.CacheManager ehCacheManager() {
+  net.sf.ehcache.CacheManager ehCacheManager() {
     var config = new net.sf.ehcache.config.Configuration();
     config.addCache(buildAgencyCacheConfiguration());
     config.addCache(buildConsultingTypeCacheConfiguration());

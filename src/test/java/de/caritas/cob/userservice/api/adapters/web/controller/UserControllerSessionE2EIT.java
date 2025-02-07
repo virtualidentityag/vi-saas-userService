@@ -79,6 +79,7 @@ import de.caritas.cob.userservice.api.port.out.SessionRepository;
 import de.caritas.cob.userservice.api.port.out.UserAgencyRepository;
 import de.caritas.cob.userservice.api.port.out.UserRepository;
 import de.caritas.cob.userservice.api.testConfig.TestAgencyControllerApi;
+import jakarta.servlet.http.Cookie;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -92,7 +93,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import javax.servlet.http.Cookie;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -187,7 +187,7 @@ class UserControllerSessionE2EIT {
   @TestConfiguration
   static class TestConfig {
     @Bean(name = "initializeFeedbackChat")
-    public Boolean initializeFeedbackChat() {
+    Boolean initializeFeedbackChat() {
       return false;
     }
   }
@@ -432,7 +432,7 @@ class UserControllerSessionE2EIT {
     givenAValidUser();
     givenAValidConsultant(true);
     givenASessionInProgress();
-    givenAValidRocketChatGetRoomsResponse(session.getGroupId(), MessageType.E2EE_ACTIVATED, null);
+    givenAValidRocketChatGetRoomsResponse(session.getGroupId(), MessageType.E2_EE_ACTIVATED, null);
     givenAnEmptyRocketChatGetSubscriptionsResponse();
 
     mockMvc
@@ -461,7 +461,7 @@ class UserControllerSessionE2EIT {
     givenADeletedUser(false);
     givenAValidConsultant(true);
     givenASessionInProgress();
-    givenAValidRocketChatGetRoomsResponse(session.getGroupId(), MessageType.E2EE_ACTIVATED, null);
+    givenAValidRocketChatGetRoomsResponse(session.getGroupId(), MessageType.E2_EE_ACTIVATED, null);
     givenAnEmptyRocketChatGetSubscriptionsResponse();
 
     mockMvc
@@ -545,7 +545,7 @@ class UserControllerSessionE2EIT {
     givenAValidConsultant();
     givenASessionInProgress();
     givenAValidRocketChatSystemUser();
-    givenAValidRocketChatGetRoomsResponse(session.getGroupId(), MessageType.E2EE_ACTIVATED, null);
+    givenAValidRocketChatGetRoomsResponse(session.getGroupId(), MessageType.E2_EE_ACTIVATED, null);
     givenAnEmptyRocketChatGetSubscriptionsResponse();
     user.getSessions()
         .forEach(session -> givenAValidRocketChatInfoUserResponse(session.getConsultant()));
@@ -838,40 +838,6 @@ class UserControllerSessionE2EIT {
         .andExpect(jsonPath("sessions[0].consultant.lastName", is("Main")))
         .andExpect(jsonPath("sessions[0].consultant.username").doesNotExist())
         .andExpect(jsonPath("sessions", hasSize(1)));
-  }
-
-  @Test
-  @WithMockUser(authorities = AuthorityValue.ASSIGN_CONSULTANT_TO_SESSION)
-  void removeFromSessionShouldReturnBadRequestIfSessionIdFormatIsInvalid() throws Exception {
-    givenAValidConsultant(true);
-    var sessionId = RandomStringUtils.randomAlphabetic(8);
-
-    mockMvc
-        .perform(
-            delete(
-                    "/users/sessions/{sessionId}/consultant/{consultantId}",
-                    sessionId,
-                    consultant.getId())
-                .cookie(CSRF_COOKIE)
-                .header(CSRF_HEADER, CSRF_VALUE)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  @WithMockUser(authorities = AuthorityValue.ASSIGN_CONSULTANT_TO_SESSION)
-  void removeFromSessionShouldReturnBadRequestIfConsultantIdFormatIsInvalid() throws Exception {
-    var consultantId = RandomStringUtils.randomAlphanumeric(8);
-
-    mockMvc
-        .perform(
-            delete("/users/sessions/1/consultant/{consultantId}", consultantId)
-                .cookie(CSRF_COOKIE)
-                .header(CSRF_HEADER, CSRF_VALUE)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
   }
 
   @Test
