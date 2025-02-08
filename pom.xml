@@ -39,7 +39,7 @@
 		</log4j.version> <!-- force safe version due to https://logging.apache.org/log4j/2.x/security.html -->
 		<commons-text.version>1.10.0</commons-text.version>
 		<commons-validator.version>1.7</commons-validator.version>
-		<liquibase-maven-plugin.version>4.31.0</liquibase-maven-plugin.version>
+		<liquibase-maven-plugin.version>4.14.0</liquibase-maven-plugin.version>
 		<javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
 		<spring-boot-starter-web.version>3.0.13</spring-boot-starter-web.version>
 		<spring-security-core.version>5.7.14</spring-security-core.version>
